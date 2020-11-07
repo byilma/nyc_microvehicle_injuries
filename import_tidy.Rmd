@@ -1,0 +1,12 @@
+---
+title: "NYC Microvehicle Data"
+date: "11/6/2020"
+output: github_document
+---
+
+#Import & Tidy
+```{r}
+
+```
+ 
+ 
