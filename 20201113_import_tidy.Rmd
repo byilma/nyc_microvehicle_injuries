@@ -1,0 +1,33 @@
+---
+title: "Pull and Tidy"
+date: "11/6/2020"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(httr)
+```
+
+```{r import and tidy MV crash}
+
+crash_dat = 
+  GET("https://data.cityofnewyork.us/resource/h9gi-nx95.csv", 
+      query = list("$limit" = 5000)) %>% 
+  content("parsed") %>%
+  as_tibble()
+
+```
+
+```{r import and tidy bikes}
+
+bike_dat = 
+  GET("https://data.cityofnewyork.us/resource/uczf-rk3c.csv", 
+      query = list("$limit" = 55000)) %>% 
+  content("parsed") %>%
+  as_tibble()
+
+```
+
+
