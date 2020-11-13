@@ -10,6 +10,7 @@ library(tidyverse)
 library(httr)
 ```
 
+
 ```{r import and tidy MV crash}
 
 crash_dat = 
@@ -17,6 +18,14 @@ crash_dat =
       query = list("$limit" = 5000)) %>% 
   content("parsed") %>%
   as_tibble()
+
+crash_dat_2020 = 
+  GET("https://data.cityofnewyork.us/resource/h9gi-nx95.csv", 
+      query = list("$where" = "crash_date between '2020-01-01T00:00:00' and '2020-10-31T12:00:00'", "$limit" = 50000)) %>% 
+  content("parsed") %>%
+  as_tibble()
+
+
 
 ```
 
