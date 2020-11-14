@@ -12,8 +12,7 @@ library(purrr)
 ```
 
 
-```{r import and tidy MV crash}
-
+```{r import MV crash}
 #Importing crash data using the NYC Open Data API. The API response is limited to 50,000 rows, so we need a function that can be used to page through these results to capture all crashes in 2020. 
 
 crash_api = function(offset) {
@@ -25,7 +24,10 @@ crash_api = function(offset) {
 
 offsets = c(0, 50000)
 crash_dat_2020 = map_df(offsets, crash_api)
+```
 
+
+```{r tidy MV crash}
 
 #cleaning - transpose so vehicle types are listed in one column
 crash_dat = 
@@ -63,7 +65,7 @@ crash_date_summ %>%
   geom_smooth(se = FALSE)
 ```
 
-```{r import and tidy bikes}
+```{r import bikes}
 
 #Importing bike data using the NYC Open Data API. The API response is limited to 50,000 rows, so we need a function that can be used to page through these results to capture all bike counts in 2020. 
 
@@ -78,4 +80,7 @@ offsets = c(0, 50000, 100000, 150000, 200000, 250000, 300000, 350000, 400000)
 bike_dat_2020 = map_df(offsets, bike_api)
 ```
 
+```{r tidy bikes}
+
+```
 
