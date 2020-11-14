@@ -21,6 +21,8 @@ crash_dat =
   as_tibble()
 
 
+#Importing crash data using the NYC Open Data API. The API response is limited to 50,000 rows, so we need a function that can be used to page through these results to capture all crashes in 2020. 
+
 crash_api = function(offset) {
   GET("https://data.cityofnewyork.us/resource/h9gi-nx95.csv", 
       query = list("$where" = "crash_date between '2020-01-01T00:00:00' and '2020-10-31T12:00:00'", "$limit" = 50000, "$offset" = offset)) %>% 
@@ -28,9 +30,44 @@ crash_api = function(offset) {
   as_tibble() 
 }
 
-offsets = c(0, 50001)
+offsets = c(0, 50000)
 crash_dat_2020 = map_df(offsets, crash_api)
 
+
+#cleaning - transpose so vehicle types are listed in one column
+crash_dat = 
+  crash_dat_2020 %>%
+  pivot_longer(
+    vehicle_type_code1:vehicle_type_code_5,
+    names_to = "vehicle_number",
+    values_to = "vehicle_options"
+   ) %>%
+  drop_na(vehicle_options)
+
+
+#Exploring the vehicle types so that we can limit to bicycles -- double check this list
+bikes = 
+  crash_dat %>%
+  distinct(vehicle_options) %>%
+  filter(str_detect(vehicle_options, "[Bb]ike")) 
+  
+  
+#for the line plot, we will want a summary of the number of bike crashes by day. The collisions variable calculates the number of unique crashes and the bikes variable calculates the total number of bikes that crashed (there can be mutliple bikes involved in one crash but this is rare)
+crash_date_summ = 
+  crash_dat %>%
+  filter(str_detect(vehicle_options, "[Bb]ike")) %>%
+  group_by(crash_date) %>%
+  summarize(
+    collisions = n_distinct(collision_id),
+    bikes = n()
+  )
+
+
+#simple plot just to see what the data look like
+crash_date_summ %>%
+  ggplot(aes(x = crash_date, y = collisions)) +
+  geom_point(alpha = .5) +
+  geom_smooth(se = FALSE)
 ```
 
 ```{r import and tidy bikes}
@@ -41,6 +78,7 @@ bike_dat =
   content("parsed") %>%
   as_tibble()
 
+#Importing bike data using the NYC Open Data API. The API response is limited to 50,000 rows, so we need a function that can be used to page through these results to capture all bike counts in 2020. 
 
 bike_api = function(offset) {
   GET("https://data.cityofnewyork.us/resource/uczf-rk3c.csv", 
@@ -49,7 +87,7 @@ bike_api = function(offset) {
   as_tibble() 
 }
 
-offsets = c(0, 50001, 100001, 150001, 200001, 250001, 300001, 350001, 400001)
+offsets = c(0, 50000, 100000, 150000, 200000, 250000, 300000, 350000, 400000)
 bike_dat_2020 = map_df(offsets, bike_api)
 ```
 
