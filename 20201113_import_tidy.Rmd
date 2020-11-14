@@ -81,6 +81,13 @@ bike_dat_2020 = map_df(offsets, bike_api)
 ```
 
 ```{r tidy bikes}
-
+bike_counts_aggregate = 
+  bike_dat_2020 %>% 
+  mutate(
+    date_time = date,
+    date = lubridate::date(date_time)
+  ) %>% 
+  group_by(date) %>% 
+  summarize(total_daily_bikes = sum(counts, na.rm = TRUE))
 ```
 
