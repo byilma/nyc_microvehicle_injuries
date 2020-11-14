@@ -8,6 +8,7 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(httr)
+library(purrr)
 ```
 
 
@@ -19,13 +20,16 @@ crash_dat =
   content("parsed") %>%
   as_tibble()
 
-crash_dat_2020 = 
+
+crash_api = function(offset) {
   GET("https://data.cityofnewyork.us/resource/h9gi-nx95.csv", 
-      query = list("$where" = "crash_date between '2020-01-01T00:00:00' and '2020-10-31T12:00:00'", "$limit" = 50000)) %>% 
+      query = list("$where" = "crash_date between '2020-01-01T00:00:00' and '2020-10-31T12:00:00'", "$limit" = 50000, "$offset" = offset)) %>% 
   content("parsed") %>%
   as_tibble() 
+}
 
-
+offsets = c(0, 50001)
+crash_dat_2020 = map_df(offsets, crash_api)
 
 ```
 
@@ -37,6 +41,16 @@ bike_dat =
   content("parsed") %>%
   as_tibble()
 
+
+bike_api = function(offset) {
+  GET("https://data.cityofnewyork.us/resource/uczf-rk3c.csv", 
+      query = list("$where" = "date between '2020-01-01T00:00:00' and '2020-10-31T12:00:00'", "$limit" = 50000, "$offset" = offset)) %>% 
+  content("parsed") %>%
+  as_tibble() 
+}
+
+offsets = c(0, 50001, 100001, 150001, 200001, 250001, 300001, 350001, 400001)
+bike_dat_2020 = map_df(offsets, bike_api)
 ```
 
 
