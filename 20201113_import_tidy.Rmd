@@ -12,10 +12,17 @@ library(purrr)
 ```
 
 
-```{r import MV crash}
+```{r import MV crash, include=FALSE}
 #Importing crash data using the NYC Open Data API. The API response is limited to 50,000 rows, so we need a function that can be used to page through these results to capture all crashes in 2020. 
 
-crash_api = function(offset) {
+crash_api_2019 = function(offset) {
+  GET("https://data.cityofnewyork.us/resource/h9gi-nx95.csv", 
+      query = list("$where" = "crash_date between '2019-01-01T00:00:00' and '2019-10-31T12:00:00'", "$limit" = 50000, "$offset" = offset)) %>% 
+  content("parsed") %>%
+  as_tibble() 
+}
+
+crash_api_2020 = function(offset) {
   GET("https://data.cityofnewyork.us/resource/h9gi-nx95.csv", 
       query = list("$where" = "crash_date between '2020-01-01T00:00:00' and '2020-10-31T12:00:00'", "$limit" = 50000, "$offset" = offset)) %>% 
   content("parsed") %>%
@@ -23,7 +30,8 @@ crash_api = function(offset) {
 }
 
 offsets = c(0, 50000)
-crash_dat_2020 = map_df(offsets, crash_api)
+crash_dat = bind_rows(map_df(offsets, crash_api_2019), 
+                      map_df(offsets, crash_api_2020))
 ```
 
 
@@ -31,7 +39,11 @@ crash_dat_2020 = map_df(offsets, crash_api)
 
 #cleaning - transpose so vehicle types are listed in one column
 crash_dat = 
-  crash_dat_2020 %>%
+  crash_dat %>% 
+  separate(crash_date, into = c("year", "month", "day"), sep = "-") %>%
+  mutate(year=as.integer(year),
+         month=as.integer(month),
+         day=as.integer(day)) %>%
   pivot_longer(
     vehicle_type_code1:vehicle_type_code_5,
     names_to = "vehicle_number",
@@ -51,7 +63,7 @@ bikes =
 crash_date_summ = 
   crash_dat %>%
   filter(str_detect(vehicle_options, "[Bb]ike")) %>%
-  group_by(crash_date) %>%
+  group_by(year, month, day) %>%
   summarize(
     collisions = n_distinct(collision_id),
     bikes = n()
@@ -60,9 +72,18 @@ crash_date_summ =
 
 #simple plot just to see what the data look like
 crash_date_summ %>%
-  ggplot(aes(x = crash_date, y = collisions)) +
+  ggplot(aes(x = paste(month, day, sep="-"), y = collisions, 
+             group = year, color = as.factor(year))) +
   geom_point(alpha = .5) +
-  geom_smooth(se = FALSE)
+  geom_smooth(se = FALSE) + 
+  labs(
+    title = "Number of Collisions Over Time in January-October of 2019 and 2020",
+    x = "Month and Day",
+    y = "Number of Collisions"
+    ) +
+  theme(text = element_text(size = 15), 
+        axis.text.x = element_text(angle = 90, hjust=1, size=10)) +
+  scale_colour_discrete("Year")
 ```
 
 ```{r import bikes}
