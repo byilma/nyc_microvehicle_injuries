@@ -35,8 +35,7 @@ crash_dat = bind_rows(map_df(offsets, crash_api_2019),
 ```
 
 
-```{r tidy MV crash}
-
+```{r, tidy MV crash}
 #cleaning - transpose so vehicle types are listed in one column
 crash_dat = 
   crash_dat %>% 
@@ -53,12 +52,24 @@ crash_dat =
 
 
 #Exploring the vehicle types so that we can limit to bicycles -- double check this list
-bikes = 
-  crash_dat %>%
+bikes = crash_dat %>%
   distinct(vehicle_options) %>%
-  filter(str_detect(vehicle_options, "[Bb]ike")) 
-  
-  
+  filter(str_detect(vehicle_options, "[Bb]ike") | 
+           str_detect(vehicle_options, "REVEL") | 
+           str_detect(vehicle_options, "SCO")  |
+           str_detect(vehicle_options, "MOP")   |
+           str_detect(vehicle_options, "ELEC")  |
+           str_detect(vehicle_options, "^E-")) %>% 
+  filter(vehicle_options != "ESCOVATOR" & 
+      str_detect(vehicle_options, "Dirt", negate = TRUE),
+      str_detect(vehicle_options, "[Mm]otorbike", negate = TRUE)
+           ) 
+           
+ 
+crash_dat %>% 
+  group_by(vehicle_options) %>% 
+  count() 
+
 #for the line plot, we will want a summary of the number of bike crashes by day. The collisions variable calculates the number of unique crashes and the bikes variable calculates the total number of bikes that crashed (there can be mutliple bikes involved in one crash but this is rare)
 crash_date_summ = 
   crash_dat %>%

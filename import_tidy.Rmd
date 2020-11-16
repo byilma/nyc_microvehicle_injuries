@@ -6,7 +6,10 @@ output: github_document
 
 #Import & Tidy
 ```{r}
-
+library(tidyverse)
+library(readr)
+library(leaflet)
 ```
+ 
  
  
