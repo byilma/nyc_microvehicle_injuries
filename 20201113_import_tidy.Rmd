@@ -1,7 +1,9 @@
 ---
 title: "Pull and Tidy"
 date: "11/6/2020"
-output: github_document
+output: 
+  github_document:
+  always_allow_html: true
 ---
 
 ```{r setup, include=FALSE}
@@ -9,6 +11,8 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(httr)
 library(purrr)
+#install.packages("leaflet")
+library(leaflet)
 ```
 
 
@@ -49,27 +53,47 @@ crash_dat =
     values_to = "vehicle_options"
    ) %>%
   drop_na(vehicle_options)
+```
 
 
+filtering for microvehicles
+```{r}
 #Exploring the vehicle types so that we can limit to bicycles -- double check this list
 bikes = crash_dat %>%
-  distinct(vehicle_options) %>%
   filter(str_detect(vehicle_options, "[Bb]ike") | 
            str_detect(vehicle_options, "REVEL") | 
            str_detect(vehicle_options, "SCO")  |
            str_detect(vehicle_options, "MOP")   |
            str_detect(vehicle_options, "ELEC")  |
            str_detect(vehicle_options, "^E-")) %>% 
-  filter(vehicle_options != "ESCOVATOR" & 
+  filter(vehicle_options != "ESCOVATOR" & vehicle_options != "Bike" &
       str_detect(vehicle_options, "Dirt", negate = TRUE),
       str_detect(vehicle_options, "[Mm]otorbike", negate = TRUE)
            ) 
            
- 
-crash_dat %>% 
-  group_by(vehicle_options) %>% 
-  count() 
+#Run to check what the filter ^ resulted in 
+# bikes %>% 
+#   group_by(vehicle_options) %>% 
+#   count() %>% View()
+```
 
+
+
+Microvehicel incidents in NYC _ a leaflet map
+```{r, include=FALSE}
+bikes %>%
+  drop_na(c(latitude, longitude)) %>% 
+   filter(latitude > 40) %>% #filter on this to get rid of lat/longitude with values of (0,0)
+  leaflet() %>% 
+  addProviderTiles(providers$CartoDB.Positron) %>% 
+  addCircleMarkers(~longitude, ~latitude, radius = 1)
+```
+
+
+
+
+
+```{r}
 #for the line plot, we will want a summary of the number of bike crashes by day. The collisions variable calculates the number of unique crashes and the bikes variable calculates the total number of bikes that crashed (there can be mutliple bikes involved in one crash but this is rare)
 crash_date_summ = 
   crash_dat %>%
@@ -97,10 +121,10 @@ crash_date_summ %>%
   scale_colour_discrete("Year")
 ```
 
+
+
 ```{r import bikes}
-
 #Importing bike data using the NYC Open Data API. The API response is limited to 50,000 rows, so we need a function that can be used to page through these results to capture all bike counts in 2020. 
-
 bike_api = function(offset) {
   GET("https://data.cityofnewyork.us/resource/uczf-rk3c.csv", 
       query = list("$where" = "date between '2020-01-01T00:00:00' and '2020-10-31T12:00:00'", "$limit" = 50000, "$offset" = offset)) %>% 
@@ -111,6 +135,8 @@ bike_api = function(offset) {
 offsets = c(0, 50000, 100000, 150000, 200000, 250000, 300000, 350000, 400000)
 bike_dat_2020 = map_df(offsets, bike_api)
 ```
+
+
 
 ```{r tidy bikes}
 
