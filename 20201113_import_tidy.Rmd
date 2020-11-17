@@ -11,7 +11,6 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(httr)
 library(purrr)
-#install.packages("leaflet")
 library(leaflet)
 ```
 
@@ -19,9 +18,15 @@ library(leaflet)
 ```{r import MV crash, include=FALSE}
 #Importing crash data using the NYC Open Data API. The API response is limited to 50,000 rows, so we need a function that can be used to page through these results to capture all crashes in 2020. 
 
-crash_api_2019 = function(offset) {
+crash_api_2019a = function(offset) {
   GET("https://data.cityofnewyork.us/resource/h9gi-nx95.csv", 
-      query = list("$where" = "crash_date between '2019-01-01T00:00:00' and '2019-10-31T12:00:00'", "$limit" = 50000, "$offset" = offset)) %>% 
+      query = list("$where" = "crash_date between '2019-01-01T00:00:00' and '2019-5-31T12:00:00'", "$limit" = 50000, "$offset" = offset)) %>% 
+  content("parsed") %>%
+  as_tibble() 
+}
+crash_api_2019b = function(offset) {
+  GET("https://data.cityofnewyork.us/resource/h9gi-nx95.csv", 
+      query = list("$where" = "crash_date between '2019-06-01T00:00:00' and '2019-10-31T12:00:00'", "$limit" = 50000, "$offset" = offset)) %>% 
   content("parsed") %>%
   as_tibble() 
 }
@@ -34,7 +39,8 @@ crash_api_2020 = function(offset) {
 }
 
 offsets = c(0, 50000)
-crash_dat = bind_rows(map_df(offsets, crash_api_2019), 
+crash_dat = bind_rows(map_df(offsets, crash_api_2019a), 
+                      map_df(offsets, crash_api_2019b),
                       map_df(offsets, crash_api_2020))
 ```
 
@@ -55,9 +61,7 @@ crash_dat =
   drop_na(vehicle_options)
 ```
 
-
-filtering for microvehicles
-```{r}
+```{r filtering for microvehicles}
 #Exploring the vehicle types so that we can limit to bicycles -- double check this list
 bikes = crash_dat %>%
   filter(str_detect(vehicle_options, "[Bb]ike") | 
@@ -79,7 +83,7 @@ bikes = crash_dat %>%
 
 
 
-Microvehicel incidents in NYC _ a leaflet map
+Microvehicle incidents in NYC _ a leaflet map
 ```{r, include=FALSE}
 bikes %>%
   drop_na(c(latitude, longitude)) %>% 
@@ -90,10 +94,45 @@ bikes %>%
 ```
 
 
+```{r lm for injuries by month}
+
+fit_injuries_month = crash_dat %>%
+  group_by(year) %>%
+  mutate(year_2020 = year-2019) %>%
+  nest(data = -month) %>%
+  mutate(models = map(data, ~glm(number_of_persons_injured ~ year_2020 + borough,
+                                 family = "poisson", data = .x)),
+         models = map(models, broom::tidy)) %>% 
+  select(-data) %>% 
+  unnest(models) %>%
+  select(month, term, estimate, std.error, p.value) %>% 
+  mutate(term = str_replace(term, "^borough", "Borough: "),
+         term = str_replace(term, "year_2020", "2020 v. 2019"),
+         month = month.abb[month]) 
+
+fit_injuries_month
+
+```
+
+```{r plot injuries by month}
+
+fit_injuries_month %>% 
+  filter(term == "2020 v. 2019") %>%
+  ggplot(aes(x = month, y = exp(estimate))) + geom_point() +
+  geom_errorbar(aes(ymin = exp(estimate - (1.96*std.error)), 
+                    ymax = exp(estimate + (1.96*std.error)))) +
+  labs(
+    title = "Rate of Injuries Per Month in 2020 v. 2019",
+    x = "Month",
+    y = "2020 v. 2019 Difference"
+  ) 
+
+```
 
 
 
-```{r}
+
+```{r line plot of crashes over time}
 #for the line plot, we will want a summary of the number of bike crashes by day. The collisions variable calculates the number of unique crashes and the bikes variable calculates the total number of bikes that crashed (there can be mutliple bikes involved in one crash but this is rare)
 crash_date_summ = 
   crash_dat %>%
