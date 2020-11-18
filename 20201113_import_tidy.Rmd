@@ -13,6 +13,15 @@ library(httr)
 library(purrr)
 library(leaflet)
 options(scipen=999)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+scale_colour_discrete = scale_color_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+
 ```
 
 
@@ -174,7 +183,7 @@ crash_date_summ %>%
     y = "Number of Collisions"
     ) +
   theme(text = element_text(size = 15), 
-        axis.text.x = element_text(angle = 90, hjust=1, size=10)) +
+        axis.text.x = element_text(angle = 60, hjust=1, size=10)) +
   scale_colour_discrete("Year")
 ```
 
@@ -266,5 +275,5 @@ crash_factor %>%
   ) %>%
   ggplot(aes(x = contributing_factor, y = collisions)) +
   geom_bar(stat = "identity") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
 ```
