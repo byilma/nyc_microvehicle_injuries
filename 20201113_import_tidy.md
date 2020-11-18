@@ -63,15 +63,15 @@ fit_injuries_month
     ##    month term                   estimate std.error  p.value
     ##    <chr> <chr>                     <dbl>     <dbl>    <dbl>
     ##  1 Jan   (Intercept)             -1.34      0.0263 0.      
-    ##  2 Jan   2020 v. 2019             0.139     0.0203 7.94e-12
-    ##  3 Jan   Borough: BROOKLYN        0.0226    0.0296 4.45e- 1
-    ##  4 Jan   Borough: MANHATTAN      -0.495     0.0382 1.80e-38
-    ##  5 Jan   Borough: QUEENS         -0.0364    0.0302 2.28e- 1
-    ##  6 Jan   Borough: STATEN ISLAND   0.357     0.0517 4.90e-12
+    ##  2 Jan   2020 v. 2019             0.139     0.0203 7.33e-12
+    ##  3 Jan   Borough: BROOKLYN        0.0228    0.0296 4.41e- 1
+    ##  4 Jan   Borough: MANHATTAN      -0.496     0.0382 1.72e-38
+    ##  5 Jan   Borough: QUEENS         -0.0362    0.0302 2.31e- 1
+    ##  6 Jan   Borough: STATEN ISLAND   0.357     0.0517 4.88e-12
     ##  7 Feb   (Intercept)             -1.36      0.0275 0.      
-    ##  8 Feb   2020 v. 2019             0.163     0.0211 1.23e-14
-    ##  9 Feb   Borough: BROOKLYN       -0.0302    0.0309 3.29e- 1
-    ## 10 Feb   Borough: MANHATTAN      -0.452     0.0386 9.01e-32
+    ##  8 Feb   2020 v. 2019             0.163     0.0211 1.22e-14
+    ##  9 Feb   Borough: BROOKLYN       -0.0303    0.0309 3.27e- 1
+    ## 10 Feb   Borough: MANHATTAN      -0.453     0.0386 7.87e-32
     ## # … with 62 more rows
 
 It seems like what this is looking at is the number of persons injured
@@ -380,7 +380,7 @@ crash_factor %>%
   filter(
     collisions > 50
   ) %>%
-  ggplot(aes(x = contributing_factor, y = collisions)) +
+  ggplot(aes(x = contributing_factor, y = collisions, fill = contributing_factor)) +
   geom_bar(stat = "identity") +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
 ```

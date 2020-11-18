@@ -185,6 +185,7 @@ crash_date_summ %>%
   theme(text = element_text(size = 15), 
         axis.text.x = element_text(angle = 60, hjust=1, size=10)) +
   scale_colour_discrete("Year")
+
 ```
 
 
@@ -268,12 +269,11 @@ crash_factor =
   ) 
   
 
-
 crash_factor %>%
   filter(
     collisions > 50
   ) %>%
-  ggplot(aes(x = contributing_factor, y = collisions)) +
+  ggplot(aes(x = contributing_factor, y = collisions, fill = contributing_factor)) +
   geom_bar(stat = "identity") +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
 ```
