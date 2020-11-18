@@ -18,30 +18,43 @@ library(leaflet)
 ```{r import MV crash, include=FALSE}
 #Importing crash data using the NYC Open Data API. The API response is limited to 50,000 rows, so we need a function that can be used to page through these results to capture all crashes in 2020. 
 
-crash_api_2019a = function(offset) {
-  GET("https://data.cityofnewyork.us/resource/h9gi-nx95.csv", 
-      query = list("$where" = "crash_date between '2019-01-01T00:00:00' and '2019-5-31T12:00:00'", "$limit" = 50000, "$offset" = offset)) %>% 
-  content("parsed") %>%
-  as_tibble() 
-}
-crash_api_2019b = function(offset) {
-  GET("https://data.cityofnewyork.us/resource/h9gi-nx95.csv", 
-      query = list("$where" = "crash_date between '2019-06-01T00:00:00' and '2019-10-31T12:00:00'", "$limit" = 50000, "$offset" = offset)) %>% 
-  content("parsed") %>%
-  as_tibble() 
-}
+# crash_api_2019a = function(offset) {
+#   GET("https://data.cityofnewyork.us/resource/h9gi-nx95.csv", 
+#       query = list("$where" = "crash_date between '2019-01-01T00:00:00' and '2019-5-31T12:00:00'", "$limit" = 50000, "$offset" = offset)) %>% 
+#   content("parsed") %>%
+#   as_tibble() 
+# }
+# crash_api_2019b = function(offset) {
+#   GET("https://data.cityofnewyork.us/resource/h9gi-nx95.csv", 
+#       query = list("$where" = "crash_date between '2019-06-01T00:00:00' and '2019-10-31T12:00:00'", "$limit" = 50000, "$offset" = offset)) %>% 
+#   content("parsed") %>%
+#   as_tibble() 
+# }
+# 
+# crash_api_2020 = function(offset) {
+#   GET("https://data.cityofnewyork.us/resource/h9gi-nx95.csv", 
+#       query = list("$where" = "crash_date between '2020-01-01T00:00:00' and '2020-10-31T12:00:00'", "$limit" = 50000, "$offset" = offset)) %>% 
+#   content("parsed") %>%
+#   as_tibble() 
+# }
+# 
+# offsets = c(0, 50000)
+# crash_dat = bind_rows(map_df(offsets, crash_api_2019a), 
+#                       map_df(offsets, crash_api_2019b),
+#                       map_df(offsets, crash_api_2020))
 
-crash_api_2020 = function(offset) {
+
+# I was getting an error here when I tried to knit the document so I've modified this below:
+crash_api = function(offset, limit = 50000) {
   GET("https://data.cityofnewyork.us/resource/h9gi-nx95.csv", 
-      query = list("$where" = "crash_date between '2020-01-01T00:00:00' and '2020-10-31T12:00:00'", "$limit" = 50000, "$offset" = offset)) %>% 
+      query = list("$where" = "crash_date between '2019-01-01T00:00:0' and '2020-10-31T12:00:00'", "$limit" = limit, "$offset" = offset)) %>% 
   content("parsed") %>%
   as_tibble() 
 }
-
-offsets = c(0, 50000)
-crash_dat = bind_rows(map_df(offsets, crash_api_2019a), 
-                      map_df(offsets, crash_api_2019b),
-                      map_df(offsets, crash_api_2020))
+offsets = seq(25000, 275000, by = 50000)
+crash_dat = bind_rows(crash_api(offset = 0, limit = 25000),
+                    map_df(offsets, crash_api)) 
+crash_dat = crash_dat %>% distinct
 ```
 
 
@@ -84,14 +97,14 @@ bikes = crash_dat %>%
 
 
 
-Microvehicle incidents in NYC _ a leaflet map
+Microvehicle incidents in NYC _ a leaflet map -- I just commented this out to knit the document
 ```{r, include=FALSE}
-bikes %>%
-  drop_na(c(latitude, longitude)) %>% 
-   filter(latitude > 40) %>% #filter on this to get rid of lat/longitude with values of (0,0)
-  leaflet() %>% 
-  addProviderTiles(providers$CartoDB.Positron) %>% 
-  addCircleMarkers(~longitude, ~latitude, radius = 1)
+# bikes %>%
+#   drop_na(c(latitude, longitude)) %>% 
+#    filter(latitude > 40) %>% #filter on this to get rid of lat/longitude with values of (0,0)
+#   leaflet() %>% 
+#   addProviderTiles(providers$CartoDB.Positron) %>% 
+#   addCircleMarkers(~longitude, ~latitude, radius = 1)
 ```
 
 
@@ -169,18 +182,18 @@ crash_date_summ %>%
 ```{r import bikes}
 #Importing bike data using the NYC Open Data API. The API response is limited to 50,000 rows, so we need a function that can be used to page through these results to capture all bike counts in 2019 and 2020. 
 
-
-bike_api = function(offset, limit = 50000) {
-  GET("https://data.cityofnewyork.us/resource/uczf-rk3c.csv", 
-      query = list("$where" = "date between '2019-01-01T00:00:00' and '2020-10-31T12:00:00'", "$limit" = limit, "$offset" = offset)) %>% 
-  content("parsed") %>%
-  as_tibble() 
-}
-
-
-offsets = c(25000, 75000, 125000, 175000, 225000, 275000, 325000, 375000, 425000, 475000, 525000, 575000, 625000, 675000, 725000, 775000, 825000, 875000, 925000, 975000)
-bike_dat = bind_rows(bike_api(offset = 0, limit = 25000),
-                    map_df(offsets, bike_api))
+# 
+# bike_api = function(offset, limit = 50000) {
+#   GET("https://data.cityofnewyork.us/resource/uczf-rk3c.csv", 
+#       query = list("$where" = "date between '2019-01-01T00:00:00' and '2020-10-31T12:00:00'", "$limit" = limit, "$offset" = offset)) %>% 
+#   content("parsed") %>%
+#   as_tibble() 
+# }
+# 
+# 
+# offsets = c(25000, 75000, 125000, 175000, 225000, 275000, 325000, 375000, 425000, 475000, 525000, 575000, 625000, 675000, 725000, 775000, 825000, 875000, 925000, 975000)
+# bike_dat = bind_rows(bike_api(offset = 0, limit = 25000),
+#                     map_df(offsets, bike_api))
 
 ## Note: We' were're having a really weird issue with importing the data. It seems that the import works 
 ## when the offset is 0, 50000, 150000, 250000, 350000, etc. BUT, won't work when it's 100000, 200000 or any other multiple of 100000. 
@@ -199,7 +212,8 @@ bike_api = function(offset, limit = 50000) {
 
 offsets = seq(25000, 875000, by = 50000)
 bike_dat = bind_rows(bike_api(offset = 0, limit = 25000),
-                    map_df(offsets, bike_api))
+                    map_df(offsets, bike_api)) 
+
 ```
 
 
