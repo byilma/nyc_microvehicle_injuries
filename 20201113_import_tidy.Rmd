@@ -12,6 +12,7 @@ library(tidyverse)
 library(httr)
 library(purrr)
 library(leaflet)
+options(scipen=999)
 ```
 
 
@@ -210,10 +211,8 @@ bike_api = function(offset, limit = 50000) {
 }
 
 
-offsets = seq(25000, 875000, by = 50000)
-bike_dat = bind_rows(bike_api(offset = 0, limit = 25000),
-                    map_df(offsets, bike_api)) 
-
+offsets = seq(0, 900000, by = 50000)
+bike_dat = map_df(offsets, bike_api)
 ```
 
 
