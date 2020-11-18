@@ -75,11 +75,12 @@ bikes = crash_dat %>%
       str_detect(vehicle_options, "[Mm]otorbike", negate = TRUE)
            ) 
            
-#Run to check what the filter ^ resulted in 
-# bikes %>% 
-#   group_by(vehicle_options) %>% 
+#Run to check what the filter ^ resulted in
+# bikes %>%
+#   group_by(vehicle_options) %>%
 #   count() %>% View()
 ```
+
 
 
 
@@ -98,7 +99,7 @@ bikes %>%
 
 fit_injuries_month = crash_dat %>%
   group_by(year) %>%
-  mutate(year_2020 = year-2019) %>%
+  mutate(year_2020 = year - 2019) %>%
   nest(data = -month) %>%
   mutate(models = map(data, ~glm(number_of_persons_injured ~ year_2020 + borough,
                                  family = "poisson", data = .x)),
@@ -113,6 +114,9 @@ fit_injuries_month = crash_dat %>%
 fit_injuries_month
 
 ```
+
+It seems like what this is looking at is the number of persons injured per crash, and seeing if there is a significant difference between years (for each month.) Right? So we're hypothesizing that each crash would be more dangerous in 2020, (rather than that there are more crashes?) But sure enough, seems like 2020 is more dangerous overall, interesting! - Emma
+
 
 ```{r plot injuries by month}
 
@@ -163,25 +167,33 @@ crash_date_summ %>%
 
 
 ```{r import bikes}
-#Importing bike data using the NYC Open Data API. The API response is limited to 50,000 rows, so we need a function that can be used to page through these results to capture all bike counts in 2020. 
-bike_api = function(offset) {
+#Importing bike data using the NYC Open Data API. The API response is limited to 50,000 rows, so we need a function that can be used to page through these results to capture all bike counts in 2019 and 2020. 
+
+
+bike_api = function(offset, limit = 50000) {
   GET("https://data.cityofnewyork.us/resource/uczf-rk3c.csv", 
-      query = list("$where" = "date between '2020-01-01T00:00:00' and '2020-10-31T12:00:00'", "$limit" = 50000, "$offset" = offset)) %>% 
+      query = list("$where" = "date between '2019-01-01T00:00:00' and '2020-10-31T12:00:00'", "$limit" = limit, "$offset" = offset)) %>% 
   content("parsed") %>%
   as_tibble() 
 }
 
-offsets = c(0, 50000, 100000, 150000, 200000, 250000, 300000, 350000, 400000)
-bike_dat_2020 = map_df(offsets, bike_api)
+
+offsets = c(25000, 75000, 125000, 175000, 225000, 275000, 325000, 375000, 425000, 475000, 525000, 575000, 625000, 675000, 725000, 775000, 825000, 875000, 925000, 975000)
+bike_dat = bind_rows(bike_api(offset = 0, limit = 25000),
+                    map_df(offsets, bike_api))
+
+## Note: We' were're having a really weird issue with importing the data. It seems that the import works 
+## when the offset is 0, 50000, 150000, 250000, 350000, etc. BUT, won't work when it's 100000, 200000 or any other multiple of 100000. 
+## It's very strange, and was causing us to have big missing chunks of data. It will even work with 100001, and with 99999, but not 100000.
+## I think this partially fixed it, but now it's not importing dates past May. Maybe someone else has an idea?
 ```
 
 
 
 ```{r tidy bikes}
-
 # Make df with aggregate bike counts by day. I noticed that there are some days with NAs - haven't explored yet but might want to look into if the bike counting operation itself was limited at all by covid.
 bike_counts_aggregate = 
-  bike_dat_2020 %>% 
+  bike_dat %>% 
   mutate(
     date_time = date,
     date = lubridate::date(date_time)
@@ -194,6 +206,8 @@ bike_counts_aggregate %>%
   ggplot(aes(x = date, y = total_daily_bikes)) +
   geom_point(alpha = .5) +
   geom_smooth(se = FALSE)
+
+## Ok, even with the partial fix above, there seem to be bands of missing dates. I think there's something wrong with the import still.
 ```
 
 
