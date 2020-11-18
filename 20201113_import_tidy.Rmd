@@ -197,3 +197,28 @@ bike_counts_aggregate %>%
 ```
 
 
+Contributing Factor
+```{r}
+crash_factor = 
+  bikes %>%
+  pivot_longer(
+    contributing_factor_vehicle_1:contributing_factor_vehicle_5,
+    names_to = "vehicle_factor_num",
+    names_prefix = "contributing_factor_vehicle_",
+    values_to = "contributing_factor"
+   ) %>%
+  drop_na(contributing_factor) %>%
+  filter(contributing_factor != "Unspecified") %>%
+  group_by(contributing_factor) %>%
+  summarise(
+    collisions = n_distinct(collision_id)
+  ) %>%
+  mutate(
+    contributing_factor = fct_reorder(as.factor(contributing_factor), collisions, .desc = TRUE)
+  ) %>%
+  
+
+crash_factor %>%
+  ggplot(aes(x = contributing_factor, y = collisions)) +
+  geom_bar(stat = "identity")
+```
