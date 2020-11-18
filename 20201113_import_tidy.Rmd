@@ -186,6 +186,20 @@ bike_dat = bind_rows(bike_api(offset = 0, limit = 25000),
 ## when the offset is 0, 50000, 150000, 250000, 350000, etc. BUT, won't work when it's 100000, 200000 or any other multiple of 100000. 
 ## It's very strange, and was causing us to have big missing chunks of data. It will even work with 100001, and with 99999, but not 100000.
 ## I think this partially fixed it, but now it's not importing dates past May. Maybe someone else has an idea?
+
+
+#I think the code below works
+bike_api = function(offset, limit = 50000) {
+  GET("https://data.cityofnewyork.us/resource/uczf-rk3c.csv", 
+      query = list("$where" = "date between '2019-01-01T00:00:00' and '2020-10-31T12:00:00'", "$limit" = limit, "$offset" = offset)) %>% 
+  content("parsed") %>%
+  as_tibble() 
+}
+
+
+offsets = seq(25000, 875000, by = 50000)
+bike_dat = bind_rows(bike_api(offset = 0, limit = 25000),
+                    map_df(offsets, bike_api))
 ```
 
 
@@ -229,10 +243,15 @@ crash_factor =
   ) %>%
   mutate(
     contributing_factor = fct_reorder(as.factor(contributing_factor), collisions, .desc = TRUE)
-  ) %>%
+  ) 
   
 
+
 crash_factor %>%
+  filter(
+    collisions > 50
+  ) %>%
   ggplot(aes(x = contributing_factor, y = collisions)) +
-  geom_bar(stat = "identity")
+  geom_bar(stat = "identity") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
 ```
