@@ -124,14 +124,13 @@ fit_injuries_month = crash_dat %>%
   group_by(year) %>%
   mutate(year_2020 = year - 2019) %>%
   nest(data = -month) %>%
-  mutate(models = map(data, ~glm(number_of_persons_injured ~ year_2020 + borough,
+  mutate(models = map(data, ~glm(number_of_persons_injured ~ year_2020:borough,
                                  family = "poisson", data = .x)),
          models = map(models, broom::tidy)) %>% 
   select(-data) %>% 
   unnest(models) %>%
   select(month, term, estimate, std.error, p.value) %>% 
-  mutate(term = str_replace(term, "^borough", "Borough: "),
-         term = str_replace(term, "year_2020", "2020 v. 2019"),
+  mutate(term = str_replace(term, "year_2020:borough", "2020 v. 2019, Borough: "),
          month = month.abb[month]) 
 
 fit_injuries_month
@@ -144,15 +143,18 @@ It seems like what this is looking at is the number of persons injured per crash
 ```{r plot injuries by month}
 
 fit_injuries_month %>% 
-  filter(term == "2020 v. 2019") %>%
-  ggplot(aes(x = month, y = exp(estimate))) + geom_point() +
+  filter(term != "(Intercept)") %>%
+  mutate(term = str_replace(term, "2020 v. 2019, ", "")) %>%
+  ggplot(aes(x = month, y = exp(estimate), color = term)) + 
+  geom_point(show.legend = FALSE, aes(size = estimate, alpha = .7)) +
   geom_errorbar(aes(ymin = exp(estimate - (1.96*std.error)), 
                     ymax = exp(estimate + (1.96*std.error)))) +
   labs(
-    title = "Rate of Injuries Per Month in 2020 v. 2019",
+    title = "Difference in Rate of Injuries Per Crash in 2020 v. 2019",
     x = "Month",
     y = "2020 v. 2019 Difference"
-  ) 
+  ) +
+  theme(legend.position="right", legend.title = element_blank())
 
 ```
 
