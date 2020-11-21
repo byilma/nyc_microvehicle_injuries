@@ -29,15 +29,13 @@ scale_fill_discrete = scale_fill_viridis_d
 #Importing crash data using the NYC Open Data API. The API response is limited to 50,000 rows, so we need a function that can be used to page through these results to capture all crashes in 2020. 
 crash_api = function(offset, limit = 50000) {
   GET("https://data.cityofnewyork.us/resource/h9gi-nx95.csv", 
-      query = list("$where" = "crash_date between '2019-01-01T00:00:0' and '2020-10-31T12:00:00'", "$limit" = limit, "$offset" = offset)) %>% 
+      query = list("$where" = "crash_date between '2017-01-01T00:00:0' and '2020-10-31T12:00:00'", "$limit" = limit, "$offset" = offset)) %>% 
   content("parsed") %>%
   as_tibble() %>% 
   select(-latitude, -longitude)
 }
 
-offsets = seq(0, 300000, by = 50000)
-
-test_crash = crash_api(250000)
+offsets = seq(0, 750000, by = 50000)
 
 crash_dat = map_df(offsets, crash_api)
 crash_dat = crash_dat %>% distinct
@@ -46,12 +44,11 @@ crash_dat = crash_dat %>% distinct
 
 ```{r, tidy MV crash}
 #cleaning - transpose so vehicle types are listed in one column
-crash_dat = 
+crash_dat_tidy = 
   crash_dat %>% 
-  separate(crash_date, into = c("year", "month", "day"), sep = "-") %>%
-  mutate(year=as.integer(year),
-         month=as.integer(month),
-         day=as.integer(day)) %>%
+  mutate(
+    date = lubridate::date(crash_date)
+  ) %>% 
   pivot_longer(
     vehicle_type_code1:vehicle_type_code_5,
     names_to = "vehicle_number",
@@ -62,7 +59,7 @@ crash_dat =
 
 ```{r filtering for microvehicles}
 #Exploring the vehicle types so that we can limit to bicycles -- double check this list
-microvehicle_crash_dat = crash_dat %>%
+microvehicle_crash_agg = crash_dat_tidy %>%
   filter(str_detect(vehicle_options, "[Bb]ike") | 
            str_detect(vehicle_options, "REVEL") | 
            str_detect(vehicle_options, "SCO")  |
@@ -72,7 +69,14 @@ microvehicle_crash_dat = crash_dat %>%
   filter(vehicle_options != "ESCOVATOR" & vehicle_options != "Bike" &
       str_detect(vehicle_options, "Dirt", negate = TRUE),
       str_detect(vehicle_options, "[Mm]otorbike", negate = TRUE)
-           ) 
+           ) %>% 
+  group_by(date) %>% 
+  summarize(daily_microveh_crashed = n()) 
+
+microvehicle_crash_agg %>% 
+  ggplot(aes(x = date, y = daily_microveh_crashed)) +
+  geom_point(alpha = .5) +
+  geom_smooth(se = FALSE)
            
 #Run to check what the filter ^ resulted in
 # bikes %>%
@@ -80,40 +84,38 @@ microvehicle_crash_dat = crash_dat %>%
 #   count() %>% View()
 ```
 
-```{r filtering for microvehicles}
+```{r filtering for bikes}
 #Exploring the vehicle types so that we can limit to bicycles -- double check this list
-bike_crash_dat = crash_dat %>%
-  filter(str_detect(vehicle_options, "[Bb]ike") |
-           str_detect(vehicle_options, "[Bb]icycle")
+bike_crash_agg = crash_dat_tidy %>%
+  filter(str_starts(vehicle_options, "[Bb]ike")) %>% 
+  group_by(date) %>% 
+  summarize(daily_bikes_crashed = n())
 
-| 
-           str_detect(vehicle_options, "REVEL") | 
-           str_detect(vehicle_options, "SCO")  |
-           str_detect(vehicle_options, "MOP")   |
-           str_detect(vehicle_options, "ELEC")  |
-           str_detect(vehicle_options, "^E-")) %>% 
-  filter(vehicle_options != "ESCOVATOR" & vehicle_options != "Bike" &
-      str_detect(vehicle_options, "Dirt", negate = TRUE),
-      str_detect(vehicle_options, "[Mm]otorbike", negate = TRUE)
-           ) 
+bike_crash_agg %>% 
+  ggplot(aes(x = date, y = daily_bikes_crashed)) +
+  geom_point(alpha = .5) +
+  geom_smooth(se = FALSE)
+  
            
 #Run to check what the filter ^ resulted in
-# bikes %>%
+# bike_crash_dat %>%
 #   group_by(vehicle_options) %>%
 #   count() %>% View()
 
+```
 
 
+Probably can exclude this next section:
 ```{r line plot of crashes over time}
 #for the line plot, we will want a summary of the number of bike crashes by day. The collisions variable calculates the number of unique crashes and the bikes variable calculates the total number of bikes that crashed (there can be mutliple bikes involved in one crash but this is rare)
-crash_date_summ = 
-  crash_dat %>%
-  filter(str_detect(vehicle_options, "[Bb]ike")) %>%
-  group_by(year, month, day) %>%
-  summarize(
-    collisions = n_distinct(collision_id),
-    bikes = n()
-  )
+# crash_date_summ = 
+#   crash_dat %>%
+#   filter(str_detect(vehicle_options, "[Bb]ike")) %>%
+#   group_by(year, month, day) %>%
+#   summarize(
+#     collisions = n_distinct(collision_id),
+#     bikes = n()
+#   )
 
 
 #simple plot just to see what the data look like
