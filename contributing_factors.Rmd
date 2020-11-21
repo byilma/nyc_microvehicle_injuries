@@ -63,3 +63,73 @@ crash_dat2 =
 ```
 
 
+Subset to crashes involving a bike
+
+```{r bikes}
+bikes = crash_dat2 %>%
+  filter(str_detect(vehicle_options, "[Bb]ike")
+           ) 
+           
+#Run to check what the filter ^ resulted in
+bikes %>%
+  group_by(vehicle_options) %>%
+  count() %>% View()
+```
+
+
+
+
+Exploring contributing factors for crashes that result in an injury to a cyclist. Subsetting to crashes in March - October and classifying 2019 as pre-COVID and 2020 as COVID.
+
+```{r contributing_factor}
+crash_factor = 
+  bikes %>%
+  filter(
+    month %in% (3:10),
+    number_of_cyclist_injured > 0
+    ) %>%
+  pivot_longer(
+    contributing_factor_vehicle_1:contributing_factor_vehicle_5,
+    names_to = "vehicle_factor_num",
+    names_prefix = "contributing_factor_vehicle_",
+    values_to = "contributing_factor"
+   ) %>%
+  mutate(
+    covid = as.factor(if_else(year == 2019, 'Pre-COVID', 'COVID'))
+  ) %>%
+  group_by(covid, contributing_factor) %>%
+  summarise(
+    collisions = n_distinct(collision_id)
+  ) %>%
+  drop_na(contributing_factor) %>%
+  ungroup(contributing_factor) %>%
+  filter(contributing_factor != "Unspecified") %>%
+  mutate(
+    covid = fct_relevel(covid, 'Pre-COVID'),
+    proportion = round(collisions / sum(collisions), 2) 
+  ) 
+  
+
+top_10 = 
+  crash_factor %>%
+  group_by(covid) %>%
+  top_n(n = 10, wt = proportion) %>%
+  mutate(
+    contributing_factor = fct_reorder(as.factor(contributing_factor), collisions, .desc = TRUE)
+  ) %>%
+  ggplot(aes(x = contributing_factor, y = proportion, fill = covid)) +
+  geom_bar(stat = "identity") +
+  facet_grid( . ~covid, scales = "free_x", space = "free_x") +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1), legend.position = "none") +
+  labs(
+    title = "Top Ten Contributing Factors for Crashes Involving Injuries to Cyclists",
+    x = "",
+    y = "Proportion of Crashes"
+  )
+
+ggplotly(top_10) 
+
+```
+
+The leading contributing causes for cyclist injuries did not change during COVID, with the majority of crashes involving driver error, such as driver inattention and failure to yield. There is a slight decrease in the proportion of crashes involving cyclist error.
+
