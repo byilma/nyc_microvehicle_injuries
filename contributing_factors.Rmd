@@ -131,8 +131,10 @@ ggplotly(top_10)
 
 ```
 
-The leading contributing causes for cyclist injuries did not change during COVID, with the majority of crashes involving driver error, such as driver inattention and failure to yield. There is a slight decrease in the proportion of crashes involving cyclist error.
+The leading contributing causes for cyclist injuries did not change during COVID, with the majority of crashes involving driver error, such as driver inattention and failure to yield. There is a slight decrease in the proportion of crashes involving cyclist error.  
 
+
+Plotting a heat map of bike crashes by time of day and day of week pre and during COVID.
 
 ```{r heat_plots}
 crash_day_time = 
@@ -203,11 +205,10 @@ subplot(pre_heat, covid_heat, nrows = 2, margin = .1)
 ```
 
 
+Overall, there’s a similar trend pre and during COVID where ethe majority of bike crashes are clustered in the evening. There seems to be slightly more clustering in the evening commute hours (4-6 PM) during COVID than pre-COVID and even fewer crashes in the morning hours during COVID.  
 
 
-
-
-Subset to contributing factor of cyclist error or a contributing factor that was attributed to the bike.
+Replicating these heat maps but subsetting to crashes that have a contributing factor attributed to the cyclist (either a factor of cyclist error or a factor with the same vehicle number as the bike vehicle number).  
 
 ```{r heat_plots_cyclist}
 day_time_bike_err = 
@@ -260,9 +261,9 @@ subplot(pre_bike_err, covid_bike_err, nrows = 2, margin = .1)
 ```
 
 
+Similar to heat maps above, crashes where the cyclist made an error are clustered in the evening hours and there is slightly more clustering during COVID than pre-COVID.
 
-
-
+Again replicating these heat maps but subsetting to crashes that have a contributing factor attributed to the driver. 
 
 ```{r heat_plots_driver}
 day_time_drive_err = 
@@ -316,3 +317,5 @@ covid_drive_err =
 subplot(pre_drive_err, covid_drive_err, nrows = 2, margin = .15)
 
 ```
+
+Similar to heat maps above, crashes where the driver made an error are clustered in the evening hours and there is slightly more clustering during COVID than pre-COVID. 
