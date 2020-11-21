@@ -201,3 +201,60 @@ covid_heat =
 subplot(pre_heat, covid_heat, nrows = 2, margin = .1)
 
 ```
+
+
+
+
+
+
+Subset to contributing factor of cyclist error or a contributing factor that was attributed to the bike.
+
+```{r heat_plots_cyclist}
+day_time_bike_err = 
+  bikes %>%
+  filter(
+    month %in% (3:10),
+    number_of_cyclist_injured > 0
+    ) %>%
+  pivot_longer(
+    contributing_factor_vehicle_1:contributing_factor_vehicle_5,
+    names_to = "vehicle_factor_num",
+    names_prefix = "contributing_factor_vehicle_",
+    values_to = "contributing_factor"
+   ) %>%
+  filter(contributing_factor == "Pedestrian/Bicyclist/Other Pedestrian Error/Confusion" |
+           vehicle_factor_num == vehicle_number) %>%
+  separate(crash_time, into = c("hour", "minute", "second"), sep = ":") %>%
+  mutate(
+    covid = as.factor(if_else(year == 2019, 'Pre-COVID', 'COVID'))
+  ) %>%
+  group_by(covid, hour, dow) %>%
+  summarise(
+    collisions = n_distinct(collision_id)
+  ) %>%
+  mutate(
+    covid = fct_relevel(covid, 'Pre-COVID'),
+    dow = fct_relevel(dow, "Sunday", "Saturday", "Friday", "Thursday", "Wednesday", "Tuesday")
+  ) 
+
+pre_bike_err = 
+  day_time_bike_err %>%
+  filter(covid == "Pre-COVID") %>%
+  plot_ly(
+    x = ~hour, y = ~dow, z = ~collisions, type = "heatmap", colors = "Blues"
+  ) %>%
+  hide_colorbar() %>%
+  layout(annotations = a)
+
+covid_bike_err = 
+  day_time_bike_err %>%
+  filter(covid == "COVID") %>%
+  plot_ly(
+    x = ~hour, y = ~dow, z = ~collisions, type = "heatmap", colors = "Blues"
+  ) %>%
+  hide_colorbar() %>%
+  layout(annotations = b)
+
+subplot(pre_bike_err, covid_bike_err, nrows = 2, margin = .1)
+
+```
