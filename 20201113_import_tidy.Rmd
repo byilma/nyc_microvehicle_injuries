@@ -72,14 +72,18 @@ crash_dat = crash_dat %>% distinct
 #cleaning - transpose so vehicle types are listed in one column
 crash_dat = 
   crash_dat %>% 
+  mutate(
+    dow = as.factor(weekdays(crash_date))
+  ) %>%
   separate(crash_date, into = c("year", "month", "day"), sep = "-") %>%
-  mutate(year=as.integer(year),
-         month=as.integer(month),
-         day=as.integer(day)) %>%
+  mutate(year = as.integer(year),
+         month = as.integer(month),
+         day = as.integer(day)) %>%
   pivot_longer(
     vehicle_type_code1:vehicle_type_code_5,
     names_to = "vehicle_number",
-    values_to = "vehicle_options"
+    values_to = "vehicle_options",
+    names_prefix = "vehicle_type_code"
    ) %>%
   drop_na(vehicle_options)
 ```
@@ -204,7 +208,7 @@ crash_date_summ %>%
 
 
 
-```{r import bikes}
+```{r import bikes, include=FALSE}
 #Importing bike data using the NYC Open Data API. The API response is limited to 50,000 rows, so we need a function that can be used to page through these results to capture all bike counts in 2019 and 2020. 
 
 # 
@@ -263,31 +267,49 @@ bike_counts_aggregate %>%
 
 
 Contributing Factor
-```{r}
+```{r contributing_factor}
 crash_factor = 
   bikes %>%
+  filter(
+    month %in% (3:10),
+    number_of_cyclist_injured > 0
+    ) %>%
   pivot_longer(
     contributing_factor_vehicle_1:contributing_factor_vehicle_5,
     names_to = "vehicle_factor_num",
     names_prefix = "contributing_factor_vehicle_",
     values_to = "contributing_factor"
    ) %>%
-  drop_na(contributing_factor) %>%
-  filter(contributing_factor != "Unspecified") %>%
-  group_by(contributing_factor) %>%
+  mutate(
+    covid = as.factor(if_else(year == 2019, 'Pre-COVID', 'COVID'))
+  ) %>%
+  group_by(covid, contributing_factor) %>%
   summarise(
     collisions = n_distinct(collision_id)
   ) %>%
+  drop_na(contributing_factor) %>%
+  ungroup(contributing_factor) %>%
+  filter(contributing_factor != "Unspecified") %>%
   mutate(
-    contributing_factor = fct_reorder(as.factor(contributing_factor), collisions, .desc = TRUE)
+    covid = fct_relevel(covid, 'Pre-COVID'),
+    proportion = round(collisions / sum(collisions), 2) 
   ) 
   
 
 crash_factor %>%
-  filter(
-    collisions > 50
+  group_by(covid) %>%
+  top_n(n = 10, wt = proportion) %>%
+  mutate(
+    contributing_factor = fct_reorder(as.factor(contributing_factor), collisions, .desc = TRUE)
   ) %>%
-  ggplot(aes(x = contributing_factor, y = collisions, fill = contributing_factor)) +
+  ggplot(aes(x = contributing_factor, y = proportion, fill = covid)) +
   geom_bar(stat = "identity") +
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
+  facet_grid( . ~covid, scales = "free_x", space = "free_x") +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1), legend.position = "none") +
+  labs(
+    title = "Top Ten Contributing Factors for Crashes Involving Injuries to Cyclists",
+    x = "",
+    y = "Proportion of Crashes"
+  )
 ```
+

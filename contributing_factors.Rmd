@@ -314,7 +314,7 @@ covid_drive_err =
   hide_colorbar() %>% 
   layout(annotations = b)
 
-subplot(pre_drive_err, covid_drive_err, nrows = 2, margin = .15)
+subplot(pre_drive_err, covid_drive_err, nrows = 2, margin = .1)
 
 ```
 
