@@ -119,6 +119,11 @@ Microvehicle incidents in NYC _ a leaflet map -- I just commented this out to kn
 
 
 ```{r lm for injuries by month}
+month_df=
+  tibble(
+    month = 1:12,
+    month_name = factor(month.name, ordered = TRUE, levels = month.name)
+  )
 
 fit_injuries_month = crash_dat %>%
   group_by(year) %>%
@@ -130,8 +135,11 @@ fit_injuries_month = crash_dat %>%
   select(-data) %>% 
   unnest(models) %>%
   select(month, term, estimate, std.error, p.value) %>% 
-  mutate(term = str_replace(term, "year_2020:borough", "2020 v. 2019, Borough: "),
-         month = month.abb[month]) 
+  mutate(term = str_replace(term, "year_2020:borough", "2020 v. 2019, Borough: ")) %>%
+  left_join(month_df, by = "month") %>%
+  select(-month) %>%
+  rename(month = month_name) %>%
+  select(month, everything())
 
 fit_injuries_month
 
@@ -143,18 +151,22 @@ It seems like what this is looking at is the number of persons injured per crash
 ```{r plot injuries by month}
 
 fit_injuries_month %>% 
-  filter(term != "(Intercept)") %>%
+  filter(term != "(Intercept)" & month != "November" & month != "December") %>%
   mutate(term = str_replace(term, "2020 v. 2019, ", "")) %>%
   ggplot(aes(x = month, y = exp(estimate), color = term)) + 
   geom_point(show.legend = FALSE, aes(size = estimate, alpha = .7)) +
   geom_errorbar(aes(ymin = exp(estimate - (1.96*std.error)), 
                     ymax = exp(estimate + (1.96*std.error)))) +
+  geom_hline(yintercept = 1, linetype="dashed", 
+                color = "darkred", size = 1, alpha = .7) +
   labs(
     title = "Difference in Rate of Injuries Per Crash in 2020 v. 2019",
     x = "Month",
     y = "2020 v. 2019 Difference"
   ) +
-  theme(legend.position="right", legend.title = element_blank())
+  theme(legend.position="right", legend.title = element_blank(),
+        text = element_text(size = 10),
+        axis.text.x = element_text(angle = 90, hjust = 1, size = 8))
 
 ```
 
