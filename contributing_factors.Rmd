@@ -1,0 +1,65 @@
+---
+title: "Contributing Factors"
+date: "11/21/2020"
+output: 
+  html_document:
+  always_allow_html: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(httr)
+library(purrr)
+library(leaflet)
+library(plotly)
+options(scipen = 999)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+scale_colour_discrete = scale_color_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+
+```
+
+
+```{r import MV crash, include=FALSE}
+#Importing crash data using the NYC Open Data API. The API response is limited to 50,000 rows, so we need a function that can be used to page through these results to capture all crashes in 2020. 
+
+crash_api = function(offset, limit = 50000) {
+  GET("https://data.cityofnewyork.us/resource/h9gi-nx95.csv", 
+      query = list("$where" = "crash_date between '2019-01-01T00:00:0' and '2020-10-31T12:00:00'", "$limit" = limit, "$offset" = offset)) %>% 
+  content("parsed") %>%
+  as_tibble() 
+}
+offsets = seq(25000, 275000, by = 50000)
+crash_dat = bind_rows(crash_api(offset = 0, limit = 25000),
+                    map_df(offsets, crash_api)) 
+crash_dat = crash_dat %>% distinct
+```
+
+
+```{r, tidy MV crash}
+#cleaning - transpose so vehicle types are listed in one column
+crash_dat2 = 
+  crash_dat %>% 
+  mutate(
+    dow = as.factor(weekdays(crash_date))
+  ) %>%
+  separate(crash_date, into = c("year", "month", "day"), sep = "-") %>%
+  mutate(year = as.integer(year),
+         month = as.integer(month),
+         day = as.integer(day)) %>%
+  pivot_longer(
+    vehicle_type_code1:vehicle_type_code_5,
+    names_to = "vehicle_number",
+    values_to = "vehicle_options",
+    names_prefix = "vehicle_type_code"
+   ) %>%
+  drop_na(vehicle_options)
+```
+
+
