@@ -133,3 +133,71 @@ ggplotly(top_10)
 
 The leading contributing causes for cyclist injuries did not change during COVID, with the majority of crashes involving driver error, such as driver inattention and failure to yield. There is a slight decrease in the proportion of crashes involving cyclist error.
 
+
+```{r heat_plots}
+crash_day_time = 
+  bikes %>%
+  filter(
+    month %in% (3:10),
+    number_of_cyclist_injured > 0
+    ) %>%
+  separate(crash_time, into = c("hour", "minute", "second"), sep = ":") %>%
+  mutate(
+    covid = as.factor(if_else(year == 2019, 'Pre-COVID', 'COVID'))
+  ) %>%
+  group_by(covid, hour, dow) %>%
+  summarise(
+    collisions = n_distinct(collision_id)
+  ) %>%
+  mutate(
+    covid = fct_relevel(covid, 'Pre-COVID'),
+    dow = fct_relevel(dow, "Sunday", "Saturday", "Friday", "Thursday", "Wednesday", "Tuesday")
+  ) 
+
+
+a <- list(
+  text = "Pre-COVID",
+  xref = "paper",
+  yref = "paper",
+  yanchor = "bottom",
+  xanchor = "center",
+  align = "center",
+  x = 0.5,
+  y = 1,
+  showarrow = FALSE
+)
+
+b <- list(
+  text = "COVID",
+  xref = "paper",
+  yref = "paper",
+  yanchor = "bottom",
+  xanchor = "center",
+  align = "center",
+  x = 0.5,
+  y = 1,
+  showarrow = FALSE
+)
+
+
+pre_heat = 
+  crash_day_time %>%
+  filter(covid == "Pre-COVID") %>%
+  plot_ly(
+    x = ~hour, y = ~dow, z = ~collisions, type = "heatmap", colors = "BuPu"
+  ) %>%
+  hide_colorbar() %>%
+  layout(annotations = a)
+
+covid_heat = 
+  crash_day_time %>%
+  filter(covid == "COVID") %>%
+  plot_ly(
+    x = ~hour, y = ~dow, z = ~collisions, type = "heatmap", colors = "BuPu"
+  ) %>%
+  hide_colorbar() %>%
+  layout(annotations = b)
+
+subplot(pre_heat, covid_heat, nrows = 2, margin = .1)
+
+```
