@@ -162,8 +162,9 @@ bike_count_plot = bike_counts_aggregate %>%
 
 ## Visualization option 1:
 
-One way of visualizing: 2017-2020 Bike use, bikes involved in crashes, microvehicles involved in crashes. I thought it would be valuable to go back to 2017 to get a sense of non-covid bike use to compare 2020 to. 
+One way of visualizing: 2017-2020 Bike use, bikes involved in crashes, microvehicles involved in crashes. I thought it would be valuable to go back to 2017 to get a sense of non-covid bike use to compare to 2020.
 
+This will need to have an aspect ratio tall enough to show all three clearly.
 
 ```{r}
 # all_bike = 
@@ -202,3 +203,52 @@ bike_count_plot = bike_counts_aggregate %>%
 bike_count_plot / bike_crash_plot / microveh_crash_plot
 ```
 
+## Visualization option 2: Overlay years for bike use, overlay years for bike crashes
+
+**Still to do for both plots: change x-axis labels, Adjust colors so 2020 isn't yellow...**
+
+Plotly plot of daily bike counts. 
+```{r}
+bike_count_yr_plot = bike_counts_aggregate %>% 
+  mutate(year = lubridate::year(date),
+         month = lubridate::month(date),
+         day_of_year = lubridate::yday(date)) %>%
+  ggplot(aes(x = day_of_year, y = total_daily_bikes, 
+             group = year, color = as.factor(year))) +
+  geom_point(alpha = .5) +
+  geom_smooth(se = FALSE) + 
+  labs(
+    title = "Bicycles counted daily by NYC DOT 2017-2020",
+    x = "Month and Day",
+    y = "Number of Collisions"
+    ) +
+  theme(text = element_text(size = 15), 
+        axis.text.x = element_text(angle = 60, hjust=1, size=10)) +
+  scale_colour_discrete("Year")
+
+ggplotly(bike_count_yr_plot)
+```
+
+Analagous plot of bikes involved in crashes:
+```{r}
+bike_crash_yr_plot = bike_crash_agg %>% 
+    mutate(year = lubridate::year(date),
+         month = lubridate::month(date),
+         day_of_year = lubridate::yday(date)) %>% 
+  ggplot(aes(x = day_of_year, y = daily_bikes_crashed, 
+             group = year, color = as.factor(year))) +
+  geom_point(alpha = .5) +
+  geom_smooth(se = FALSE) + 
+  labs(
+    title = "Bicycles involved in crashes daily in NYC 2017-2020",
+    x = "Month and Day",
+    y = "Bikes involved in crashes"
+    ) +
+  theme(text = element_text(size = 15), 
+        axis.text.x = element_text(angle = 60, hjust=1, size=10)) +
+  scale_colour_discrete("Year")
+
+ggplotly(bike_crash_yr_plot)
+```
+
+Notes: bicycle use in 2020 seems comparable, and at some points slightly higher than bike use in previous years. However, bicycle crashes were lower than in previous years. It's hard to know if this is due to an improvement in bicycle safety in general or if reduced car traffic during covid had an impact.
