@@ -11,7 +11,9 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(httr)
 library(purrr)
-library(leaflet)
+library(plotly)
+library(patchwork)
+
 options(scipen=999)
 
 theme_set(theme_minimal() + theme(legend.position = "bottom"))
@@ -73,11 +75,7 @@ microvehicle_crash_agg = crash_dat_tidy %>%
   group_by(date) %>% 
   summarize(daily_microveh_crashed = n()) 
 
-microvehicle_crash_agg %>% 
-  ggplot(aes(x = date, y = daily_microveh_crashed)) +
-  geom_point(alpha = .5) +
-  geom_smooth(se = FALSE)
-           
+
 #Run to check what the filter ^ resulted in
 # bikes %>%
 #   group_by(vehicle_options) %>%
@@ -90,12 +88,6 @@ bike_crash_agg = crash_dat_tidy %>%
   filter(str_starts(vehicle_options, "[Bb]ike")) %>% 
   group_by(date) %>% 
   summarize(daily_bikes_crashed = n())
-
-bike_crash_agg %>% 
-  ggplot(aes(x = date, y = daily_bikes_crashed)) +
-  geom_point(alpha = .5) +
-  geom_smooth(se = FALSE)
-  
            
 #Run to check what the filter ^ resulted in
 # bike_crash_dat %>%
@@ -105,7 +97,6 @@ bike_crash_agg %>%
 ```
 
 
-Probably can exclude this next section:
 ```{r line plot of crashes over time}
 #for the line plot, we will want a summary of the number of bike crashes by day. The collisions variable calculates the number of unique crashes and the bikes variable calculates the total number of bikes that crashed (there can be mutliple bikes involved in one crash but this is rare)
 # crash_date_summ = 
@@ -136,7 +127,6 @@ crash_date_summ %>%
 ```
 
 
-
 ```{r import bikes}
 #Importing bike data using the NYC Open Data API. The API response is limited to 50,000 rows, so we need a function that can be used to page through these results to capture all bike counts in 2019 and 2020. 
 
@@ -164,9 +154,51 @@ bike_counts_aggregate =
   summarize(total_daily_bikes = sum(counts, na.rm = TRUE))
 
 # Look at simple graph of bike counts by day, analagous to the one of crashes above.
-bike_counts_aggregate %>%
+bike_count_plot = bike_counts_aggregate %>%
   ggplot(aes(x = date, y = total_daily_bikes)) +
-  geom_point(alpha = .5) +
-  geom_smooth(se = FALSE)
+  geom_point(alpha = .3) +
+  geom_smooth(se = FALSE) 
+```
+
+## Visualization option 1:
+
+One way of visualizing: 2017-2020 Bike use, bikes involved in crashes, microvehicles involved in crashes. I thought it would be valuable to go back to 2017 to get a sense of non-covid bike use to compare 2020 to. 
+
+
+```{r}
+# all_bike = 
+#   full_join(bike_counts_aggregate, bike_crash_agg, by = "date")
+
+microveh_crash_plot = microvehicle_crash_agg %>% 
+  ggplot(aes(x = date, y = daily_microveh_crashed)) +
+  geom_point(alpha = .3) +
+  geom_smooth(se = FALSE) +
+  labs(
+    title = "Microvehicles involved in crashes in NYC daily: 2017-2020",
+    x = "Date",
+    y = ""
+  )
+
+bike_crash_plot = bike_crash_agg %>% 
+  ggplot(aes(x = date, y = daily_bikes_crashed)) +
+  geom_point(alpha = .3) +
+  geom_smooth(se = FALSE) +
+  labs(
+    title = "Bicycles involved in crashes in NYC daily: 2017-2020",
+    x = "Date",
+    y = ""
+  )
+  
+bike_count_plot = bike_counts_aggregate %>%
+  ggplot(aes(x = date, y = total_daily_bikes)) +
+  geom_point(alpha = .3) +
+  geom_smooth(se = FALSE) +
+  labs(
+    title = "Bicycle use in NYC: Bicycles counted daily by NYC DOT 2017-2020",
+    x = "Date",
+    y = ""
+  )
+
+bike_count_plot / bike_crash_plot / microveh_crash_plot
 ```
 
