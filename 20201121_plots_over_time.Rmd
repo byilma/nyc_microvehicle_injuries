@@ -2,8 +2,7 @@
 title: "Plots over time"
 date: "11/21/2020"
 output: 
-  github_document:
-  always_allow_html: true
+  html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -185,7 +184,7 @@ bike_count_yr_plot = bike_counts_aggregate %>%
          day_of_year = lubridate::yday(date)) %>%
   ggplot(aes(x = day_of_year, y = total_daily_bikes, 
              group = year, color = as.factor(year))) +
-  geom_point(alpha = .5) +
+  geom_point(alpha = .3) +
   geom_smooth(se = FALSE) + 
   labs(
     title = "Bicycles counted daily by NYC DOT 2017-2020",
@@ -207,7 +206,7 @@ bike_crash_yr_plot = bike_crash_agg %>%
          day_of_year = lubridate::yday(date)) %>% 
   ggplot(aes(x = day_of_year, y = daily_bikes_crashed, 
              group = year, color = as.factor(year))) +
-  geom_point(alpha = .5) +
+  geom_point(alpha = .3) +
   geom_smooth(se = FALSE) + 
   labs(
     title = "Bicycles involved in crashes daily in NYC 2017-2020",
