@@ -1,0 +1,321 @@
+---
+title: "Contributing Factors"
+date: "11/21/2020"
+output: 
+  html_document:
+  always_allow_html: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(httr)
+library(purrr)
+library(leaflet)
+library(plotly)
+options(scipen = 999)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+scale_colour_discrete = scale_color_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+
+```
+
+
+```{r import MV crash, include=FALSE}
+#Importing crash data using the NYC Open Data API. The API response is limited to 50,000 rows, so we need a function that can be used to page through these results to capture all crashes in 2020. 
+
+crash_api = function(offset, limit = 50000) {
+  GET("https://data.cityofnewyork.us/resource/h9gi-nx95.csv", 
+      query = list("$where" = "crash_date between '2019-01-01T00:00:0' and '2020-10-31T12:00:00'", "$limit" = limit, "$offset" = offset)) %>% 
+  content("parsed") %>%
+  as_tibble() 
+}
+offsets = seq(25000, 275000, by = 50000)
+crash_dat = bind_rows(crash_api(offset = 0, limit = 25000),
+                    map_df(offsets, crash_api)) 
+crash_dat = crash_dat %>% distinct
+```
+
+
+```{r, tidy MV crash}
+#cleaning - transpose so vehicle types are listed in one column
+crash_dat2 = 
+  crash_dat %>% 
+  mutate(
+    dow = as.factor(weekdays(crash_date))
+  ) %>%
+  separate(crash_date, into = c("year", "month", "day"), sep = "-") %>%
+  mutate(year = as.integer(year),
+         month = as.integer(month),
+         day = as.integer(day)) %>%
+  pivot_longer(
+    vehicle_type_code1:vehicle_type_code_5,
+    names_to = "vehicle_number",
+    values_to = "vehicle_options",
+    names_prefix = "vehicle_type_code"
+   ) %>%
+  drop_na(vehicle_options)
+```
+
+
+Subset to crashes involving a bike
+
+```{r bikes}
+bikes = crash_dat2 %>%
+  filter(str_detect(vehicle_options, "[Bb]ike")
+           ) 
+           
+#Run to check what the filter ^ resulted in
+bikes %>%
+  group_by(vehicle_options) %>%
+  count() %>% View()
+```
+
+
+
+
+Exploring contributing factors for crashes that result in an injury to a cyclist. Subsetting to crashes in March - October and classifying 2019 as pre-COVID and 2020 as COVID.
+
+```{r contributing_factor}
+crash_factor = 
+  bikes %>%
+  filter(
+    month %in% (3:10),
+    number_of_cyclist_injured > 0
+    ) %>%
+  pivot_longer(
+    contributing_factor_vehicle_1:contributing_factor_vehicle_5,
+    names_to = "vehicle_factor_num",
+    names_prefix = "contributing_factor_vehicle_",
+    values_to = "contributing_factor"
+   ) %>%
+  mutate(
+    covid = as.factor(if_else(year == 2019, 'Pre-COVID', 'COVID'))
+  ) %>%
+  group_by(covid, contributing_factor) %>%
+  summarise(
+    collisions = n_distinct(collision_id)
+  ) %>%
+  drop_na(contributing_factor) %>%
+  ungroup(contributing_factor) %>%
+  filter(contributing_factor != "Unspecified") %>%
+  mutate(
+    covid = fct_relevel(covid, 'Pre-COVID'),
+    proportion = round(collisions / sum(collisions), 2) 
+  ) 
+  
+
+top_10 = 
+  crash_factor %>%
+  group_by(covid) %>%
+  top_n(n = 10, wt = proportion) %>%
+  mutate(
+    contributing_factor = fct_reorder(as.factor(contributing_factor), collisions, .desc = TRUE)
+  ) %>%
+  ggplot(aes(x = contributing_factor, y = proportion, fill = covid)) +
+  geom_bar(stat = "identity") +
+  facet_grid( . ~covid, scales = "free_x", space = "free_x") +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1), legend.position = "none") +
+  labs(
+    title = "Top Ten Contributing Factors for Crashes Involving Injuries to Cyclists",
+    x = "",
+    y = "Proportion of Crashes"
+  )
+
+ggplotly(top_10) 
+
+```
+
+The leading contributing causes for cyclist injuries did not change during COVID, with the majority of crashes involving driver error, such as driver inattention and failure to yield. There is a slight decrease in the proportion of crashes involving cyclist error.  
+
+
+Plotting a heat map of bike crashes by time of day and day of week pre and during COVID.
+
+```{r heat_plots}
+crash_day_time = 
+  bikes %>%
+  filter(
+    month %in% (3:10),
+    number_of_cyclist_injured > 0
+    ) %>%
+  separate(crash_time, into = c("hour", "minute", "second"), sep = ":") %>%
+  mutate(
+    covid = as.factor(if_else(year == 2019, 'Pre-COVID', 'COVID'))
+  ) %>%
+  group_by(covid, hour, dow) %>%
+  summarise(
+    collisions = n_distinct(collision_id)
+  ) %>%
+  mutate(
+    covid = fct_relevel(covid, 'Pre-COVID'),
+    dow = fct_relevel(dow, "Sunday", "Saturday", "Friday", "Thursday", "Wednesday", "Tuesday")
+  ) 
+
+
+a <- list(
+  text = "Pre-COVID",
+  xref = "paper",
+  yref = "paper",
+  yanchor = "bottom",
+  xanchor = "center",
+  align = "center",
+  x = 0.5,
+  y = 1,
+  showarrow = FALSE
+)
+
+b <- list(
+  text = "COVID",
+  xref = "paper",
+  yref = "paper",
+  yanchor = "bottom",
+  xanchor = "center",
+  align = "center",
+  x = 0.5,
+  y = 1,
+  showarrow = FALSE
+)
+
+
+pre_heat = 
+  crash_day_time %>%
+  filter(covid == "Pre-COVID") %>%
+  plot_ly(
+    x = ~hour, y = ~dow, z = ~collisions, type = "heatmap", colors = "BuPu"
+  ) %>%
+  hide_colorbar() %>%
+  layout(annotations = a)
+
+covid_heat = 
+  crash_day_time %>%
+  filter(covid == "COVID") %>%
+  plot_ly(
+    x = ~hour, y = ~dow, z = ~collisions, type = "heatmap", colors = "BuPu"
+  ) %>%
+  hide_colorbar() %>%
+  layout(annotations = b)
+
+subplot(pre_heat, covid_heat, nrows = 2, margin = .1)
+
+```
+
+
+Overall, there’s a similar trend pre and during COVID where ethe majority of bike crashes are clustered in the evening. There seems to be slightly more clustering in the evening commute hours (4-6 PM) during COVID than pre-COVID and even fewer crashes in the morning hours during COVID.  
+
+
+Replicating these heat maps but subsetting to crashes that have a contributing factor attributed to the cyclist (either a factor of cyclist error or a factor with the same vehicle number as the bike vehicle number).  
+
+```{r heat_plots_cyclist}
+day_time_bike_err = 
+  bikes %>%
+  filter(
+    month %in% (3:10),
+    number_of_cyclist_injured > 0
+    ) %>%
+  pivot_longer(
+    contributing_factor_vehicle_1:contributing_factor_vehicle_5,
+    names_to = "vehicle_factor_num",
+    names_prefix = "contributing_factor_vehicle_",
+    values_to = "contributing_factor"
+   ) %>%
+  filter(contributing_factor == "Pedestrian/Bicyclist/Other Pedestrian Error/Confusion" |
+           vehicle_factor_num == vehicle_number) %>%
+  separate(crash_time, into = c("hour", "minute", "second"), sep = ":") %>%
+  mutate(
+    covid = as.factor(if_else(year == 2019, 'Pre-COVID', 'COVID'))
+  ) %>%
+  group_by(covid, hour, dow) %>%
+  summarise(
+    collisions = n_distinct(collision_id)
+  ) %>%
+  mutate(
+    covid = fct_relevel(covid, 'Pre-COVID'),
+    dow = fct_relevel(dow, "Sunday", "Saturday", "Friday", "Thursday", "Wednesday", "Tuesday")
+  ) 
+
+pre_bike_err = 
+  day_time_bike_err %>%
+  filter(covid == "Pre-COVID") %>%
+  plot_ly(
+    x = ~hour, y = ~dow, z = ~collisions, type = "heatmap", colors = "Blues"
+  ) %>%
+  hide_colorbar() %>%
+  layout(annotations = a)
+
+covid_bike_err = 
+  day_time_bike_err %>%
+  filter(covid == "COVID") %>%
+  plot_ly(
+    x = ~hour, y = ~dow, z = ~collisions, type = "heatmap", colors = "Blues"
+  ) %>%
+  hide_colorbar() %>%
+  layout(annotations = b)
+
+subplot(pre_bike_err, covid_bike_err, nrows = 2, margin = .1)
+
+```
+
+
+Similar to heat maps above, crashes where the cyclist made an error are clustered in the evening hours and there is slightly more clustering during COVID than pre-COVID.
+
+Again replicating these heat maps but subsetting to crashes that have a contributing factor attributed to the driver. 
+
+```{r heat_plots_driver}
+day_time_drive_err = 
+  bikes %>%
+  filter(
+    month %in% (3:10),
+    number_of_cyclist_injured > 0
+    ) %>%
+  pivot_longer(
+    contributing_factor_vehicle_1:contributing_factor_vehicle_5,
+    names_to = "vehicle_factor_num",
+    names_prefix = "contributing_factor_vehicle_",
+    values_to = "contributing_factor"
+   ) %>%
+  filter(
+    contributing_factor != "Pedestrian/Bicyclist/Other Pedestrian Error/Confusion",
+    vehicle_factor_num != vehicle_number
+    ) %>%
+  separate(crash_time, into = c("hour", "minute", "second"), sep = ":") %>%
+  mutate(
+    covid = as.factor(if_else(year == 2019, 'Pre-COVID', 'COVID'))
+  ) %>%
+  group_by(covid, hour, dow) %>%
+  summarise(
+    collisions = n_distinct(collision_id)
+  ) %>%
+  mutate(
+    covid = fct_relevel(covid, 'Pre-COVID'),
+    dow = fct_relevel(dow, "Sunday", "Saturday", "Friday", "Thursday", "Wednesday", "Tuesday")
+  ) 
+
+
+pre_drive_err = 
+  day_time_drive_err %>%
+  filter(covid == "Pre-COVID") %>%
+  plot_ly(
+    x = ~hour, y = ~dow, z = ~collisions, type = "heatmap", colors = "YlGn"
+  ) %>%
+  hide_colorbar() %>%
+  layout(annotations = a)
+
+covid_drive_err = 
+  day_time_drive_err %>%
+  filter(covid == "COVID") %>%
+  plot_ly(
+    x = ~hour, y = ~dow, z = ~collisions, type = "heatmap", colors = "YlGn"
+  ) %>%
+  hide_colorbar() %>% 
+  layout(annotations = b)
+
+subplot(pre_drive_err, covid_drive_err, nrows = 2, margin = .1)
+
+```
+
+Similar to heat maps above, crashes where the driver made an error are clustered in the evening hours and there is slightly more clustering during COVID than pre-COVID. 
