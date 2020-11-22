@@ -27,7 +27,7 @@ scale_fill_discrete = scale_fill_viridis_d
 ```
 
 
-```{r import MV crash, include=FALSE}
+```{r import MV crash, include=FALSE, cache = TRUE}
 #Importing crash data using the NYC Open Data API. The API response is limited to 50,000 rows, so we need a function that can be used to page through these results to capture all crashes in 2020. 
 crash_api = function(offset, limit = 50000) {
   GET("https://data.cityofnewyork.us/resource/h9gi-nx95.csv", 
@@ -75,6 +75,10 @@ microvehicle_crash_agg = crash_dat_tidy %>%
   group_by(date) %>% 
   summarize(daily_microveh_crashed = n()) 
 
+# This will give us the daily total of microvehicles that were involved in crashes, rather
+# than the daily total of crashes that involved microvehicles. ie, if there was one crash 
+# involving two microvehicles, that will count as two. (as explained in first version in import file)
+
 
 #Run to check what the filter ^ resulted in
 # bikes %>%
@@ -88,7 +92,11 @@ bike_crash_agg = crash_dat_tidy %>%
   filter(str_starts(vehicle_options, "[Bb]ike")) %>% 
   group_by(date) %>% 
   summarize(daily_bikes_crashed = n())
-           
+
+# This will give us the daily total of bikes that were involved in crashes, rather
+# than the daily total of crashes that involved bikes. ie, if there was one crash 
+# involving two bikes, that will count as two. (as explained in first version in import file)
+
 #Run to check what the filter ^ resulted in
 # bike_crash_dat %>%
 #   group_by(vehicle_options) %>%
@@ -97,37 +105,7 @@ bike_crash_agg = crash_dat_tidy %>%
 ```
 
 
-```{r line plot of crashes over time}
-#for the line plot, we will want a summary of the number of bike crashes by day. The collisions variable calculates the number of unique crashes and the bikes variable calculates the total number of bikes that crashed (there can be mutliple bikes involved in one crash but this is rare)
-# crash_date_summ = 
-#   crash_dat %>%
-#   filter(str_detect(vehicle_options, "[Bb]ike")) %>%
-#   group_by(year, month, day) %>%
-#   summarize(
-#     collisions = n_distinct(collision_id),
-#     bikes = n()
-#   )
-
-
-#simple plot just to see what the data look like
-crash_date_summ %>%
-  ggplot(aes(x = paste(month, day, sep="-"), y = collisions, 
-             group = year, color = as.factor(year))) +
-  geom_point(alpha = .5) +
-  geom_smooth(se = FALSE) + 
-  labs(
-    title = "Number of Collisions Over Time in January-October of 2019 and 2020",
-    x = "Month and Day",
-    y = "Number of Collisions"
-    ) +
-  theme(text = element_text(size = 15), 
-        axis.text.x = element_text(angle = 60, hjust=1, size=10)) +
-  scale_colour_discrete("Year")
-
-```
-
-
-```{r import bikes}
+```{r import bikes, cache = TRUE}
 #Importing bike data using the NYC Open Data API. The API response is limited to 50,000 rows, so we need a function that can be used to page through these results to capture all bike counts in 2019 and 2020. 
 
 #I think the code below works
@@ -153,11 +131,6 @@ bike_counts_aggregate =
   group_by(date) %>% 
   summarize(total_daily_bikes = sum(counts, na.rm = TRUE))
 
-# Look at simple graph of bike counts by day, analagous to the one of crashes above.
-bike_count_plot = bike_counts_aggregate %>%
-  ggplot(aes(x = date, y = total_daily_bikes)) +
-  geom_point(alpha = .3) +
-  geom_smooth(se = FALSE) 
 ```
 
 ## Visualization option 1:
@@ -167,9 +140,6 @@ One way of visualizing: 2017-2020 Bike use, bikes involved in crashes, microvehi
 This will need to have an aspect ratio tall enough to show all three clearly.
 
 ```{r}
-# all_bike = 
-#   full_join(bike_counts_aggregate, bike_crash_agg, by = "date")
-
 microveh_crash_plot = microvehicle_crash_agg %>% 
   ggplot(aes(x = date, y = daily_microveh_crashed)) +
   geom_point(alpha = .3) +
