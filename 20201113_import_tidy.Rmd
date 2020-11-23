@@ -89,7 +89,7 @@ bikes = crash_dat %>%
       str_detect(vehicle_options, "[Mm]otorbike", negate = TRUE)
            ) 
            
-#Run to check what the filter ^ resulted in
+# Run to check what the filter ^ resulted in
 # bikes %>%
 #   group_by(vehicle_options) %>%
 #   count() %>% View()

@@ -69,10 +69,10 @@ fit_injuries_month
     ##  5 Jan   Borough: QUEENS         -0.0362    0.0302 2.31e- 1
     ##  6 Jan   Borough: STATEN ISLAND   0.357     0.0517 4.88e-12
     ##  7 Feb   (Intercept)             -1.36      0.0275 0.      
-    ##  8 Feb   2020 v. 2019             0.163     0.0211 1.19e-14
-    ##  9 Feb   Borough: BROOKLYN       -0.0302    0.0309 3.29e- 1
-    ## 10 Feb   Borough: MANHATTAN      -0.453     0.0386 8.28e-32
-    ## # ... with 62 more rows
+    ##  8 Feb   2020 v. 2019             0.163     0.0211 1.22e-14
+    ##  9 Feb   Borough: BROOKLYN       -0.0303    0.0309 3.27e- 1
+    ## 10 Feb   Borough: MANHATTAN      -0.453     0.0386 7.87e-32
+    ## # … with 62 more rows
 
 It seems like what this is looking at is the number of persons injured
 per crash, and seeing if there is a significant difference between years
