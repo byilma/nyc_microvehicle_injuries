@@ -78,7 +78,7 @@ fit_injuries_month
     ##  2 January  2020 v. 2019, Borough: BRONX            0.255    0.0354 6.36e-13
     ##  3 January  2020 v. 2019, Borough: BROOKLYN         0.211    0.0282 8.32e-14
     ##  4 January  2020 v. 2019, Borough: MANHATTAN       -0.337    0.0469 7.56e-13
-    ##  5 January  2020 v. 2019, Borough: QUEENS           0.149    0.0294 3.80e- 7
+    ##  5 January  2020 v. 2019, Borough: QUEENS           0.150    0.0294 3.27e- 7
     ##  6 January  2020 v. 2019, Borough: STATEN ISLAND    0.683    0.0739 2.59e-20
     ##  7 February (Intercept)                            -1.44     0.0149 0.      
     ##  8 February 2020 v. 2019, Borough: BRONX            0.240    0.0383 3.77e-10
