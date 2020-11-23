@@ -1,0 +1,223 @@
+---
+title: "Plots over time"
+date: "11/21/2020"
+output: 
+  html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(httr)
+library(purrr)
+library(plotly)
+library(patchwork)
+
+options(scipen=999)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+scale_colour_discrete = scale_color_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+
+```
+
+
+```{r import MV crash, include=FALSE, cache = TRUE}
+#Importing crash data using the NYC Open Data API. The API response is limited to 50,000 rows, so we need a function that can be used to page through these results to capture all crashes in 2020. 
+crash_api = function(offset, limit = 50000) {
+  GET("https://data.cityofnewyork.us/resource/h9gi-nx95.csv", 
+      query = list("$where" = "crash_date between '2017-01-01T00:00:0' and '2020-10-31T12:00:00'", "$limit" = limit, "$offset" = offset)) %>% 
+  content("parsed") %>%
+  as_tibble() %>% 
+  select(-latitude, -longitude)
+}
+
+offsets = seq(0, 750000, by = 50000)
+
+crash_dat = map_df(offsets, crash_api)
+crash_dat = crash_dat %>% distinct
+```
+
+
+```{r, tidy MV crash}
+#cleaning - transpose so vehicle types are listed in one column
+crash_dat_tidy = 
+  crash_dat %>% 
+  mutate(
+    date = lubridate::date(crash_date)
+  ) %>% 
+  pivot_longer(
+    vehicle_type_code1:vehicle_type_code_5,
+    names_to = "vehicle_number",
+    values_to = "vehicle_options"
+   ) %>%
+  drop_na(vehicle_options)
+```
+
+```{r filtering for microvehicles}
+#Exploring the vehicle types so that we can limit to bicycles -- double check this list
+microvehicle_crash_agg = crash_dat_tidy %>%
+  filter(str_detect(vehicle_options, "[Bb]ike") | 
+           str_detect(vehicle_options, "REVEL") | 
+           str_detect(vehicle_options, "SCO")  |
+           str_detect(vehicle_options, "MOP")   |
+           str_detect(vehicle_options, "ELEC")  |
+           str_detect(vehicle_options, "^E-")) %>% 
+  filter(vehicle_options != "ESCOVATOR" & vehicle_options != "Bike" &
+      str_detect(vehicle_options, "Dirt", negate = TRUE),
+      str_detect(vehicle_options, "[Mm]otorbike", negate = TRUE)
+           ) %>% 
+  group_by(date) %>% 
+  summarize(daily_microveh_crashed = n()) 
+
+# This will give us the daily total of microvehicles that were involved in crashes, rather
+# than the daily total of crashes that involved microvehicles. ie, if there was one crash 
+# involving two microvehicles, that will count as two. (as explained in first version in import file)
+
+
+#Run to check what the filter ^ resulted in
+# bikes %>%
+#   group_by(vehicle_options) %>%
+#   count() %>% View()
+```
+
+```{r filtering for bikes}
+#Exploring the vehicle types so that we can limit to bicycles -- double check this list
+bike_crash_agg = crash_dat_tidy %>%
+  filter(str_starts(vehicle_options, "[Bb]ike")) %>% 
+  group_by(date) %>% 
+  summarize(daily_bikes_crashed = n())
+
+# This will give us the daily total of bikes that were involved in crashes, rather
+# than the daily total of crashes that involved bikes. ie, if there was one crash 
+# involving two bikes, that will count as two. (as explained in first version in import file)
+
+#Run to check what the filter ^ resulted in
+# bike_crash_dat %>%
+#   group_by(vehicle_options) %>%
+#   count() %>% View()
+
+```
+
+
+```{r import bikes, cache = TRUE}
+#Importing bike data using the NYC Open Data API. The API response is limited to 50,000 rows, so we need a function that can be used to page through these results to capture all bike counts in 2019 and 2020. 
+
+#I think the code below works
+bike_api = function(offset, limit = 50000) {
+  GET("https://data.cityofnewyork.us/resource/uczf-rk3c.csv", 
+      query = list("$where" = "date between '2017-01-01T00:00:00' and '2020-10-31T12:00:00'", "$limit" = limit, "$offset" = offset)) %>% 
+  content("parsed") %>%
+  as_tibble() 
+}
+
+offsets = seq(0, 1800000, by = 50000)
+bike_dat = map_df(offsets, bike_api)
+```
+
+
+```{r tidy bikes}
+bike_counts_aggregate = 
+  bike_dat %>% 
+  mutate(
+    date_time = date,
+    date = lubridate::date(date_time)
+  ) %>% 
+  group_by(date) %>% 
+  summarize(total_daily_bikes = sum(counts, na.rm = TRUE))
+
+```
+
+## Visualization option 1:
+
+One way of visualizing: 2017-2020 Bike use, bikes involved in crashes, microvehicles involved in crashes. I thought it would be valuable to go back to 2017 to get a sense of non-covid bike use to compare to 2020.
+
+This will need to have an aspect ratio tall enough to show all three clearly.
+
+```{r}
+microveh_crash_plot = microvehicle_crash_agg %>% 
+  ggplot(aes(x = date, y = daily_microveh_crashed)) +
+  geom_point(alpha = .3) +
+  geom_smooth(se = FALSE) +
+  labs(
+    title = "Microvehicles involved in crashes in NYC daily: 2017-2020",
+    x = "Date",
+    y = ""
+  )
+
+bike_crash_plot = bike_crash_agg %>% 
+  ggplot(aes(x = date, y = daily_bikes_crashed)) +
+  geom_point(alpha = .3) +
+  geom_smooth(se = FALSE) +
+  labs(
+    title = "Bicycles involved in crashes in NYC daily: 2017-2020",
+    x = "Date",
+    y = ""
+  )
+  
+bike_count_plot = bike_counts_aggregate %>%
+  ggplot(aes(x = date, y = total_daily_bikes)) +
+  geom_point(alpha = .3) +
+  geom_smooth(se = FALSE) +
+  labs(
+    title = "Bicycle use in NYC: Bicycles counted daily by NYC DOT 2017-2020",
+    x = "Date",
+    y = ""
+  )
+
+bike_count_plot / bike_crash_plot / microveh_crash_plot
+```
+
+## Visualization option 2: Overlay years for bike use, overlay years for bike crashes
+
+**Still to do for both plots: change x-axis labels, Adjust colors so 2020 isn't yellow...**
+
+Plotly plot of daily bike counts. 
+```{r}
+bike_count_yr_plot = bike_counts_aggregate %>% 
+  mutate(year = lubridate::year(date),
+         month = lubridate::month(date),
+         day_of_year = lubridate::yday(date)) %>%
+  ggplot(aes(x = day_of_year, y = total_daily_bikes, 
+             group = year, color = as.factor(year))) +
+  geom_point(alpha = .3) +
+  geom_smooth(se = FALSE) + 
+  labs(
+    title = "Bicycles counted daily by NYC DOT 2017-2020",
+    x = "Month and Day",
+    y = "Number of Collisions"
+    ) +
+  theme(text = element_text(size = 15), 
+        axis.text.x = element_text(angle = 60, hjust=1, size=10)) +
+  scale_colour_discrete("Year")
+
+ggplotly(bike_count_yr_plot)
+```
+
+Analagous plot of bikes involved in crashes:
+```{r}
+bike_crash_yr_plot = bike_crash_agg %>% 
+    mutate(year = lubridate::year(date),
+         month = lubridate::month(date),
+         day_of_year = lubridate::yday(date)) %>% 
+  ggplot(aes(x = day_of_year, y = daily_bikes_crashed, 
+             group = year, color = as.factor(year))) +
+  geom_point(alpha = .3) +
+  geom_smooth(se = FALSE) + 
+  labs(
+    title = "Bicycles involved in crashes daily in NYC 2017-2020",
+    x = "Month and Day",
+    y = "Bikes involved in crashes"
+    ) +
+  theme(text = element_text(size = 15), 
+        axis.text.x = element_text(angle = 60, hjust=1, size=10)) +
+  scale_colour_discrete("Year")
+
+ggplotly(bike_crash_yr_plot)
+```
+
+Notes: bicycle use in 2020 seems comparable, and at some points slightly higher than bike use in previous years. However, bicycle crashes were lower than in previous years. It's hard to know if this is due to an improvement in bicycle safety in general or if reduced car traffic during covid had an impact.

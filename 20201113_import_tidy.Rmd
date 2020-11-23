@@ -13,6 +13,15 @@ library(httr)
 library(purrr)
 library(leaflet)
 options(scipen=999)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+scale_colour_discrete = scale_color_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+
 ```
 
 
@@ -63,14 +72,18 @@ crash_dat = crash_dat %>% distinct
 #cleaning - transpose so vehicle types are listed in one column
 crash_dat = 
   crash_dat %>% 
+  mutate(
+    dow = as.factor(weekdays(crash_date))
+  ) %>%
   separate(crash_date, into = c("year", "month", "day"), sep = "-") %>%
-  mutate(year=as.integer(year),
-         month=as.integer(month),
-         day=as.integer(day)) %>%
+  mutate(year = as.integer(year),
+         month = as.integer(month),
+         day = as.integer(day)) %>%
   pivot_longer(
     vehicle_type_code1:vehicle_type_code_5,
     names_to = "vehicle_number",
-    values_to = "vehicle_options"
+    values_to = "vehicle_options",
+    names_prefix = "vehicle_type_code"
    ) %>%
   drop_na(vehicle_options)
 ```
@@ -110,20 +123,27 @@ Microvehicle incidents in NYC _ a leaflet map -- I just commented this out to kn
 
 
 ```{r lm for injuries by month}
+month_df=
+  tibble(
+    month = 1:12,
+    month_name = factor(month.name, ordered = TRUE, levels = month.name)
+  )
 
 fit_injuries_month = crash_dat %>%
   group_by(year) %>%
   mutate(year_2020 = year - 2019) %>%
   nest(data = -month) %>%
-  mutate(models = map(data, ~glm(number_of_persons_injured ~ year_2020 + borough,
+  mutate(models = map(data, ~glm(number_of_persons_injured ~ year_2020:borough,
                                  family = "poisson", data = .x)),
          models = map(models, broom::tidy)) %>% 
   select(-data) %>% 
   unnest(models) %>%
   select(month, term, estimate, std.error, p.value) %>% 
-  mutate(term = str_replace(term, "^borough", "Borough: "),
-         term = str_replace(term, "year_2020", "2020 v. 2019"),
-         month = month.abb[month]) 
+  mutate(term = str_replace(term, "year_2020:borough", "2020 v. 2019, Borough: ")) %>%
+  left_join(month_df, by = "month") %>%
+  select(-month) %>%
+  rename(month = month_name) %>%
+  select(month, everything())
 
 fit_injuries_month
 
@@ -135,15 +155,22 @@ It seems like what this is looking at is the number of persons injured per crash
 ```{r plot injuries by month}
 
 fit_injuries_month %>% 
-  filter(term == "2020 v. 2019") %>%
-  ggplot(aes(x = month, y = exp(estimate))) + geom_point() +
+  filter(term != "(Intercept)" & month != "November" & month != "December") %>%
+  mutate(term = str_replace(term, "2020 v. 2019, ", "")) %>%
+  ggplot(aes(x = month, y = exp(estimate), color = term)) + 
+  geom_point(show.legend = FALSE, aes(size = estimate, alpha = .7)) +
   geom_errorbar(aes(ymin = exp(estimate - (1.96*std.error)), 
                     ymax = exp(estimate + (1.96*std.error)))) +
+  geom_hline(yintercept = 1, linetype="dashed", 
+                color = "darkred", size = 1, alpha = .7) +
   labs(
-    title = "Rate of Injuries Per Month in 2020 v. 2019",
+    title = "Difference in Rate of Injuries Per Crash in 2020 v. 2019",
     x = "Month",
     y = "2020 v. 2019 Difference"
-  ) 
+  ) +
+  theme(legend.position="right", legend.title = element_blank(),
+        text = element_text(size = 10),
+        axis.text.x = element_text(angle = 90, hjust = 1, size = 8))
 
 ```
 
@@ -174,13 +201,14 @@ crash_date_summ %>%
     y = "Number of Collisions"
     ) +
   theme(text = element_text(size = 15), 
-        axis.text.x = element_text(angle = 90, hjust=1, size=10)) +
+        axis.text.x = element_text(angle = 60, hjust=1, size=10)) +
   scale_colour_discrete("Year")
+
 ```
 
 
 
-```{r import bikes}
+```{r import bikes, include=FALSE}
 #Importing bike data using the NYC Open Data API. The API response is limited to 50,000 rows, so we need a function that can be used to page through these results to capture all bike counts in 2019 and 2020. 
 
 # 
@@ -239,32 +267,49 @@ bike_counts_aggregate %>%
 
 
 Contributing Factor
-```{r}
+```{r contributing_factor}
 crash_factor = 
   bikes %>%
+  filter(
+    month %in% (3:10),
+    number_of_cyclist_injured > 0
+    ) %>%
   pivot_longer(
     contributing_factor_vehicle_1:contributing_factor_vehicle_5,
     names_to = "vehicle_factor_num",
     names_prefix = "contributing_factor_vehicle_",
     values_to = "contributing_factor"
    ) %>%
-  drop_na(contributing_factor) %>%
-  filter(contributing_factor != "Unspecified") %>%
-  group_by(contributing_factor) %>%
+  mutate(
+    covid = as.factor(if_else(year == 2019, 'Pre-COVID', 'COVID'))
+  ) %>%
+  group_by(covid, contributing_factor) %>%
   summarise(
     collisions = n_distinct(collision_id)
   ) %>%
+  drop_na(contributing_factor) %>%
+  ungroup(contributing_factor) %>%
+  filter(contributing_factor != "Unspecified") %>%
   mutate(
-    contributing_factor = fct_reorder(as.factor(contributing_factor), collisions, .desc = TRUE)
+    covid = fct_relevel(covid, 'Pre-COVID'),
+    proportion = round(collisions / sum(collisions), 2) 
   ) 
   
 
-
 crash_factor %>%
-  filter(
-    collisions > 50
+  group_by(covid) %>%
+  top_n(n = 10, wt = proportion) %>%
+  mutate(
+    contributing_factor = fct_reorder(as.factor(contributing_factor), collisions, .desc = TRUE)
   ) %>%
-  ggplot(aes(x = contributing_factor, y = collisions)) +
+  ggplot(aes(x = contributing_factor, y = proportion, fill = covid)) +
   geom_bar(stat = "identity") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+  facet_grid( . ~covid, scales = "free_x", space = "free_x") +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1), legend.position = "none") +
+  labs(
+    title = "Top Ten Contributing Factors for Crashes Involving Injuries to Cyclists",
+    x = "",
+    y = "Proportion of Crashes"
+  )
 ```
+
