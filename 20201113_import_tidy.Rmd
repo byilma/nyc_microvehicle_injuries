@@ -1,6 +1,6 @@
 ---
 title: "Pull and Tidy"
-date: "11/6/2020"
+date: "11/27/2020"
 output: 
   github_document:
   always_allow_html: true

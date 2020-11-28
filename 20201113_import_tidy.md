@@ -1,6 +1,6 @@
 Pull and Tidy
 ================
-11/6/2020
+11/27/2020
 
 ``` r
 #cleaning - transpose so vehicle types are listed in one column
@@ -75,15 +75,15 @@ fit_injuries_month
     ##    month    term                                 estimate std.error  p.value
     ##    <ord>    <chr>                                   <dbl>     <dbl>    <dbl>
     ##  1 January  (Intercept)                            -1.41     0.0143 0.      
-    ##  2 January  2020 v. 2019, Borough: BRONX            0.261    0.0354 1.69e-13
-    ##  3 January  2020 v. 2019, Borough: BROOKLYN         0.216    0.0283 2.21e-14
-    ##  4 January  2020 v. 2019, Borough: MANHATTAN       -0.332    0.0470 1.63e-12
-    ##  5 January  2020 v. 2019, Borough: QUEENS           0.154    0.0294 1.58e- 7
-    ##  6 January  2020 v. 2019, Borough: STATEN ISLAND    0.683    0.0739 2.59e-20
+    ##  2 January  2020 v. 2019, Borough: BRONX            0.265    0.0354 7.44e-14
+    ##  3 January  2020 v. 2019, Borough: BROOKLYN         0.211    0.0283 9.02e-14
+    ##  4 January  2020 v. 2019, Borough: MANHATTAN       -0.340    0.0472 5.37e-13
+    ##  5 January  2020 v. 2019, Borough: QUEENS           0.148    0.0294 4.97e- 7
+    ##  6 January  2020 v. 2019, Borough: STATEN ISLAND    0.688    0.0739 1.36e-20
     ##  7 February (Intercept)                            -1.44     0.0149 0.      
-    ##  8 February 2020 v. 2019, Borough: BRONX            0.240    0.0383 3.91e-10
-    ##  9 February 2020 v. 2019, Borough: BROOKLYN         0.179    0.0292 9.90e-10
-    ## 10 February 2020 v. 2019, Borough: MANHATTAN       -0.180    0.0438 3.96e- 5
+    ##  8 February 2020 v. 2019, Borough: BRONX            0.240    0.0383 3.77e-10
+    ##  9 February 2020 v. 2019, Borough: BROOKLYN         0.179    0.0292 9.46e-10
+    ## 10 February 2020 v. 2019, Borough: MANHATTAN       -0.180    0.0438 4.05e- 5
     ## # … with 62 more rows
 
 It seems like what this is looking at is the number of persons injured
