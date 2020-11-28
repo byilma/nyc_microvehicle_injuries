@@ -12,6 +12,8 @@ library(tidyverse)
 library(httr)
 library(purrr)
 library(leaflet)
+library(plotly)
+
 options(scipen=999)
 
 theme_set(theme_minimal() + theme(legend.position = "bottom"))
@@ -21,6 +23,8 @@ options(
 )
 scale_colour_discrete = scale_color_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
+
+Sys.setenv('MAPBOX_TOKEN' = 'pk.eyJ1IjoiYWFicmFtb3Y5MCIsImEiOiJja2gyZm5obzQwNWIxMnFxc3phcWh1MWtwIn0.amAvJHtFkTl9XWJ68fh96Q')
 
 ```
 
@@ -107,9 +111,6 @@ bikes = crash_dat %>%
 #   group_by(vehicle_options) %>%
 #   count() %>% View()
 ```
-
-
-
 
 Microvehicle incidents in NYC _ a leaflet map -- I just commented this out to knit the document
 ```{r, include=FALSE}
@@ -311,5 +312,21 @@ crash_factor %>%
     x = "",
     y = "Proportion of Crashes"
   )
+```
+
+# Map Visualizations
+
+```{r}
+crash_map = 
+  crash_dat %>% 
+  drop_na(c(latitude, longitude)) %>% 
+  filter(latitude > 0) %>% 
+  mutate(
+    text_label = str_c("Crash Time: ", crash_time, "\nNumber Injured: ", number_of_persons_injured)) %>% 
+  plot_mapbox(x = ~longitude, y = ~latitude, color =~number_of_persons_injured, text =~text_label)%>% 
+  layout(
+    mapbox = list(
+      zoom = 9,
+      center = list(lat = 40.67, lon = -73.97)))
 ```
 

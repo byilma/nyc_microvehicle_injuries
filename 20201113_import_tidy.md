@@ -75,11 +75,11 @@ fit_injuries_month
     ##    month    term                                 estimate std.error  p.value
     ##    <ord>    <chr>                                   <dbl>     <dbl>    <dbl>
     ##  1 January  (Intercept)                            -1.41     0.0143 0.      
-    ##  2 January  2020 v. 2019, Borough: BRONX            0.265    0.0354 7.44e-14
-    ##  3 January  2020 v. 2019, Borough: BROOKLYN         0.211    0.0283 9.02e-14
-    ##  4 January  2020 v. 2019, Borough: MANHATTAN       -0.340    0.0472 5.37e-13
-    ##  5 January  2020 v. 2019, Borough: QUEENS           0.148    0.0294 4.97e- 7
-    ##  6 January  2020 v. 2019, Borough: STATEN ISLAND    0.688    0.0739 1.36e-20
+    ##  2 January  2020 v. 2019, Borough: BRONX            0.255    0.0354 6.36e-13
+    ##  3 January  2020 v. 2019, Borough: BROOKLYN         0.211    0.0282 8.32e-14
+    ##  4 January  2020 v. 2019, Borough: MANHATTAN       -0.337    0.0469 7.56e-13
+    ##  5 January  2020 v. 2019, Borough: QUEENS           0.150    0.0294 3.27e- 7
+    ##  6 January  2020 v. 2019, Borough: STATEN ISLAND    0.683    0.0739 2.59e-20
     ##  7 February (Intercept)                            -1.44     0.0149 0.      
     ##  8 February 2020 v. 2019, Borough: BRONX            0.240    0.0383 3.77e-10
     ##  9 February 2020 v. 2019, Borough: BROOKLYN         0.179    0.0292 9.46e-10
@@ -232,3 +232,19 @@ crash_factor %>%
 ```
 
 ![](20201113_import_tidy_files/figure-gfm/contributing_factor-1.png)<!-- -->
+
+# Map Visualizations
+
+``` r
+crash_map = 
+  crash_dat %>% 
+  drop_na(c(latitude, longitude)) %>% 
+  filter(latitude > 0) %>% 
+  mutate(
+    text_label = str_c("Crash Time: ", crash_time, "\nNumber Injured: ", number_of_persons_injured)) %>% 
+  plot_mapbox(x = ~longitude, y = ~latitude, color =~number_of_persons_injured, text =~text_label)%>% 
+  layout(
+    mapbox = list(
+      zoom = 9,
+      center = list(lat = 40.67, lon = -73.97)))
+```
