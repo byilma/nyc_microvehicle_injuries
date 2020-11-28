@@ -3,8 +3,11 @@ title: "Pull and Tidy"
 date: "11/27/2020"
 output: 
   github_document:
+    toc: true
 always_allow_html: true
 ---
+
+# Setup
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -28,6 +31,7 @@ Sys.setenv('MAPBOX_TOKEN' = 'pk.eyJ1IjoiYWFicmFtb3Y5MCIsImEiOiJja2gyZm5obzQwNWIx
 
 ```
 
+# Data Import
 
 ```{r import MV crash, include=FALSE}
 #Importing crash data using the NYC Open Data API. The API response is limited to 50,000 rows, so we need a function that can be used to page through these results to capture all crashes in 2020. 
@@ -71,6 +75,7 @@ crash_dat = bind_rows(crash_api(offset = 0, limit = 25000),
 crash_dat = crash_dat %>% distinct
 ```
 
+# Tidying, Data Wrangling
 
 ```{r, tidy MV crash}
 #cleaning - transpose so vehicle types are listed in one column
@@ -91,6 +96,8 @@ crash_dat =
    ) %>%
   drop_na(vehicle_options)
 ```
+
+# Filtering
 
 ```{r filtering for microvehicles}
 #Exploring the vehicle types so that we can limit to bicycles -- double check this list
@@ -122,6 +129,7 @@ Microvehicle incidents in NYC _ a leaflet map -- I just commented this out to kn
 #   addCircleMarkers(~longitude, ~latitude, radius = 1)
 ```
 
+# EDA, Injuries by Month
 
 ```{r lm for injuries by month}
 month_df=
@@ -176,7 +184,7 @@ fit_injuries_month %>%
 ```
 
 
-
+# EDA, Crashes Over Time, Cont'd
 
 ```{r line plot of crashes over time}
 #for the line plot, we will want a summary of the number of bike crashes by day. The collisions variable calculates the number of unique crashes and the bikes variable calculates the total number of bikes that crashed (there can be mutliple bikes involved in one crash but this is rare)
@@ -266,8 +274,8 @@ bike_counts_aggregate %>%
 ## Ok, even with the partial fix above, there seem to be bands of missing dates. I think there's something wrong with the import still.
 ```
 
+# EDA, Contributing Factors
 
-Contributing Factor
 ```{r contributing_factor}
 crash_factor = 
   bikes %>%
@@ -314,46 +322,54 @@ crash_factor %>%
   )
 ```
 
-# Map Visualizations
+# Visualizations: Maps
+
+## Location Data
 
 This is my initial thought on how this map might look... but I want to see about the density functions.
-I can change the size of the marker based on # people injured, or the color of the marker based on # people injured.
+I could change the size of the marker based on # people injured, or the color of the marker based on # people injured.  The boroughs adds a nice touch too.
 
+### Crashes with Injuries by Borough
 
 ```{r}
-crash_map = 
+crash_map_boro = 
   crash_dat %>% 
-  drop_na(c(latitude, longitude)) %>% 
+  drop_na(c(latitude, longitude, borough)) %>% 
   filter(str_detect(vehicle_options, "[Bb]ike"))  %>% 
   filter(number_of_persons_injured > 0) %>% 
-  filter(year == "2019") %>% 
   mutate(
     text_label = str_c("Crash Time: ", crash_time, "\nNumber of Persons Injured: ", number_of_persons_injured)) %>% 
   plot_mapbox(
     x = ~longitude, 
     y = ~latitude,  
     mode = 'scattermapbox', 
+    split = ~borough,
     size = ~number_of_persons_injured,
+    color = ~borough,
     text = ~text_label,
     hoverinfo = "text") %>% 
   layout(
     mapbox = 
       list(
-        style = "open-street-map",
-        zoom = 9,
-        center = list(lat = 40.67, lon = -73.97)))
+        style = "dark",
+        zoom = 9.5,
+        center = list(lat = 40.71, lon = -73.97)))
 
-crash_map %>% 
+crash_map_boro %>% 
   layout(
-    title = "Crashes with Injuries in New York City in 2019")
+    title = "Bicycle Crashes with Injuries in New York City (2019-2020)")
+
 ```
+
+## Density
 
 Playing around with the plot_ly density functions.  
 Here are the areas most prone to bicycle accidents in 2019
 
-```{r}
+### Density of Bicycle Crashes in 2019
 
-crash_map2 = 
+```{r}
+crash_map_density = 
   crash_dat %>% 
   drop_na(c(latitude, longitude)) %>% 
   filter(str_detect(vehicle_options, "[Bb]ike"))  %>% 
@@ -364,18 +380,18 @@ crash_map2 =
   plot_ly(
     lon = ~longitude, 
     lat = ~latitude,  
-    type = 'densitymapbox', 
-    coloraxis = 'coloraxis',
+    type = 'densitymapbox',
     symbol = 'square',
-    radius = 3,
-    text =~text_label) %>% 
+    radius = 3) %>% 
   layout(
     mapbox = list(
       style = 'open-street-map',
-      zoom = 9,
-      center = list(lat = 40.67, lon = -73.97)))
+      zoom = 9.5,
+      center = list(lat = 40.71, lon = -73.97)))
 
-crash_map2 %>% 
+crash_map_density %>% 
   layout(
-    title = "Density of Crashes with Injuries in New York City in 2019")
+    style = 'open-street-map',
+    title = "Density of Bicycle Crashes with Injuries in New York City in 2019") %>% 
+  colorbar(title = "Density of Bicycle Crashes")
 ```
