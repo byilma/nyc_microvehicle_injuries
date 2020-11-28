@@ -336,7 +336,7 @@ crash_map_boro =
   crash_dat %>% 
   drop_na(c(latitude, longitude, borough)) %>% 
   filter(str_detect(vehicle_options, "[Bb]ike"))  %>% 
-  filter(number_of_persons_injured > 0) %>% 
+  filter(number_of_cyclist_injured > 0) %>% 
   mutate(
     text_label = str_c("Crash Time: ", crash_time, "\nNumber of Persons Injured: ", number_of_persons_injured)) %>% 
   plot_mapbox(
@@ -373,8 +373,7 @@ crash_map_density =
   crash_dat %>% 
   drop_na(c(latitude, longitude)) %>% 
   filter(str_detect(vehicle_options, "[Bb]ike"))  %>% 
-  filter(year == "2019") %>% 
-  filter(number_of_persons_injured > 0) %>% 
+  filter(number_of_cyclist_injured > 0) %>% 
   mutate(
     text_label = str_c("Crash Time: ", crash_time, "\nNumber of Persons Injured: ", number_of_persons_injured)) %>% 
   plot_ly(
