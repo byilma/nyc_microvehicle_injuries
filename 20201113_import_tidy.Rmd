@@ -3,7 +3,7 @@ title: "Pull and Tidy"
 date: "11/27/2020"
 output: 
   github_document:
-  always_allow_html: true
+always_allow_html: true
 ---
 
 ```{r setup, include=FALSE}
@@ -316,26 +316,66 @@ crash_factor %>%
 
 # Map Visualizations
 
-```{r, maps}
+This is my initial thought on how this map might look... but I want to see about the density functions.
+I can change the size of the marker based on # people injured, or the color of the marker based on # people injured.
+
+
+```{r}
 crash_map = 
   crash_dat %>% 
   drop_na(c(latitude, longitude)) %>% 
-   filter(str_detect(vehicle_options, "[Bb]ike") | 
-           str_detect(vehicle_options, "REVEL") | 
-           str_detect(vehicle_options, "SCO")  |
-           str_detect(vehicle_options, "MOP")   |
-           str_detect(vehicle_options, "ELEC")  |
-           str_detect(vehicle_options, "^E-")) %>% 
+  filter(str_detect(vehicle_options, "[Bb]ike"))  %>% 
   filter(number_of_persons_injured > 0) %>% 
-  filter(borough == "BRONX") %>% 
+  filter(year == "2019") %>% 
   mutate(
     text_label = str_c("Crash Time: ", crash_time, "\nNumber of Persons Injured: ", number_of_persons_injured)) %>% 
-  plot_mapbox(x = ~longitude, y = ~latitude, color =~number_of_persons_injured, text =~text_label)%>% 
+  plot_mapbox(
+    x = ~longitude, 
+    y = ~latitude,  
+    mode = 'scattermapbox', 
+    size = ~number_of_persons_injured,
+    text = ~text_label,
+    hoverinfo = "text") %>% 
+  layout(
+    mapbox = 
+      list(
+        style = "open-street-map",
+        zoom = 9,
+        center = list(lat = 40.67, lon = -73.97)))
+
+crash_map %>% 
+  layout(
+    title = "Crashes with Injuries in New York City in 2019")
+```
+
+Playing around with the plot_ly density functions.  
+Here are the areas most prone to bicycle accidents in 2019
+
+```{r}
+
+crash_map2 = 
+  crash_dat %>% 
+  drop_na(c(latitude, longitude)) %>% 
+  filter(str_detect(vehicle_options, "[Bb]ike"))  %>% 
+  filter(year == "2019") %>% 
+  filter(number_of_persons_injured > 0) %>% 
+  mutate(
+    text_label = str_c("Crash Time: ", crash_time, "\nNumber of Persons Injured: ", number_of_persons_injured)) %>% 
+  plot_ly(
+    lon = ~longitude, 
+    lat = ~latitude,  
+    type = 'densitymapbox', 
+    coloraxis = 'coloraxis',
+    symbol = 'square',
+    radius = 3,
+    text =~text_label) %>% 
   layout(
     mapbox = list(
+      style = 'open-street-map',
       zoom = 9,
       center = list(lat = 40.67, lon = -73.97)))
 
-crash_map
+crash_map2 %>% 
+  layout(
+    title = "Density of Crashes with Injuries in New York City in 2019")
 ```
-
