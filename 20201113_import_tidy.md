@@ -239,12 +239,21 @@ crash_factor %>%
 crash_map = 
   crash_dat %>% 
   drop_na(c(latitude, longitude)) %>% 
-  filter(latitude > 0) %>% 
+   filter(str_detect(vehicle_options, "[Bb]ike") | 
+           str_detect(vehicle_options, "REVEL") | 
+           str_detect(vehicle_options, "SCO")  |
+           str_detect(vehicle_options, "MOP")   |
+           str_detect(vehicle_options, "ELEC")  |
+           str_detect(vehicle_options, "^E-")) %>% 
+  filter(number_of_persons_injured > 0) %>% 
+  filter(borough == "BRONX") %>% 
   mutate(
-    text_label = str_c("Crash Time: ", crash_time, "\nNumber Injured: ", number_of_persons_injured)) %>% 
+    text_label = str_c("Crash Time: ", crash_time, "\nNumber of Persons Injured: ", number_of_persons_injured)) %>% 
   plot_mapbox(x = ~longitude, y = ~latitude, color =~number_of_persons_injured, text =~text_label)%>% 
   layout(
     mapbox = list(
       zoom = 9,
       center = list(lat = 40.67, lon = -73.97)))
+
+crash_map
 ```
