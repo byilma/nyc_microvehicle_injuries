@@ -39,6 +39,7 @@ crash_api = function(offset, limit = 50000) {
 offsets = seq(0, 750000, by = 50000)
 
 crash_dat = map_df(offsets, crash_api)
+
 crash_dat = crash_dat %>% distinct
 ```
 

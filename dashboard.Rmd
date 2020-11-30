@@ -1,0 +1,146 @@
+---
+title: "Untitled"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+    source: embed
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(tidyverse)
+library(httr)
+library(purrr)
+library(leaflet)
+library(plotly)
+
+options(scipen=999)
+
+knitr::opts_chunk$set(echo = TRUE)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+scale_colour_discrete = scale_color_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+
+Sys.setenv('MAPBOX_TOKEN' = 'pk.eyJ1IjoiYWFicmFtb3Y5MCIsImEiOiJja2gyZm5obzQwNWIxMnFxc3phcWh1MWtwIn0.amAvJHtFkTl9XWJ68fh96Q')
+```
+
+Import
+```{r include = F}
+crash_api = function(offset, limit = 50000) {
+  GET("https://data.cityofnewyork.us/resource/h9gi-nx95.csv", 
+      query = list("$where" = "crash_date between '2019-01-01T00:00:0' and '2020-10-31T12:00:00'", "$limit" = limit, "$offset" = offset)) %>% 
+  content("parsed") %>%
+  as_tibble() 
+}
+
+
+offsets = seq(25000, 275000, by = 50000)
+
+
+crash_dat = bind_rows(crash_api(offset = 0, limit = 25000),
+                    map_df(offsets, crash_api)) 
+
+
+crash_dat = crash_dat %>% distinct()
+
+```
+
+
+Tidy 
+
+```{r, include = F}
+crash_dat = 
+  crash_dat %>% 
+  mutate(
+    dow = as.factor(weekdays(crash_date))
+  ) %>%
+  separate(crash_date, into = c("year", "month", "day"), sep = "-") %>%
+  mutate(year = as.integer(year),
+         month = as.integer(month),
+         day = as.integer(day)) %>%
+  pivot_longer(
+    vehicle_type_code1:vehicle_type_code_5,
+    names_to = "vehicle_number",
+    values_to = "vehicle_options",
+    names_prefix = "vehicle_type_code"
+   ) %>%
+  drop_na(vehicle_options)
+```
+
+
+
+Column {data-width=1000}
+-----------------------------------------------------------------------
+
+### Chart A
+
+```{r,  echo = F, message=F, warning=F}
+  crash_dat %>% 
+  drop_na(c(latitude, longitude, borough)) %>% 
+  filter(str_detect(vehicle_options, "[Bb]ike"))  %>% 
+  filter(number_of_cyclist_injured > 0) %>% 
+  mutate(
+    text_label = str_c("Crash Time: ", crash_time, "\nNumber of Persons Injured: ", number_of_persons_injured)) %>% 
+  plot_mapbox(
+    x = ~longitude, 
+    y = ~latitude,  
+    mode = 'scattermapbox', 
+    split = ~borough,
+    size = ~number_of_persons_injured,
+    color = ~borough,
+    text = ~text_label,
+    hoverinfo = "text") %>% 
+  layout(
+    mapbox = 
+      list(
+        style = "dark",
+        zoom = 9.5,
+        center = list(lat = 40.71, lon = -73.97))) %>% 
+  layout(
+    title = "Bicycle Crashes with Injuries in New York City (2019-2020)")
+```
+
+Column {data-width=350}
+-----------------------------------------------------------------------
+
+### Chart B
+
+```{r, echo = F,  message=F, warning=F}
+crash_map_density = 
+  crash_dat %>% 
+  drop_na(c(latitude, longitude)) %>% 
+  filter(str_detect(vehicle_options, "[Bb]ike"))  %>% 
+  filter(number_of_cyclist_injured > 0) %>% 
+  mutate(
+    text_label = str_c("Crash Time: ", crash_time, "\nNumber of Persons Injured: ", number_of_persons_injured)) %>% 
+  plot_ly(
+    lon = ~longitude, 
+    lat = ~latitude,  
+    type = 'densitymapbox',
+    symbol = 'square',
+    radius = 3) %>% 
+  layout(
+    mapbox = list(
+      style = 'open-street-map',
+      zoom = 9.5,
+      center = list(lat = 40.71, lon = -73.97)))
+
+crash_map_density %>% 
+  layout(
+    style = 'open-street-map',
+    title = "Density of Bicycle Crashes with Injuries in New York City in 2019") %>% 
+  colorbar(title = "Density of Bicycle Crashes")
+```
+
+### Chart C
+
+```{r}
+
+```
+

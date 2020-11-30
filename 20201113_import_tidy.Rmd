@@ -125,6 +125,7 @@ bikes = crash_dat %>%
 #   count() %>% View()
 ```
 
+
 Microvehicle incidents in NYC _ a leaflet map -- I just commented this out to knit the document
 ```{r, include=FALSE}
 # bikes %>%
@@ -144,7 +145,7 @@ month_df=
     month_name = factor(month.name, ordered = TRUE, levels = month.name)
   )
 
-fit_injuries_month = crash_dat %>%
+fit_injuries_month = crash_dat %>% 
   group_by(year) %>%
   mutate(year_2020 = year - 2019) %>%
   nest(data = -month) %>%
@@ -401,3 +402,5 @@ crash_map_density %>%
     title = "Density of Bicycle Crashes with Injuries in New York City in 2019") %>% 
   colorbar(title = "Density of Bicycle Crashes")
 ```
+
+

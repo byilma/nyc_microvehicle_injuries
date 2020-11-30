@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Pull and Tidy</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cerulean.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Home</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="mailto:&lt;you@youremail.com&gt;">
+    <span class="fa fa-envelope fa-lg"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="https://github.com/byilma/nyc_microvehicle_injuries">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Pull and Tidy</h1>
+<h4 class="date">11/6/2020</h4>
+
+</div>
+
+
+<pre class="r"><code>#cleaning - transpose so vehicle types are listed in one column
+crash_dat_tidy = 
+  crash_dat %&gt;% 
+  mutate(
+    date = lubridate::date(crash_date)
+  ) %&gt;% 
+  mutate(
+    dow = as.factor(weekdays(crash_date))
+  ) %&gt;%
+  separate(crash_date, into = c(&quot;year&quot;, &quot;month&quot;, &quot;day&quot;), sep = &quot;-&quot;) %&gt;%
+  mutate(year = as.integer(year),
+         month = as.integer(month),
+         day = as.integer(day)) %&gt;%
+  pivot_longer(
+    vehicle_type_code1:vehicle_type_code_5,
+    names_to = &quot;vehicle_number&quot;,
+    values_to = &quot;vehicle_options&quot;
+   ) %&gt;%
+  drop_na(vehicle_options) %&gt;%
+  select(date, everything())</code></pre>
+<p><strong>My goal was to compare the rate of injuries in a crash in 2020 to the same month in 2019 (e.g., rate of injuries in January 2020 v. rate of injuries in January 2019). I examined January through October. I additionally stratified these rate ratio estimates by borough.</strong></p>
+<p><strong>To accomplish this, I filtered the tidy data to create one dataset for microvehicles and one for bikes. In each dataset, I then created nested datasets by month, and, in each of these datasets, I mapped Poisson models to extract rate ratio estimates for number of injuries in each borough. Finally, I unnessted these models to extract the desired coefficients: rate ratios and standard errors (used to compute 95% confidence intervals).</strong></p>
+<p><strong>Below, I write functions to easily filter for either microvehicles or for bikes.</strong></p>
+<pre class="r"><code>filter_for = function(dataset, type) {
+  if (type == &quot;micro&quot;) {
+  dataset %&gt;% filter(str_detect(vehicle_options, &quot;[Bb]ike&quot;) | 
+           str_detect(vehicle_options, &quot;REVEL&quot;) | 
+           str_detect(vehicle_options, &quot;SCO&quot;)  |
+           str_detect(vehicle_options, &quot;MOP&quot;)   |
+           str_detect(vehicle_options, &quot;ELEC&quot;)  |
+           str_detect(vehicle_options, &quot;^E-&quot;)) %&gt;% 
+  filter(vehicle_options != &quot;ESCOVATOR&quot; &amp; vehicle_options != &quot;Bike&quot; &amp;
+      str_detect(vehicle_options, &quot;Dirt&quot;, negate = TRUE),
+      str_detect(vehicle_options, &quot;[Mm]otorbike&quot;, negate = TRUE)
+           )
+}
+
+  else if (type == &quot;bike&quot;) {
+  dataset %&gt;% filter(str_starts(vehicle_options, &quot;[Bb]ike&quot;)) 
+  }
+}</code></pre>
+<p><strong>First, I tested to see if there was an overall association of 2020 v. 2019 with number of injuries in microvehicle crashes.</strong></p>
+<pre class="r"><code>month_df=
+  tibble(
+    month = 1:12,
+    month_name = factor(month.name, ordered = TRUE, levels = month.name)
+  )</code></pre>
+<pre class="r"><code>fit_injuries_micro_all = crash_dat_tidy %&gt;%
+  filter_for(&quot;micro&quot;) %&gt;% 
+  filter(year %in% c(2019, 2020)) %&gt;%
+  group_by(year) %&gt;%
+  mutate(year_2020 = year - 2019) %&gt;%
+  nest(data = -month) %&gt;%
+  mutate(models = map(data, ~glm(number_of_persons_injured ~ year_2020,
+                                 family = &quot;poisson&quot;, data = .x)),
+         models = map(models, broom::tidy)) %&gt;% 
+  select(-data) %&gt;% 
+  unnest(models) %&gt;%
+  select(month, term, estimate, std.error, p.value) %&gt;% 
+  mutate(term = str_replace(term, &quot;year_2020&quot;, &quot;2020 v. 2019&quot;)) %&gt;%
+  left_join(month_df, by = &quot;month&quot;) %&gt;%
+  select(-month) %&gt;%
+  rename(month = month_name) %&gt;%
+  filter(term != &quot;(Intercept)&quot; &amp; month != &quot;November&quot; &amp; month != &quot;December&quot;) %&gt;%
+  select(month, everything()) 
+
+fit_injuries_micro_all</code></pre>
+<pre><code>## # A tibble: 10 x 5
+##    month     term         estimate std.error p.value
+##    &lt;ord&gt;     &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;
+##  1 January   2020 v. 2019  -0.288      0.401   0.473
+##  2 February  2020 v. 2019   0.744      0.717   0.300
+##  3 March     2020 v. 2019  -0.431      0.318   0.175
+##  4 April     2020 v. 2019   0.140      0.416   0.737
+##  5 May       2020 v. 2019  -0.225      0.264   0.394
+##  6 June      2020 v. 2019  -0.115      0.227   0.613
+##  7 July      2020 v. 2019   0.131      0.163   0.423
+##  8 August    2020 v. 2019   0.0720     0.110   0.513
+##  9 September 2020 v. 2019   0.0437     0.109   0.687
+## 10 October   2020 v. 2019  -0.0584     0.118   0.622</code></pre>
+<p><strong>Although there was no statistically significant evidence for a different rate of injury in 2020 v. 21 in any month, I proceeded to examine this stratified by borough.</strong></p>
+<p><strong>Below, I extract the rate ratio estimates for the microvehicle data by borough.</strong></p>
+<pre class="r"><code>fit_injuries_micro = crash_dat_tidy %&gt;%
+  filter_for(&quot;micro&quot;) %&gt;% 
+  filter(year %in% c(2019, 2020)) %&gt;%
+  group_by(year) %&gt;%
+  mutate(year_2020 = year - 2019) %&gt;%
+  nest(data = -month) %&gt;%
+  mutate(models = map(data, ~glm(number_of_persons_injured ~ year_2020:borough,
+                                 family = &quot;poisson&quot;, data = .x)),
+         models = map(models, broom::tidy)) %&gt;% 
+  select(-data) %&gt;% 
+  unnest(models) %&gt;%
+  select(month, term, estimate, std.error, p.value) %&gt;% 
+  mutate(term = str_replace(term, &quot;year_2020:borough&quot;, &quot;2020 v. 2019, Borough: &quot;)) %&gt;%
+  left_join(month_df, by = &quot;month&quot;) %&gt;%
+  select(-month) %&gt;%
+  rename(month = month_name) %&gt;%
+  select(month, everything())
+
+fit_injuries_micro %&gt;% 
+  filter(term != &quot;(Intercept)&quot; &amp; month != &quot;November&quot; &amp; month != &quot;December&quot; &amp; p.value &lt; .05)</code></pre>
+<pre><code>## # A tibble: 0 x 5
+## # … with 5 variables: month &lt;ord&gt;, term &lt;chr&gt;, estimate &lt;dbl&gt;, std.error &lt;dbl&gt;,
+## #   p.value &lt;dbl&gt;</code></pre>
+<p><strong>Here, I extract my coefficient of interest, which is the difference in injury rate in microvehicle crashes occurring in 2020 v. occurring in 2019. I plot estimates for each borough within each month, making sure to exponentiate these estimates. I include a horizontal line at Y = 1 to indicate the null value.</strong></p>
+<pre class="r"><code>fit_injuries_micro %&gt;% 
+  filter(term != &quot;(Intercept)&quot; &amp; month != &quot;November&quot; &amp; month != &quot;December&quot;) %&gt;%
+  mutate(term = str_replace(term, &quot;2020 v. 2019, &quot;, &quot;&quot;)) %&gt;%
+  ggplot(aes(x = month, y = exp(estimate), color = term)) + 
+  geom_point(show.legend = FALSE, aes(size = estimate, alpha = .7)) +
+  geom_errorbar(aes(ymin = exp(estimate - (1.96*std.error)), 
+                    ymax = exp(estimate + (1.96*std.error)))) +
+  geom_hline(yintercept = 1, linetype=&quot;dashed&quot;, 
+                color = &quot;darkred&quot;, size = 1, alpha = .7) +
+  labs(
+    title = &quot;Difference in Rate of Injuries Per Crash Involving a Microvehicle in 2020 v. 2019&quot;,
+    x = &quot;Month&quot;,
+    y = &quot;2020 v. 2019 Difference&quot;
+  ) +
+  ylim(0, 5) +
+  theme(legend.position=&quot;right&quot;, legend.title = element_blank(),
+        text = element_text(size = 10),
+        axis.text.x = element_text(angle = 90, hjust = 1, size = 8)) + 
+  facet_grid(. ~ term)</code></pre>
+<p><img src="20201125_InjuryPlots_files/figure-html/plot%20microvehicle%20injuries%20by%20month-1.png" width="672" /></p>
+<p><strong>There is no discernable pattern in the figure, suggesting that rates of injury per microvehicle crash did not differ between 2020 and 2019. In part, this could be due to very wide confidence intervals.</strong></p>
+<p><strong>Again, I first tested to see if there was an overall association of 2020 v. 2019 with number of injuries in bike crashes (as in the microvehicle data).</strong></p>
+<pre class="r"><code>fit_injuries_micro_all = crash_dat_tidy %&gt;%
+  filter_for(&quot;bike&quot;) %&gt;% 
+  filter(year %in% c(2019, 2020)) %&gt;%
+  group_by(year) %&gt;%
+  mutate(year_2020 = year - 2019) %&gt;%
+  nest(data = -month) %&gt;%
+  mutate(models = map(data, ~glm(number_of_persons_injured ~ year_2020,
+                                 family = &quot;poisson&quot;, data = .x)),
+         models = map(models, broom::tidy)) %&gt;% 
+  select(-data) %&gt;% 
+  unnest(models) %&gt;%
+  select(month, term, estimate, std.error, p.value) %&gt;% 
+  mutate(term = str_replace(term, &quot;year_2020&quot;, &quot;2020 v. 2019&quot;)) %&gt;%
+  left_join(month_df, by = &quot;month&quot;) %&gt;%
+  select(-month) %&gt;%
+  rename(month = month_name) %&gt;%
+  filter(term != &quot;(Intercept)&quot; &amp; month != &quot;November&quot; &amp; month != &quot;December&quot;) %&gt;%
+  select(month, everything()) 
+
+fit_injuries_micro_all</code></pre>
+<pre><code>## # A tibble: 10 x 5
+##    month     term         estimate std.error p.value
+##    &lt;ord&gt;     &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;
+##  1 January   2020 v. 2019  0.0130     0.0940   0.890
+##  2 February  2020 v. 2019  0.0275     0.0967   0.776
+##  3 March     2020 v. 2019  0.131      0.0873   0.132
+##  4 April     2020 v. 2019  0.00546    0.102    0.957
+##  5 May       2020 v. 2019  0.00906    0.0702   0.897
+##  6 June      2020 v. 2019  0.0235     0.0588   0.690
+##  7 July      2020 v. 2019  0.0535     0.0576   0.352
+##  8 August    2020 v. 2019  0.0380     0.0581   0.513
+##  9 September 2020 v. 2019  0.0426     0.0594   0.473
+## 10 October   2020 v. 2019  0.0780     0.0671   0.245</code></pre>
+<p><strong>Although there was no statistically significant evidence for a different rate of injury in 2020 v. 21 in any month, I proceeded to examine this stratified by borough.</strong></p>
+<p><strong>Below, I extract the rate ratio estimates for the bike data by borough (as in the microvehicle data).</strong></p>
+<pre class="r"><code>fit_injuries_bike = crash_dat_tidy %&gt;%
+  filter_for(&quot;bike&quot;) %&gt;% 
+  filter(year %in% c(2019, 2020)) %&gt;%
+  group_by(year) %&gt;%
+  mutate(year_2020 = year - 2019) %&gt;%
+  nest(data = -month) %&gt;%
+  mutate(models = map(data, ~glm(number_of_persons_injured ~ year_2020:borough,
+                                 family = &quot;poisson&quot;, data = .x)),
+         models = map(models, broom::tidy)) %&gt;% 
+  select(-data) %&gt;% 
+  unnest(models) %&gt;%
+  select(month, term, estimate, std.error, p.value) %&gt;% 
+  mutate(term = str_replace(term, &quot;year_2020:borough&quot;, &quot;2020 v. 2019, Borough: &quot;)) %&gt;%
+  left_join(month_df, by = &quot;month&quot;) %&gt;%
+  select(-month) %&gt;%
+  rename(month = month_name) %&gt;%
+  select(month, everything())
+
+fit_injuries_bike %&gt;% 
+  filter(term != &quot;(Intercept)&quot; &amp; month != &quot;November&quot; &amp; month != &quot;December&quot; &amp; p.value &lt; .05)</code></pre>
+<pre><code>## # A tibble: 1 x 5
+##   month term                            estimate std.error p.value
+##   &lt;ord&gt; &lt;chr&gt;                              &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;
+## 1 March 2020 v. 2019, Borough: BROOKLYN    0.275     0.129  0.0330</code></pre>
+<p><strong>Below, I plot the estimates for the bike data (as in the microvehicle data).</strong></p>
+<pre class="r"><code>fit_injuries_bike %&gt;% 
+  filter(term != &quot;(Intercept)&quot; &amp; month != &quot;November&quot; &amp; month != &quot;December&quot;) %&gt;%
+  mutate(term = str_replace(term, &quot;2020 v. 2019, &quot;, &quot;&quot;)) %&gt;%
+  ggplot(aes(x = month, y = exp(estimate), color = term)) + 
+  geom_point(show.legend = FALSE, aes(size = estimate, alpha = .7)) +
+  geom_errorbar(aes(ymin = exp(estimate - (1.96*std.error)), 
+                    ymax = exp(estimate + (1.96*std.error)))) +
+  geom_hline(yintercept = 1, linetype=&quot;dashed&quot;, 
+                color = &quot;darkred&quot;, size = 1, alpha = .7) +
+  labs(
+    title = &quot;Difference in Rate of Injuries Per Crash Involving a Bike in 2020 v. 2019&quot;,
+    x = &quot;Month&quot;,
+    y = &quot;2020 v. 2019 Difference&quot;
+  ) +
+  ylim(0, 5) +
+  theme(legend.position=&quot;right&quot;, legend.title = element_blank(),
+        text = element_text(size = 10),
+        axis.text.x = element_text(angle = 90, hjust = 1, size = 8)) + 
+  facet_grid(. ~ term)</code></pre>
+<pre><code>## Warning: Removed 2 rows containing missing values (geom_point).</code></pre>
+<p><img src="20201125_InjuryPlots_files/figure-html/plot%20bike%20injuries%20by%20month-1.png" width="672" /></p>
+<p><strong>There is no discernable pattern in the figure, suggesting that rates of injury per bike crash did not differ between 2020 and 2019.</strong></p>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
