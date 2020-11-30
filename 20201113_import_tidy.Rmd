@@ -336,7 +336,7 @@ crash_factor %>%
 This is my initial thought on how this map might look... but I want to see about the density functions.
 I could change the size of the marker based on # people injured, or the color of the marker based on # people injured.  The boroughs adds a nice touch too.
 
-### Crashes with Injuries by Borough
+### Crashes with Cyclist Injuries by Borough
 
 ```{r}
 crash_map_boro = 
@@ -373,7 +373,7 @@ crash_map_boro %>%
 Playing around with the plot_ly density functions.  
 Here are the areas most prone to bicycle accidents in 2019
 
-### Density of Bicycle Crashes in 2019
+### Density of Bicycle Crashes with Cyclists Injured
 
 ```{r}
 crash_map_density = 
