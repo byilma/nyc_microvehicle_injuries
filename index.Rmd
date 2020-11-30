@@ -9,7 +9,6 @@ output:
 
 # This is Team-Microvehicle's awesome website
 
-![](https://media.giphy.com/media/drXGoW1iudhKw/giphy.gif)
 
 # Data Source
 Where we got our data from 
