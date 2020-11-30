@@ -337,7 +337,7 @@ This is my initial thought on how this map might look... but I want to see about
 
 I could change the size of the marker based on # people injured, or the color of the marker based on # people injured.  The boroughs adds a nice touch too.
 
-### Crashes with Cyclist Injuries by Borough
+### Crashes with Cyclist Injuries by Borough Pre-Post Covid
 
 ```{r}
 crash_map_boro = 
@@ -346,16 +346,14 @@ crash_map_boro =
   filter(str_detect(vehicle_options, "[Bb]ike"))  %>% 
   filter(number_of_cyclist_injured > 0)    %>%
   mutate(
-    covid = as.factor(if_else(year == 2019, 'Pre-COVID', 'COVID'))
-  ) %>% 
-  mutate(
-    text_label = str_c("Crash Time: ", crash_time, "\nNumber of Persons Injured: ", number_of_persons_injured)) %>% 
+    covid = as.factor(if_else(year == 2019, 'Pre-COVID', 'COVID')),
+    text_label = str_c("Crash Time: ", covid, "\nCyclists Injured: ", number_of_cyclist_injured)) %>% 
   plot_mapbox(
     x = ~longitude, 
     y = ~latitude,  
     mode = 'scattermapbox', 
-    split = ~borough,
-    size = ~number_of_persons_injured,
+    split = ~covid,
+    size = ~number_of_cyclist_injured,
     color = ~borough,
     text = ~text_label,
     hoverinfo = "text") %>% 
@@ -368,21 +366,20 @@ crash_map_boro =
 
 crash_map_boro %>% 
   layout(
-    title = "Bicycle Crashes with Cyclist Injuries in New York City (2019-2020)")
+    title = "Cyclist Injuries in NYC \nPre and Post Covid")
 
 ```
 
+Microvehicles / Excluding bikes
+
 ```{r}
-crash_map_boro_covid = 
-  crash_dat %>% 
+crash_map_microvehicles_boro_covid = 
+  bikes %>% 
   drop_na(c(latitude, longitude, borough)) %>% 
-  filter(str_detect(vehicle_options, "[Bb]ike"))  %>% 
-  filter(number_of_cyclist_injured > 0)    %>%
+  filter(number_of_persons_injured > 0)    %>%
   mutate(
-    covid = as.factor(if_else(year == 2019, 'Pre-COVID', 'COVID'))
-  ) %>% 
-  mutate(
-    text_label = str_c("Crash Time: ", covid, "\nNumber of Persons Injured: ", number_of_persons_injured)) %>% 
+    covid = as.factor(if_else(year == 2019, 'Pre-COVID', 'COVID')),
+    text_label = str_c("Crash Time: ", covid, "\nNumber of People Injured: ", number_of_persons_injured)) %>% 
   plot_mapbox(
     x = ~longitude, 
     y = ~latitude,  
@@ -399,9 +396,9 @@ crash_map_boro_covid =
         zoom = 9.5,
         center = list(lat = 40.71, lon = -73.97)))
 
-crash_map_boro_covid %>% 
+crash_map_microvehicles_boro_covid %>% 
   layout(
-    title = "Cyclist Injuries in New York City Pre and Post Covid")
+    title = "Microvehicle Injuries in NYC \nPre and Post Covid")
 ```
 
 
@@ -418,11 +415,9 @@ crash_map_density =
   drop_na(c(latitude, longitude)) %>% 
   filter(str_detect(vehicle_options, "[Bb]ike"))   %>%
   mutate(
-    covid = as.factor(if_else(year == 2019, 'Pre-COVID', 'COVID'))
-  ) %>% 
+    covid = as.factor(if_else(year == 2019, 'Pre-COVID', 'COVID')),
+    text_label = str_c("Crash Time: ", covid, "\nCyclists Injured: ", number_of_cyclist_injured)) %>% 
   filter(number_of_cyclist_injured > 0) %>% 
-  mutate(
-    text_label = str_c("Crash Time: ", covid, "\nNumber of Persons Injured: ", number_of_persons_injured)) %>% 
   plot_ly(
     lon = ~longitude, 
     lat = ~latitude,  
@@ -438,6 +433,6 @@ crash_map_density =
 crash_map_density %>% 
   layout(
     style = 'open-street-map',
-    title = "Density of Bicycle Crashes with Cyclist Injuries in New York City") %>% 
+    title = "Density of Bicycle Crashes in NYC") %>%
   colorbar(title = "Density of Bicycle Crashes")
 ```
