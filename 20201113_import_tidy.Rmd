@@ -376,10 +376,14 @@ Microvehicles / Excluding bikes
 crash_map_microvehicles_boro_covid = 
   bikes %>% 
   drop_na(c(latitude, longitude, borough)) %>% 
-  filter(number_of_persons_injured > 0)    %>%
+  filter(
+    number_of_persons_injured > 0,
+    latitude > 0)    %>%
   mutate(
     covid = as.factor(if_else(year == 2019, 'Pre-COVID', 'COVID')),
-    text_label = str_c("Crash Time: ", covid, "\nNumber of People Injured: ", number_of_persons_injured)) %>% 
+    text_label = 
+      str_c("Time Period: ", covid, 
+            "\nNumber of People Injured: ", number_of_persons_injured)) %>% 
   plot_mapbox(
     x = ~longitude, 
     y = ~latitude,  
@@ -389,12 +393,8 @@ crash_map_microvehicles_boro_covid =
     color = ~borough,
     text = ~text_label,
     hoverinfo = "text") %>% 
-  layout(
-    mapbox = 
-      list(
-        style = "dark",
-        zoom = 9.5,
-        center = list(lat = 40.71, lon = -73.97)))
+  layout(mapbox = 
+           list(style = "dark",zoom = 9.5, center = list(lat = 40.71, lon = -73.97)))
 
 crash_map_microvehicles_boro_covid %>% 
   layout(
@@ -407,32 +407,72 @@ crash_map_microvehicles_boro_covid %>%
 Playing around with the plot_ly density functions.  
 Here are the areas most prone to bicycle accidents with cyclists injured.
 
-### Density of Bicycle Crashes with Cyclists Injured
+### Density of Bicycle Crashes with Cyclists Injured During Covid
 
 ```{r}
-crash_map_density = 
+crash_map_bike_density_covid = 
   crash_dat %>% 
   drop_na(c(latitude, longitude)) %>% 
-  filter(str_detect(vehicle_options, "[Bb]ike"))   %>%
+  filter(
+    str_detect(vehicle_options, "[Bb]ike"),
+    latitude > 0,
+    number_of_cyclist_injured > 0) %>% 
   mutate(
     covid = as.factor(if_else(year == 2019, 'Pre-COVID', 'COVID')),
-    text_label = str_c("Crash Time: ", covid, "\nCyclists Injured: ", number_of_cyclist_injured)) %>% 
-  filter(number_of_cyclist_injured > 0) %>% 
+    text_label = str_c("Time Period: ", covid))  %>% 
+  filter(
+    covid == "COVID"
+  ) %>% 
   plot_ly(
     lon = ~longitude, 
     lat = ~latitude,  
     type = 'densitymapbox',
-    symbol = 'square',
-    radius = 3) %>% 
+    radius = 3,
+    text = ~covid,
+    hoverinfo = 'text') %>% 
   layout(
-    mapbox = list(
-      style = 'open-street-map',
-      zoom = 9.5,
-      center = list(lat = 40.71, lon = -73.97)))
+    mapbox = 
+      list(
+        style = 'open-street-map',
+        zoom = 9.5,
+        center = list(lat = 40.71, lon = -73.97)),
+      title = "Density of Bicycle Crashes \n During Covid in NYC")
 
-crash_map_density %>% 
-  layout(
-    style = 'open-street-map',
-    title = "Density of Bicycle Crashes in NYC") %>%
-  colorbar(title = "Density of Bicycle Crashes")
+crash_map_bike_density_covid
 ```
+
+### Density of Bicycle Crashes with Cyclists Injured Prior to Covid
+
+```{r}
+crash_map_bike_density_precovid = 
+  crash_dat %>% 
+  drop_na(c(latitude, longitude)) %>% 
+  filter(
+    str_detect(vehicle_options, "[Bb]ike"),
+    latitude > 0,
+    number_of_cyclist_injured > 0) %>% 
+  mutate(
+    covid = as.factor(if_else(year == 2019, 'Pre-COVID', 'COVID')),
+    text_label = str_c("Time Period: ", covid))  %>% 
+  filter(
+    covid == "Pre-COVID"
+  ) %>% 
+  plot_ly(
+    lon = ~longitude, 
+    lat = ~latitude,  
+    type = 'densitymapbox',
+    radius = 3,
+    text = ~covid,
+    hoverinfo = 'text') %>% 
+  layout(
+    mapbox = 
+      list(
+        style = 'open-street-map',
+        zoom = 9.5,
+        center = list(lat = 40.71, lon = -73.97)),
+      title = "Density of Bicycle Crashes \n Prior to Covid in NYC")
+
+crash_map_bike_density_precovid
+
+```
+
