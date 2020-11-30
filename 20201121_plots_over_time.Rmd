@@ -22,7 +22,6 @@ options(
 )
 scale_colour_discrete = scale_color_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
-
 ```
 
 
@@ -33,7 +32,8 @@ crash_api = function(offset, limit = 50000) {
       query = list("$where" = "crash_date between '2017-01-01T00:00:0' and '2020-10-31T12:00:00'", "$limit" = limit, "$offset" = offset)) %>% 
   content("parsed") %>%
   as_tibble() %>% 
-  select(-latitude, -longitude)
+  mutate(longitude = as.double(longitude),
+         latitude = as.double(latitude))
 }
 
 offsets = seq(0, 750000, by = 50000)

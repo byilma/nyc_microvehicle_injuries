@@ -73,7 +73,7 @@ bikes = crash_dat2 %>%
 #Run to check what the filter ^ resulted in
 bikes %>%
   group_by(vehicle_options) %>%
-  count() %>% View()
+  count()
 ```
 
 

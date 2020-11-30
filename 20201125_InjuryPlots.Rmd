@@ -127,7 +127,6 @@ fit_injuries_micro_all = crash_dat_tidy %>%
   select(month, everything()) 
 
 fit_injuries_micro_all
-
 ```
 
 **Although there was no statistically significant evidence for a different rate of injury in 2020 v. 21 in any month, I proceeded to examine this stratified by borough.**

@@ -1,0 +1,86 @@
+---
+title: "Import &  Tidy"
+author: "Binyam Yilma"
+date: "11/30/2020"
+output: html_document
+---
+
+
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(httr)
+library(purrr)
+library(leaflet)
+library(plotly)
+library(flexdashboard)
+
+
+knitr::opts_chunk$set(echo = TRUE)
+options(scipen=999)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+scale_colour_discrete = scale_color_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+
+Sys.setenv('MAPBOX_TOKEN' = 'pk.eyJ1IjoiYWFicmFtb3Y5MCIsImEiOiJja2gyZm5obzQwNWIxMnFxc3phcWh1MWtwIn0.amAvJHtFkTl9XWJ68fh96Q')
+```
+
+
+
+```{r import, include = F}
+crash_api = function(offset, limit = 50000) {
+  GET("https://data.cityofnewyork.us/resource/h9gi-nx95.csv", 
+      query = list("$where" = "crash_date between '2017-01-01T00:00:0' and '2020-10-31T12:00:00'", "$limit" = limit, "$offset" = offset)) %>% 
+  content("parsed") %>%
+  as_tibble() %>% 
+  mutate(longitude = as.double(longitude),
+         latitude = as.double(latitude))
+}
+
+offsets = seq(0, 750000, by = 50000)
+
+crash_dat = map_df(offsets, crash_api)
+
+crash_dat = crash_dat %>% distinct
+```
+
+
+
+```{r tidy, include = F}
+crash_dat = crash_dat %>%
+  mutate(
+    date = lubridate::date(crash_date)
+  ) %>%
+  mutate(
+    dow = as.factor(weekdays(crash_date))
+  ) %>%
+  separate(crash_date, into = c("year", "month", "day"), sep = "-") %>%
+  mutate(year = as.integer(year),
+         month = as.integer(month),
+         day = as.integer(day)) %>%
+  pivot_longer(
+    vehicle_type_code1:vehicle_type_code_5,
+    names_to = "vehicle_number",
+    values_to = "vehicle_options"
+   ) %>%
+  drop_na(vehicle_options) %>%
+  select(date, everything())
+
+
+crash_dat = crash_dat %>% 
+  filter(str_detect(vehicle_options, "[Bb]ike") |
+           str_detect(vehicle_options, "REVEL") |
+           str_detect(vehicle_options, "SCO")  |
+           str_detect(vehicle_options, "MOP")   |
+           str_detect(vehicle_options, "ELEC")  |
+           str_detect(vehicle_options, "^E-")) %>% 
+  filter(vehicle_options != "ESCOVATOR"
+           ) 
+           
+write_csv(crash_dat, "./data/crash_dat.csv")
+```

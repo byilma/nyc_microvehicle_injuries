@@ -16,6 +16,7 @@ library(httr)
 library(purrr)
 library(leaflet)
 library(plotly)
+library(patchwork)
 
 options(scipen=999)
 
