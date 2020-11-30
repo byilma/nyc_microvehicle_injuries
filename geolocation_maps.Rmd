@@ -1,0 +1,223 @@
+---
+title: "Geolocation and Maps"
+date: "11/30/2020"
+output: 
+  html_document:
+always_allow_html: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(httr)
+library(purrr)
+library(plotly)
+options(scipen = 999)
+
+Sys.setenv('MAPBOX_TOKEN' = 'pk.eyJ1IjoiYWFicmFtb3Y5MCIsImEiOiJja2gyZm5obzQwNWIxMnFxc3phcWh1MWtwIn0.amAvJHtFkTl9XWJ68fh96Q')
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+scale_colour_discrete = scale_color_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+
+```
+
+
+```{r import MV crash, include=FALSE}
+#Importing crash data using the NYC Open Data API. The API response is limited to 50,000 rows, so we need a function that can be used to page through these results to capture all crashes in 2020. 
+
+crash_api = function(offset, limit = 50000) {
+  GET("https://data.cityofnewyork.us/resource/h9gi-nx95.csv", 
+      query = list("$where" = "crash_date between '2019-01-01T00:00:0' and '2020-10-31T12:00:00'", "$limit" = limit, "$offset" = offset)) %>% 
+  content("parsed") %>%
+  as_tibble() 
+}
+offsets = seq(25000, 275000, by = 50000)
+crash_dat = bind_rows(crash_api(offset = 0, limit = 25000),
+                    map_df(offsets, crash_api)) 
+crash_dat = crash_dat %>% distinct
+```
+
+
+```{r, tidy MV crash}
+#cleaning - transpose so vehicle types are listed in one column
+
+crash_dat2 = 
+  crash_dat %>% 
+  mutate(
+    dow = as.factor(weekdays(crash_date))
+  ) %>%
+  separate(crash_date, into = c("year", "month", "day"), sep = "-") %>%
+  mutate(year = as.integer(year),
+         month = as.integer(month),
+         day = as.integer(day)) %>%
+  pivot_longer(
+    vehicle_type_code1:vehicle_type_code_5,
+    names_to = "vehicle_number",
+    values_to = "vehicle_options",
+    names_prefix = "vehicle_type_code"
+   ) %>%
+  drop_na(vehicle_options)
+```
+
+Subset to crashes involving a bike
+
+```{r bikes}
+bikes = crash_dat2 %>%
+  filter(str_detect(vehicle_options, "[Bb]ike")
+           ) 
+           
+#Run to check what the filter ^ resulted in
+#bikes %>%
+#  group_by(vehicle_options) %>%
+#  count() %>% View()
+```
+
+
+# Visualizations: Maps
+
+## Location Data
+
+This is my initial thought on how this map might look... but I want to see about the density functions.
+
+I could change the size of the marker based on # people injured, or the color of the marker based on # people injured.  The boroughs adds a nice touch too.
+
+### Crashes with Cyclist Injuries by Borough Pre-Post Covid
+
+```{r}
+crash_map_bikes = 
+  crash_dat2 %>% 
+  drop_na(c(latitude, longitude, borough)) %>% 
+  filter(str_detect(vehicle_options, "[Bb]ike"))  %>% 
+  filter(number_of_cyclist_injured > 0)    %>%
+  mutate(
+    covid = as.factor(if_else(year == 2019, 'Pre-COVID', 'COVID')),
+    text_label = str_c("Crash Time: ", covid, "\nCyclists Injured: ", number_of_cyclist_injured)) %>% 
+  plot_mapbox(
+    x = ~longitude, 
+    y = ~latitude,  
+    mode = 'scattermapbox', 
+    split = ~covid,
+    size = ~number_of_cyclist_injured,
+    color = ~borough,
+    text = ~text_label,
+    hoverinfo = "text") %>% 
+  layout(
+    mapbox = 
+      list(
+        style = "dark",
+        zoom = 9.5,
+        center = list(lat = 40.71, lon = -73.97)),
+    title = "Cyclist Injuries in NYC \nPre and Post Covid")
+
+crash_map_bikes
+```
+
+Microvehicles / Excluding bikes
+
+```{r}
+crash_map_microvehicles = 
+  bikes %>% 
+  drop_na(c(latitude, longitude, borough)) %>% 
+  filter(
+    number_of_persons_injured > 0,
+    latitude > 0)    %>%
+  mutate(
+    covid = as.factor(if_else(year == 2019, 'Pre-COVID', 'COVID')),
+    text_label = 
+      str_c("Time Period: ", covid, 
+            "\nNumber of People Injured: ", number_of_persons_injured)) %>% 
+  plot_mapbox(
+    x = ~longitude, 
+    y = ~latitude,  
+    mode = 'scattermapbox', 
+    split = ~covid,
+    size = ~number_of_persons_injured,
+    color = ~borough,
+    text = ~text_label,
+    hoverinfo = "text") %>% 
+  layout(mapbox = 
+           list(style = "dark",zoom = 9.5, center = list(lat = 40.71, lon = -73.97)),
+    title = "Microvehicle Injuries in NYC \nPre and Post Covid")
+
+crash_map_microvehicles
+
+```
+
+
+## Density
+
+Playing around with the plot_ly density functions.  
+Here are the areas most prone to bicycle accidents with cyclists injured.
+
+### Density of Bicycle Crashes with Cyclists Injured During Covid
+
+```{r}
+crash_map_bike_density_covid = 
+  crash_dat2 %>% 
+  drop_na(c(latitude, longitude)) %>% 
+  filter(
+    str_detect(vehicle_options, "[Bb]ike"),
+    latitude > 0,
+    number_of_cyclist_injured > 0) %>% 
+  mutate(
+    covid = as.factor(if_else(year == 2019, 'Pre-COVID', 'COVID')),
+    text_label = str_c("Time Period: ", covid))  %>% 
+  filter(
+    covid == "COVID"
+  ) %>% 
+  plot_ly(
+    lon = ~longitude, 
+    lat = ~latitude,  
+    type = 'densitymapbox',
+    radius = 3,
+    text = ~covid,
+    hoverinfo = 'text') %>% 
+  layout(
+    mapbox = 
+      list(
+        style = 'open-street-map',
+        zoom = 9.5,
+        center = list(lat = 40.71, lon = -73.97)),
+      title = "Density of Bicycle Crashes \n During Covid in NYC")
+
+crash_map_bike_density_covid
+```
+
+### Density of Bicycle Crashes with Cyclists Injured Prior to Covid
+
+```{r}
+crash_map_bike_density_precovid = 
+  crash_dat2 %>% 
+  drop_na(c(latitude, longitude)) %>% 
+  filter(
+    str_detect(vehicle_options, "[Bb]ike"),
+    latitude > 0,
+    number_of_cyclist_injured > 0) %>% 
+  mutate(
+    covid = as.factor(if_else(year == 2019, 'Pre-COVID', 'COVID')),
+    text_label = str_c("Time Period: ", covid))  %>% 
+  filter(covid == "Pre-COVID") %>% 
+  plot_ly(
+    lon = ~longitude, 
+    lat = ~latitude,  
+    type = 'densitymapbox',
+    radius = 3,
+    text = ~covid,
+    hoverinfo = 'text') %>% 
+  layout(
+    mapbox = 
+      list(
+        style = 'open-street-map',
+        zoom = 9.5,
+        center = list(lat = 40.71, lon = -73.97)),
+      title = "Density of Bicycle Crashes \n Prior to Covid in NYC")
+
+crash_map_bike_density_precovid
+
+```
+
