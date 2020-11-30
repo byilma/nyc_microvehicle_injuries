@@ -9,6 +9,7 @@ always_allow_html: true
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+library(readr)
 library(httr)
 library(purrr)
 library(plotly)
@@ -26,77 +27,45 @@ scale_fill_discrete = scale_fill_viridis_d
 
 ```
 
+Data Import
+```{r}
+crash_dat = read_csv("./data/crash_dat.csv")
 
-```{r import MV crash, include=FALSE}
-#Importing crash data using the NYC Open Data API. The API response is limited to 50,000 rows, so we need a function that can be used to page through these results to capture all crashes in 2020. 
-
-crash_api = function(offset, limit = 50000) {
-  GET("https://data.cityofnewyork.us/resource/h9gi-nx95.csv", 
-      query = list("$where" = "crash_date between '2019-01-01T00:00:0' and '2020-10-31T12:00:00'", "$limit" = limit, "$offset" = offset)) %>% 
-  content("parsed") %>%
-  as_tibble() 
-}
-offsets = seq(25000, 275000, by = 50000)
-crash_dat = bind_rows(crash_api(offset = 0, limit = 25000),
-                    map_df(offsets, crash_api)) 
-crash_dat = crash_dat %>% distinct
+microvehicles = 
+  crash_dat %>%
+  drop_na(c(latitude, longitude, borough)) %>% 
+  filter(latitude > 0) %>% 
+  filter(str_detect(vehicle_options, "[Bb]ike") | 
+           str_detect(vehicle_options, "REVEL") | 
+           str_detect(vehicle_options, "SCO")  |
+           str_detect(vehicle_options, "MOP")   |
+           str_detect(vehicle_options, "ELEC")  |
+           str_detect(vehicle_options, "^E-")) %>% 
+  filter(vehicle_options != "ESCOVATOR",
+      str_detect(vehicle_options, "Dirt", negate = TRUE),
+      str_detect(vehicle_options, "[Mm]otorbike", negate = TRUE))
 ```
-
-
-```{r, tidy MV crash}
-#cleaning - transpose so vehicle types are listed in one column
-
-crash_dat2 = 
-  crash_dat %>% 
-  mutate(
-    dow = as.factor(weekdays(crash_date))
-  ) %>%
-  separate(crash_date, into = c("year", "month", "day"), sep = "-") %>%
-  mutate(year = as.integer(year),
-         month = as.integer(month),
-         day = as.integer(day)) %>%
-  pivot_longer(
-    vehicle_type_code1:vehicle_type_code_5,
-    names_to = "vehicle_number",
-    values_to = "vehicle_options",
-    names_prefix = "vehicle_type_code"
-   ) %>%
-  drop_na(vehicle_options)
-```
-
-Subset to crashes involving a bike
-
-```{r bikes}
-bikes = crash_dat2 %>%
-  filter(str_detect(vehicle_options, "[Bb]ike")
-           ) 
-           
-#Run to check what the filter ^ resulted in
-#bikes %>%
-#  group_by(vehicle_options) %>%
-#  count() %>% View()
-```
-
 
 # Visualizations: Maps
 
 ## Location Data
 
-This is my initial thought on how this map might look... but I want to see about the density functions.
+This is my initial thought on how this map might look.  
 
-I could change the size of the marker based on # people injured, or the color of the marker based on # people injured.  The boroughs adds a nice touch too.
+I could change the size of the marker based on # people injured, or the color of the marker based on # people injured.
 
-### Crashes with Cyclist Injuries by Borough Pre-Post Covid
+## Crashes with Cyclist Injuries by Borough  / Pre-Post Covid
 
 ```{r}
 crash_map_bikes = 
-  crash_dat2 %>% 
-  drop_na(c(latitude, longitude, borough)) %>% 
-  filter(str_detect(vehicle_options, "[Bb]ike"))  %>% 
-  filter(number_of_cyclist_injured > 0)    %>%
+  microvehicles %>% 
+  filter(
+    str_detect(vehicle_options, "[Bb]ike"),
+    number_of_cyclist_injured > 0) %>%
   mutate(
     covid = as.factor(if_else(year == 2019, 'Pre-COVID', 'COVID')),
-    text_label = str_c("Crash Time: ", covid, "\nCyclists Injured: ", number_of_cyclist_injured)) %>% 
+    text_label = str_c("Crash Time: ", covid, "\nCyclists Injured: ", 
+                       number_of_cyclist_injured)) %>% 
   plot_mapbox(
     x = ~longitude, 
     y = ~latitude,  
@@ -106,6 +75,7 @@ crash_map_bikes =
     color = ~borough,
     text = ~text_label,
     hoverinfo = "text") %>% 
+  
   layout(
     mapbox = 
       list(
@@ -117,15 +87,13 @@ crash_map_bikes =
 crash_map_bikes
 ```
 
-Microvehicles / Excluding bikes
+Microvehicles with People Injured
 
 ```{r}
 crash_map_microvehicles = 
-  bikes %>% 
-  drop_na(c(latitude, longitude, borough)) %>% 
+  microvehicles %>% 
   filter(
-    number_of_persons_injured > 0,
-    latitude > 0)    %>%
+    number_of_persons_injured > 0)   %>%
   mutate(
     covid = as.factor(if_else(year == 2019, 'Pre-COVID', 'COVID')),
     text_label = 
@@ -145,7 +113,6 @@ crash_map_microvehicles =
     title = "Microvehicle Injuries in NYC \nPre and Post Covid")
 
 crash_map_microvehicles
-
 ```
 
 
@@ -158,11 +125,9 @@ Here are the areas most prone to bicycle accidents with cyclists injured.
 
 ```{r}
 crash_map_bike_density_covid = 
-  crash_dat2 %>% 
-  drop_na(c(latitude, longitude)) %>% 
+  microvehicles %>% 
   filter(
     str_detect(vehicle_options, "[Bb]ike"),
-    latitude > 0,
     number_of_cyclist_injured > 0) %>% 
   mutate(
     covid = as.factor(if_else(year == 2019, 'Pre-COVID', 'COVID')),
@@ -192,11 +157,9 @@ crash_map_bike_density_covid
 
 ```{r}
 crash_map_bike_density_precovid = 
-  crash_dat2 %>% 
-  drop_na(c(latitude, longitude)) %>% 
+  crash_dat %>% 
   filter(
     str_detect(vehicle_options, "[Bb]ike"),
-    latitude > 0,
     number_of_cyclist_injured > 0) %>% 
   mutate(
     covid = as.factor(if_else(year == 2019, 'Pre-COVID', 'COVID')),
