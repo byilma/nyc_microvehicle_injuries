@@ -67,17 +67,13 @@ crash_dat_tidy =
 
 **To accomplish this, I filtered the tidy data to create one dataset for microvehicles and one for bikes. In each dataset, I then created nested datasets by month, and, in each of these datasets, I mapped Poisson models to extract rate ratio estimates for number of injuries in each borough. Finally, I unnessted these models to extract the desired coefficients: rate ratios and standard errors (used to compute 95% confidence intervals).**
 
-**Below, I extract the rate ratio estimates for the microvehicle data.**
+**Below, I write functions to easily filter for either microvehicles or for bikes.**
 
-```{r lm for microvehicle injuries by month}
-month_df=
-  tibble(
-    month = 1:12,
-    month_name = factor(month.name, ordered = TRUE, levels = month.name)
-  )
+```{r filter functions}
 
-fit_injuries_micro = crash_dat_tidy %>%
-  filter(str_detect(vehicle_options, "[Bb]ike") | 
+filter_for = function(dataset, type) {
+  if (type == "micro") {
+  dataset %>% filter(str_detect(vehicle_options, "[Bb]ike") | 
            str_detect(vehicle_options, "REVEL") | 
            str_detect(vehicle_options, "SCO")  |
            str_detect(vehicle_options, "MOP")   |
@@ -86,7 +82,62 @@ fit_injuries_micro = crash_dat_tidy %>%
   filter(vehicle_options != "ESCOVATOR" & vehicle_options != "Bike" &
       str_detect(vehicle_options, "Dirt", negate = TRUE),
       str_detect(vehicle_options, "[Mm]otorbike", negate = TRUE)
-           ) %>% 
+           )
+}
+
+  else if (type == "bike") {
+  dataset %>% filter(str_starts(vehicle_options, "[Bb]ike")) 
+  }
+}
+
+```
+
+**First, I tested to see if there was an overall association of 2020 v. 2019 with number of injuries in microvehicle crashes.**
+
+```{r create month dataset for merging}
+
+month_df=
+  tibble(
+    month = 1:12,
+    month_name = factor(month.name, ordered = TRUE, levels = month.name)
+  )
+
+```
+
+
+```{r lm for microvehicle injuries by month}
+
+fit_injuries_micro_all = crash_dat_tidy %>%
+  filter_for("micro") %>% 
+  filter(year %in% c(2019, 2020)) %>%
+  group_by(year) %>%
+  mutate(year_2020 = year - 2019) %>%
+  nest(data = -month) %>%
+  mutate(models = map(data, ~glm(number_of_persons_injured ~ year_2020,
+                                 family = "poisson", data = .x)),
+         models = map(models, broom::tidy)) %>% 
+  select(-data) %>% 
+  unnest(models) %>%
+  select(month, term, estimate, std.error, p.value) %>% 
+  mutate(term = str_replace(term, "year_2020", "2020 v. 2019")) %>%
+  left_join(month_df, by = "month") %>%
+  select(-month) %>%
+  rename(month = month_name) %>%
+  filter(term != "(Intercept)" & month != "November" & month != "December") %>%
+  select(month, everything()) 
+
+fit_injuries_micro_all
+
+```
+
+**Although there was no statistically significant evidence for a different rate of injury in 2020 v. 21 in any month, I proceeded to examine this stratified by borough.**
+
+**Below, I extract the rate ratio estimates for the microvehicle data by borough.**
+
+```{r lm for microvehicle injuries by month and borough}
+
+fit_injuries_micro = crash_dat_tidy %>%
+  filter_for("micro") %>% 
   filter(year %in% c(2019, 2020)) %>%
   group_by(year) %>%
   mutate(year_2020 = year - 2019) %>%
@@ -135,12 +186,43 @@ fit_injuries_micro %>%
 
 **There is no discernable pattern in the figure, suggesting that rates of injury per microvehicle crash did not differ between 2020 and 2019. In part, this could be due to very wide confidence intervals.**
 
-**Below, I extract the rate ratio estimates for the bike data (as in the microvehicle data).**
+
+**Again, I first tested to see if there was an overall association of 2020 v. 2019 with number of injuries in bike crashes (as in the microvehicle data).**
+
 
 ```{r lm for bike injuries by month}
 
+fit_injuries_micro_all = crash_dat_tidy %>%
+  filter_for("bike") %>% 
+  filter(year %in% c(2019, 2020)) %>%
+  group_by(year) %>%
+  mutate(year_2020 = year - 2019) %>%
+  nest(data = -month) %>%
+  mutate(models = map(data, ~glm(number_of_persons_injured ~ year_2020,
+                                 family = "poisson", data = .x)),
+         models = map(models, broom::tidy)) %>% 
+  select(-data) %>% 
+  unnest(models) %>%
+  select(month, term, estimate, std.error, p.value) %>% 
+  mutate(term = str_replace(term, "year_2020", "2020 v. 2019")) %>%
+  left_join(month_df, by = "month") %>%
+  select(-month) %>%
+  rename(month = month_name) %>%
+  filter(term != "(Intercept)" & month != "November" & month != "December") %>%
+  select(month, everything()) 
+
+fit_injuries_micro_all
+
+```
+
+**Although there was no statistically significant evidence for a different rate of injury in 2020 v. 21 in any month, I proceeded to examine this stratified by borough.**
+
+**Below, I extract the rate ratio estimates for the bike data by borough (as in the microvehicle data).**
+
+```{r lm for bike injuries by month and borough}
+
 fit_injuries_bike = crash_dat_tidy %>%
-  filter(str_starts(vehicle_options, "[Bb]ike")) %>% 
+  filter_for("bike") %>% 
   filter(year %in% c(2019, 2020)) %>%
   group_by(year) %>%
   mutate(year_2020 = year - 2019) %>%
