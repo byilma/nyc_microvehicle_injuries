@@ -69,10 +69,16 @@ crash_api = function(offset, limit = 50000) {
   content("parsed") %>%
   as_tibble() 
 }
+
+
 offsets = seq(25000, 275000, by = 50000)
+
+
 crash_dat = bind_rows(crash_api(offset = 0, limit = 25000),
                     map_df(offsets, crash_api)) 
-crash_dat = crash_dat %>% distinct
+
+
+crash_dat = crash_dat %>% distinct()
 ```
 
 # Tidying, Data Wrangling
@@ -179,7 +185,8 @@ fit_injuries_month %>%
   ) +
   theme(legend.position="right", legend.title = element_blank(),
         text = element_text(size = 10),
-        axis.text.x = element_text(angle = 90, hjust = 1, size = 8))
+        axis.text.x = element_text(angle = 90, hjust = 1, size = 8)) + 
+  facet_grid(. ~ term)
 
 ```
 
