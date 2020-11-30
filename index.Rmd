@@ -1,0 +1,22 @@
+---
+title: "Microvehicles Initial Website"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    theme: cerulean
+---
+
+# This is Team-Microvehicle's awesome website
+
+![](https://media.giphy.com/media/drXGoW1iudhKw/giphy.gif)
+
+# Data Source
+Where we got our data from 
+
+* [NYC Motor-Vehicle Collisions](https://data.cityofnewyork.us/Public-Safety/Motor-Vehicle-Collisions-Crashes/h9gi-nx95)
+
+
+## Link to the About-Us page
+
+[About us](about.html)

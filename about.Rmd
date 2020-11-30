@@ -1,0 +1,11 @@
+---
+title: "About us page"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    theme: cerulean
+---
+
+# This has info about us
+

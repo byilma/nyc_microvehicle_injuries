@@ -141,8 +141,8 @@ fit_injuries_micro %>%
 ```
 
     ## # A tibble: 0 x 5
-    ## # ... with 5 variables: month <ord>, term <chr>, estimate <dbl>,
-    ## #   std.error <dbl>, p.value <dbl>
+    ## # … with 5 variables: month <ord>, term <chr>, estimate <dbl>, std.error <dbl>,
+    ## #   p.value <dbl>
 
 **Here, I extract my coefficient of interest, which is the difference in
 injury rate in microvehicle crashes occurring in 2020 v. occurring in
@@ -168,7 +168,8 @@ fit_injuries_micro %>%
   ylim(0, 5) +
   theme(legend.position="right", legend.title = element_blank(),
         text = element_text(size = 10),
-        axis.text.x = element_text(angle = 90, hjust = 1, size = 8))
+        axis.text.x = element_text(angle = 90, hjust = 1, size = 8)) + 
+  facet_grid(. ~ term)
 ```
 
 ![](20201125_InjuryPlots_files/figure-gfm/plot%20microvehicle%20injuries%20by%20month-1.png)<!-- -->
@@ -274,7 +275,8 @@ fit_injuries_bike %>%
   ylim(0, 5) +
   theme(legend.position="right", legend.title = element_blank(),
         text = element_text(size = 10),
-        axis.text.x = element_text(angle = 90, hjust = 1, size = 8))
+        axis.text.x = element_text(angle = 90, hjust = 1, size = 8)) + 
+  facet_grid(. ~ term)
 ```
 
     ## Warning: Removed 2 rows containing missing values (geom_point).
