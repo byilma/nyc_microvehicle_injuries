@@ -334,6 +334,7 @@ crash_factor %>%
 ## Location Data
 
 This is my initial thought on how this map might look... but I want to see about the density functions.
+
 I could change the size of the marker based on # people injured, or the color of the marker based on # people injured.  The boroughs adds a nice touch too.
 
 ### Crashes with Cyclist Injuries by Borough
@@ -343,7 +344,10 @@ crash_map_boro =
   crash_dat %>% 
   drop_na(c(latitude, longitude, borough)) %>% 
   filter(str_detect(vehicle_options, "[Bb]ike"))  %>% 
-  filter(number_of_cyclist_injured > 0) %>% 
+  filter(number_of_cyclist_injured > 0)    %>%
+  mutate(
+    covid = as.factor(if_else(year == 2019, 'Pre-COVID', 'COVID'))
+  ) %>% 
   mutate(
     text_label = str_c("Crash Time: ", crash_time, "\nNumber of Persons Injured: ", number_of_persons_injured)) %>% 
   plot_mapbox(
@@ -368,6 +372,39 @@ crash_map_boro %>%
 
 ```
 
+```{r}
+crash_map_boro_covid = 
+  crash_dat %>% 
+  drop_na(c(latitude, longitude, borough)) %>% 
+  filter(str_detect(vehicle_options, "[Bb]ike"))  %>% 
+  filter(number_of_cyclist_injured > 0)    %>%
+  mutate(
+    covid = as.factor(if_else(year == 2019, 'Pre-COVID', 'COVID'))
+  ) %>% 
+  mutate(
+    text_label = str_c("Crash Time: ", covid, "\nNumber of Persons Injured: ", number_of_persons_injured)) %>% 
+  plot_mapbox(
+    x = ~longitude, 
+    y = ~latitude,  
+    mode = 'scattermapbox', 
+    split = ~covid,
+    size = ~number_of_persons_injured,
+    color = ~borough,
+    text = ~text_label,
+    hoverinfo = "text") %>% 
+  layout(
+    mapbox = 
+      list(
+        style = "dark",
+        zoom = 9.5,
+        center = list(lat = 40.71, lon = -73.97)))
+
+crash_map_boro_covid %>% 
+  layout(
+    title = "Cyclist Injuries in New York City Pre and Post Covid")
+```
+
+
 ## Density
 
 Playing around with the plot_ly density functions.  
@@ -379,10 +416,13 @@ Here are the areas most prone to bicycle accidents with cyclists injured.
 crash_map_density = 
   crash_dat %>% 
   drop_na(c(latitude, longitude)) %>% 
-  filter(str_detect(vehicle_options, "[Bb]ike"))  %>% 
+  filter(str_detect(vehicle_options, "[Bb]ike"))   %>%
+  mutate(
+    covid = as.factor(if_else(year == 2019, 'Pre-COVID', 'COVID'))
+  ) %>% 
   filter(number_of_cyclist_injured > 0) %>% 
   mutate(
-    text_label = str_c("Crash Time: ", crash_time, "\nNumber of Persons Injured: ", number_of_persons_injured)) %>% 
+    text_label = str_c("Crash Time: ", covid, "\nNumber of Persons Injured: ", number_of_persons_injured)) %>% 
   plot_ly(
     lon = ~longitude, 
     lat = ~latitude,  
