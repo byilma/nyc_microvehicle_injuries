@@ -364,14 +364,14 @@ crash_map_boro =
 
 crash_map_boro %>% 
   layout(
-    title = "Bicycle Crashes with Injuries in New York City (2019-2020)")
+    title = "Bicycle Crashes with Cyclist Injuries in New York City (2019-2020)")
 
 ```
 
 ## Density
 
 Playing around with the plot_ly density functions.  
-Here are the areas most prone to bicycle accidents in 2019
+Here are the areas most prone to bicycle accidents with cyclists injured.
 
 ### Density of Bicycle Crashes with Cyclists Injured
 
@@ -398,6 +398,6 @@ crash_map_density =
 crash_map_density %>% 
   layout(
     style = 'open-street-map',
-    title = "Density of Bicycle Crashes with Injuries in New York City in 2019") %>% 
+    title = "Density of Bicycle Crashes with Cyclist Injuries in New York City") %>% 
   colorbar(title = "Density of Bicycle Crashes")
 ```
