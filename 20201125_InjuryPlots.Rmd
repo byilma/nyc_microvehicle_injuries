@@ -180,7 +180,8 @@ fit_injuries_micro %>%
   ylim(0, 5) +
   theme(legend.position="right", legend.title = element_blank(),
         text = element_text(size = 10),
-        axis.text.x = element_text(angle = 90, hjust = 1, size = 8))
+        axis.text.x = element_text(angle = 90, hjust = 1, size = 8)) + 
+  facet_grid(. ~ term)
 
 ```
 
@@ -265,7 +266,8 @@ fit_injuries_bike %>%
   ylim(0, 5) +
   theme(legend.position="right", legend.title = element_blank(),
         text = element_text(size = 10),
-        axis.text.x = element_text(angle = 90, hjust = 1, size = 8))
+        axis.text.x = element_text(angle = 90, hjust = 1, size = 8)) + 
+  facet_grid(. ~ term)
 
 ```
 
