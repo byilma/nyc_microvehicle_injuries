@@ -129,7 +129,8 @@ bike_count_agg = bike_count_agg %>%
   mutate(year = lubridate::year(date),
          month = lubridate::month(date),
          day_of_month = lubridate::mday(date), 
-         day_of_year = lubridate::yday(date))
+         day_of_year = lubridate::yday(date),
+         common_date = lubridate::mdy(paste(month, day_of_month, "2020")))
   
 bike_count_yr_plot = bike_count_agg %>%  
   ggplot(aes(x = day_of_year, y = total_daily_bikes, 
@@ -144,6 +145,8 @@ bike_count_yr_plot = bike_count_agg %>%
   theme(text = element_text(size = 15), 
         axis.text.x = element_text(angle = 60, hjust=1, size=10)) +
   scale_colour_discrete("Year") +
+  scale_x_date(labels = lubridate::month(bike_count_agg$date))
+  
   
 
 ggplotly(bike_count_yr_plot)
