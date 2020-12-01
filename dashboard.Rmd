@@ -31,19 +31,6 @@ Sys.setenv('MAPBOX_TOKEN' = 'pk.eyJ1IjoiYWFicmFtb3Y5MCIsImEiOiJja2gyZm5obzQwNWIx
 ```
 
 
-```{r, include = F}
-#Import
-crash_dat = read_csv("./data/crash_dat.csv")
-
-#Create month_df
-month_df=
-  tibble(
-    month = 1:12,
-    month_name = factor(month.name, ordered = TRUE, levels = month.name)
-  )
-```
-
-
 ```{r, include = FALSE}
 filter_for = function(dataset, type) {
   if (type == "micro") {
@@ -64,6 +51,52 @@ filter_for = function(dataset, type) {
   }
 }
 ```
+
+
+```{r, include = F}
+#Import
+crash_dat = read_csv("./data/crash_dat.csv")
+
+#Create month_df
+month_df=
+  tibble(
+    month = 1:12,
+    month_name = factor(month.name, ordered = TRUE, levels = month.name)
+  )
+
+bikes = 
+  crash_dat %>%
+  filter_for("bike") %>%
+  filter(
+    month %in% (3:10),
+    number_of_cyclist_injured > 0
+    ) %>%
+  separate(crash_time, into = c("hour", "minute", "second"), sep = ":") %>%
+  mutate(
+    covid = as.factor(if_else(year < 2020, 'Pre-COVID', 'COVID')),
+    vehicle_number = str_extract_all(vehicle_number, "\\d", simplify = TRUE),
+    covid = fct_relevel(covid, 'Pre-COVID'),
+    dow = fct_relevel(dow, "Sunday", "Saturday", "Friday", "Thursday", "Wednesday", "Tuesday")
+  ) 
+
+microveh = 
+  crash_dat %>%
+  filter_for("micro") %>%
+  filter(
+    month %in% (3:10),
+    number_of_persons_injured > 0
+    ) %>%
+  separate(crash_time, into = c("hour", "minute", "second"), sep = ":") %>%
+  mutate(
+    covid = as.factor(if_else(year < 2020, 'Pre-COVID', 'COVID')),
+    vehicle_number = str_extract_all(vehicle_number, "\\d", simplify = TRUE),
+    covid = fct_relevel(covid, 'Pre-COVID'),
+    dow = fct_relevel(dow, "Sunday", "Saturday", "Friday", "Thursday", "Wednesday", "Tuesday")
+  ) 
+
+
+```
+
 
 Interactive Maps
 =======================================================================
@@ -240,39 +273,196 @@ Row
 Contributing Factors
 =======================================================================
 
-Row
------------------------------------------------------------------------
 
-###  Title 1
+Column {.tabset .tabset-fade}
+-------------------------------------
+    
+### Contributing Factors Bikes
+```{r contributing_factor_bike, echo = FALSE, message = FALSE, warning = FALSE, fig.width=8}
 
-```{r}
+top_10_bike = crash_dat %>%
+  filter_for("bike") %>%
+  filter(
+    month %in% (3:10),
+    number_of_cyclist_injured > 0
+    ) %>%
+  separate(crash_time, into = c("hour", "minute", "second"), sep = ":") %>%
+  mutate(
+    covid = as.factor(if_else(year < 2020, 'Pre-COVID', 'COVID')),
+    vehicle_number = str_extract_all(vehicle_number, "\\d", simplify = TRUE),
+    covid = fct_relevel(covid, 'Pre-COVID'),
+    dow = fct_relevel(dow, "Sunday", "Saturday", "Friday", "Thursday", "Wednesday", "Tuesday")
+  ) %>% 
+  pivot_longer(
+    contributing_factor_vehicle_1:contributing_factor_vehicle_5,
+    names_to = "vehicle_factor_num",
+    names_prefix = "contributing_factor_vehicle_",
+    values_to = "contributing_factor"
+   ) %>%
+  mutate(
+    contributing_factor = if_else(contributing_factor == "Pedestrian/Bicyclist/Other Pedestrian Error/Confusion", "Pedestrian/Cyclist Error", contributing_factor)
+  ) %>%
+  group_by(covid, contributing_factor) %>%
+  summarise(
+    collisions = n_distinct(collision_id)
+  ) %>%
+  drop_na(contributing_factor) %>%
+  ungroup(contributing_factor) %>%
+  filter(contributing_factor != "Unspecified") %>%
+  mutate(
+    covid = fct_relevel(covid, 'Pre-COVID'),
+    proportion = round(collisions / sum(collisions), 2) 
+  ) %>%
+  group_by(covid) %>%
+  top_n(n = 10, wt = proportion) %>%
+  mutate(
+    contributing_factor = fct_reorder(as.factor(contributing_factor), collisions, .desc = TRUE)
+  ) %>%
+  ggplot(aes(x = contributing_factor, y = proportion, fill = covid)) +
+  geom_bar(stat = "identity") +
+  facet_grid( . ~covid, scales = "free_x", space = "free_x") +
+  scale_y_continuous(labels = scales::percent) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1), legend.position = "none") +
+  labs(
+    title = "Top Ten Contributing Factors for Crashes Involving Injuries to Cyclists",
+    x = "",
+    y = ""
+  ) 
 
+
+ggplotly(top_10_bike, tooltip = c("x", "y")) 
 ```
 
 
-###  Title 2
+### Contributing Factors Microvehicle
+    
+```{r contributing_factor_micro, echo = FALSE, message = FALSE, warning = FALSE, fig.width = 8}
+top_10_micro = microveh %>%
+  pivot_longer(
+    contributing_factor_vehicle_1:contributing_factor_vehicle_5,
+    names_to = "vehicle_factor_num",
+    names_prefix = "contributing_factor_vehicle_",
+    values_to = "contributing_factor"
+   ) %>%
+  mutate(
+    contributing_factor = if_else(contributing_factor == "Pedestrian/Bicyclist/Other Pedestrian Error/Confusion", "Pedestrian/Cyclist Error", contributing_factor)
+  ) %>%
+  group_by(covid, contributing_factor) %>%
+  summarise(
+    collisions = n_distinct(collision_id)
+  ) %>%
+  drop_na(contributing_factor) %>%
+  ungroup(contributing_factor) %>%
+  filter(contributing_factor != "Unspecified") %>%
+  mutate(
+    covid = fct_relevel(covid, 'Pre-COVID'),
+    proportion = round(collisions / sum(collisions), 2) 
+  ) %>%
+  group_by(covid) %>%
+  top_n(n = 10, wt = proportion) %>%
+  mutate(
+    contributing_factor = fct_reorder(as.factor(contributing_factor), collisions, .desc = TRUE)
+  ) %>%
+  ggplot(aes(x = contributing_factor, y = proportion, fill = covid)) +
+  geom_bar(stat = "identity") +
+  facet_grid( . ~covid, scales = "free_x", space = "free_x") +
+  scale_y_continuous(labels = scales::percent) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1), legend.position = "none") +
+  labs(
+    title = "Top Ten Contributing Factors for Microvehicle Crashes Involving Injuries",
+    x = "",
+    y = ""
+  )
 
-```{r}
+ggplotly(top_10_micro, tooltip = c("x", "y")) 
+```
+ 
+ 
+ 
 
+### Heat maps - Bike
+```{r, echo = FALSE, message = FALSE, warning = FALSE, fig.width = 8}
+
+heat_maps = function(dataset, title) {
+  pre = 
+  dataset %>%
+  filter(covid == "Pre-COVID") %>%
+  plot_ly(
+    x = ~hour, y = ~dow, z = ~collisions, type = "heatmap", colors = "BuPu"
+  ) %>%
+  colorbar(title = "Pre-COVID", x = 1, y = 1) 
+
+covid = 
+  dataset %>%
+  filter(covid == "COVID") %>%
+  plot_ly(
+    x = ~hour, y = ~dow, z = ~collisions, type = "heatmap", colors = "YlGn"
+  ) %>%
+  colorbar(title = "COVID", x = 1, y = 0.5) 
+
+subplot(pre, covid, nrows = 2, margin = .05) %>%
+  layout(title = title)
+}
+
+
+crash_day_time = 
+  bikes %>%
+  group_by(covid, hour, dow) %>%
+  summarise(
+    collisions = n_distinct(collision_id)
+  )  
+
+p = heat_maps(dataset = crash_day_time, title = "Heat Maps of Bike Crashes")
+
+ggplotly(p, tooltip = c("x", "y")) 
 ```
 
-Row
------------------------------------------------------------------------
-
-###  Title 3
-
-```{r}
-
+### Heat maps - Cyclists
+```{r, echo = FALSE}
+bikes %>%
+  pivot_longer(
+    contributing_factor_vehicle_1:contributing_factor_vehicle_5,
+    names_to = "vehicle_factor_num",
+    names_prefix = "contributing_factor_vehicle_",
+    values_to = "contributing_factor"
+   ) %>%
+  filter((contributing_factor == "Pedestrian/Cyclist Error" |
+           vehicle_factor_num == vehicle_number),
+         contributing_factor != "Unspecified") %>%
+  group_by(covid, hour, dow) %>%
+  summarise(
+    collisions = n_distinct(collision_id)
+  ) %>% heat_maps(title = "Heat Maps of Bike Crashes Involving Cyclist Factors")
 ```
 
-### Title 4
+### Heat maps - Distraction
+```{r, echo = FALSE}
 
-```{r}
-
+  bikes %>%
+  pivot_longer(
+    contributing_factor_vehicle_1:contributing_factor_vehicle_5,
+    names_to = "vehicle_factor_num",
+    names_prefix = "contributing_factor_vehicle_",
+    values_to = "contributing_factor"
+   ) %>%
+  filter(
+    contributing_factor == "Driver Inattention/Distraction"
+    ) %>%
+  group_by(covid, hour, dow) %>%
+  summarise(
+    collisions = n_distinct(collision_id)
+  ) %>% heat_maps(title = "Heat Maps of Bike Crashes Involving Driver Inattention")
 ```
 
+### Heat maps - Microvehicle
+```{r, echo = FALSE}
+  microveh %>%
+  group_by(covid, hour, dow) %>%
+  summarise(
+    collisions = n_distinct(collision_id)
+  ) %>% heat_maps(title = "Heat Maps of Microvehicle Crashes")
+```
 
-   
    
 Statistical Models
 =======================================================================
