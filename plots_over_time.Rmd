@@ -1,6 +1,6 @@
 ---
-title: "Plots over time"
-date: "11/21/2020"
+title: "Bike use and bike and microvehicles crashes over time"
+date: 
 output: 
   html_document
 ---
@@ -104,6 +104,31 @@ bike_crash_agg = crash_dat_tidy %>%
 
 ```
 
+"Filter For" function:
+```{r filter functions, include = FALSE}
+
+filter_for = function(dataset, type) {
+  if (type == "micro") {
+  dataset %>% filter(str_detect(vehicle_options, "[Bb]ike") | 
+           str_detect(vehicle_options, "REVEL") | 
+           str_detect(vehicle_options, "SCO")  |
+           str_detect(vehicle_options, "MOP")   |
+           str_detect(vehicle_options, "ELEC")  |
+           str_detect(vehicle_options, "^E-")) %>% 
+  filter(vehicle_options != "ESCOVATOR" & vehicle_options != "Bike" &
+      str_detect(vehicle_options, "Dirt", negate = TRUE),
+      str_detect(vehicle_options, "[Mm]otorbike", negate = TRUE)
+           )
+}
+
+  else if (type == "bike") {
+  dataset %>% filter(str_starts(vehicle_options, "[Bb]ike")) 
+  }
+}
+```
+
+
+Import bike count data
 
 ```{r import bikes, cache = TRUE}
 #Importing bike data using the NYC Open Data API. The API response is limited to 50,000 rows, so we need a function that can be used to page through these results to capture all bike counts in 2019 and 2020. 
