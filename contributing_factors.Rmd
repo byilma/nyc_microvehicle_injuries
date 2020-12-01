@@ -46,7 +46,8 @@ filter_for = function(dataset, type) {
 
 ```
   
-  
+<br></br>   
+
 ## Description  
 
 The goal of these analyses is to understand whether there have been changes in contributing factors of bike and microvehicle crashes during the COVID-19 pandemic as compared to prior to the pandemic. We hypothesized that there would be changes in contributing factors due to changes in traffic patterns as a result of the pandemic. For example, as many businesses have transitioned to remote work, city streets may become less congested with cars, which could result in increased speeding or other unsafe driving behaviors. In addition, as many healthcare workers were offered free CITI bike memberships during the pandemic, there may have been an increase in the number of new bike riders, who may have less riding experience and be more prone to bike riding errors.
@@ -54,12 +55,14 @@ The goal of these analyses is to understand whether there have been changes in c
 The NYC Department of Transportation Motor Vehicle Collisions - Crashes data contain a contributing factor variable that is designated for each vehicle involved in the collision. These contributing factors are recorded on the police accident report by the crash investigator, who is responsible for determining the apparent reason for the collision. Contributing factors include options like aggressive driving, failure to yield right-of-way, unsafe speed, and bicyclist error/confusion. 
   
   
+<br></br>  
+
 ## Top Contributing Factors for Bike Crashes 
 
 In this first analysis, we compared the top ten contributing factors in bike crashes pre- and during COVID-19. We subset the collision data to crashes involving a bike where a cyclist was injured. Since we are making comparisons pre- and during the pandemic, We further restricted the data to crashes occurring in March through October to control for potential seasonal effects. Crashes that occurred pre-2020 were classified as pre-COVID and crashes that occurred in 2020 were classified as during COVID. Contributing factors were summarized as the proportion of collisions that involved the given factor. Since multiple contributing factors can be recorded for each collision, these proportions will not sum to 100%.
 
 
-```{r contributing_factor_bike, message = FALSE, warning = FALSE}
+```{r contributing_factor_bike, message = FALSE, warning = FALSE, fig.width=8}
 bikes = 
   read_csv("./data/crash_dat.csv") %>%
   filter_for("bike") %>%
@@ -110,26 +113,29 @@ top_10_bike =
   ggplot(aes(x = contributing_factor, y = proportion, fill = covid)) +
   geom_bar(stat = "identity") +
   facet_grid( . ~covid, scales = "free_x", space = "free_x") +
+  scale_y_continuous(labels = scales::percent) +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1), legend.position = "none") +
   labs(
     title = "Top Ten Contributing Factors for Crashes Involving Injuries to Cyclists",
     x = "",
-    y = "Proportion of Crashes"
+    y = ""
   )
 
-ggplotly(top_10_bike) 
+ggplotly(top_10_bike, tooltip = c("x", "y")) 
 
 ```
 
 As seen in this plot, the leading contributing factor for bike crashes involving cyclist injuries was driver inattention or distraction both pre- and during the pandemic. However, the proportion of crashes with driver inattention listed as a contributing factor increased from 33% pre-pandemic to 37% during the pandemic. Similarly, there was a slight decrease in the proportion of bike crashes involving cyclist error during the pandemic, with 15% of crashes having this listed as a contributing factor pre-pandemic as compared to 12% during the pandemic. 
   
 
+<br></br>  
+
 ## Top Contributing Factors for Microvehicle Crashes 
 
 The following analysis replicates the analysis above for microvehicle crashes involving an injury. 
 
 
-```{r contributing_factor_micro, message = FALSE, warning = FALSE}
+```{r contributing_factor_micro, message = FALSE, warning = FALSE, fig.width = 8}
 microveh = 
   read_csv("./data/crash_dat.csv") %>%
   filter_for("micro") %>%
@@ -179,20 +185,23 @@ top_10_micro =
   ggplot(aes(x = contributing_factor, y = proportion, fill = covid)) +
   geom_bar(stat = "identity") +
   facet_grid( . ~covid, scales = "free_x", space = "free_x") +
+  scale_y_continuous(labels = scales::percent) +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1), legend.position = "none") +
   labs(
     title = "Top Ten Contributing Factors for Microvehicle Crashes Involving Injuries",
     x = "",
-    y = "Proportion of Crashes"
+    y = ""
   )
 
-ggplotly(top_10_micro) 
+ggplotly(top_10_micro, tooltip = c("x", "y")) 
 
 ```
 
 As seen in the bike analysis, the leading contributing factor for microvehicle crashes involving injuries was driver inattention or distraction both pre- and during the pandemic, with 37% of crashes involving this factor at both time periods. Differences in contributing factors in these microvehicle crashes were minor.  
 
-  
+
+<br></br>  
+
 ## Temporal Heat Maps for Bike Crashes  
 
 In addition to the contributing factors listed on the crash report, collisions are often observed to cluster by time of day and day of week. For example, crashes tend to cluster during weekdays at rush hour, when more cars are on the road. Since many individuals are no longer commuting to work, it's possible that this clustering will have changed during the pandemic. We therefore explored whether this clustering by time of day and day of week changed pre-pandemic versus during the pandemic.  
@@ -200,50 +209,25 @@ In addition to the contributing factors listed on the crash report, collisions a
 To accomplish this, we created a heat map of bike crashes involving a cyclist injury by time of day and day of week pre and during COVID.
 
 ```{r heat_plots, message = FALSE, warning = FALSE}
-a <- list(
-  text = "Pre-COVID",
-  xref = "paper",
-  yref = "paper",
-  yanchor = "bottom",
-  xanchor = "center",
-  align = "center",
-  x = 0.5,
-  y = 1,
-  showarrow = FALSE
-)
-
-b <- list(
-  text = "COVID",
-  xref = "paper",
-  yref = "paper",
-  yanchor = "bottom",
-  xanchor = "center",
-  align = "center",
-  x = 0.5,
-  y = 1,
-  showarrow = FALSE
-)
-
-heat_maps = function(dataset, color) {
+heat_maps = function(dataset, title) {
   pre = 
   dataset %>%
   filter(covid == "Pre-COVID") %>%
   plot_ly(
-    x = ~hour, y = ~dow, z = ~collisions, type = "heatmap", colors = color
+    x = ~hour, y = ~dow, z = ~collisions, type = "heatmap", colors = "BuPu"
   ) %>%
-  hide_colorbar() %>%
-  layout(annotations = a)
+  colorbar(title = "Pre-COVID", x = 1, y = 1) 
 
 covid = 
   dataset %>%
   filter(covid == "COVID") %>%
   plot_ly(
-    x = ~hour, y = ~dow, z = ~collisions, type = "heatmap", colors = color
+    x = ~hour, y = ~dow, z = ~collisions, type = "heatmap", colors = "YlGn"
   ) %>%
-  hide_colorbar() %>%
-  layout(annotations = b)
+  colorbar(title = "COVID", x = 1, y = 0.5) 
 
-subplot(pre, covid, nrows = 2, margin = .1)
+subplot(pre, covid, nrows = 2, margin = .05) %>%
+  layout(title = title)
 }
 
 crash_day_time = 
@@ -253,12 +237,14 @@ crash_day_time =
     collisions = n_distinct(collision_id)
   )  
 
-heat_maps(dataset = crash_day_time, color = "BuPu")
+heat_maps(dataset = crash_day_time, title = "Heat Maps of Bike Crashes")
 ```
 
 As seen in this plot, there was a similar trend pre- and during COVID, where the majority of bike crashes are clustered in the evening hours. There did seem to be slightly more clustering in the evening rush hour times of 4-6 PM during COVID as compared to pre-COVID. In addition, there was slightly less clustering in the morning hours during COVID.  
-  
-###Heat Maps for Crashes Involving Cyclist Contributing Factors  
+
+<br></br>  
+
+### Heat Maps for Crashes Involving Cyclist Contributing Factors  
 In next analysis, we further explored clustering by time of day and day of week based on whether the crash had a contributing factor attributed to the cyclist, which was defined as either having a factor of cyclist error or a valid factor with the same vehicle number as the bike vehicle number. 
   
 ```{r heat_plots_cyclist, message = FALSE, warning = FALSE}
@@ -278,13 +264,15 @@ day_time_bike_err =
     collisions = n_distinct(collision_id)
   )
 
-heat_maps(dataset = day_time_bike_err, color = "Blues")
+heat_maps(dataset = day_time_bike_err, title = "Heat Maps of Bike Crashes Involving Cyclist Factors")
 ```
 
 
 Similar to the prior heat maps, crashes with a contributing factor attributed to the cyclist were clustered in the evening hours.
-  
-###Heat Maps for Crashes Invovling Driver Inattention or Distraction
+
+<br></br>  
+
+### Heat Maps for Crashes Invovling Driver Inattention or Distraction
 We next explored clustering by time of day and day of week based on whether the crash had a contributing factor of driver inattention, which showed an increase in prevalence during COVID. 
 
 ```{r heat_plots_driver, message = FALSE, warning = FALSE}
@@ -304,11 +292,13 @@ day_time_drive_err =
     collisions = n_distinct(collision_id)
   ) 
 
-heat_maps(dataset = day_time_drive_err, color = "YlGn")
+heat_maps(dataset = day_time_drive_err, title = "Heat Maps of Bike Crashes Involving Driver Inattention")
 ```
 
 Again, there was a similar trend pre- and during COVID, where the majority of bike crashes are clustered in the evening hours, with slightly more clustering in the evening rush hour times of 4-6 PM during COVID.  
-  
+
+<br></br>  
+
 ## Temporal Heat Maps for Microvehicle Crashes
 Finally, we created a heat map of microvehicle crashes involving an injury by time of day and day of week pre and during COVID.
 
@@ -320,11 +310,13 @@ micro_day_time =
     collisions = n_distinct(collision_id)
   ) 
 
-heat_maps(dataset = micro_day_time, color = "BuPu")
+heat_maps(dataset = micro_day_time, title = "Heat Maps of Microvehicle Crashes")
 
 ```
 
 As compared to the heat maps for bike crashes, the heat maps for microvehicle crashes showed a wider clustering pattern on weekdays through the afternoon and evening hours during COVID.  
+
+<br></br>  
 
 ## Summary of Findings
 As we expected, there were slight differences in the patterns of contributing factors for bike crashes involving cyclist injuries. More crashes had a contributing factor of driver inattention, which may be related to increased unsafe driving habits during the pandemic. Contrary to what was expected, a lower proportion of crashes had a contributing factor of cyclist error. Those who biked during the pandemic may have been more experienced or safer riders than those who biked pre-pandemic. In addition, bike crashes showed increased clustering during evening commute hours during the pandemic, which was not originally expected. However, this may indicate that these individuals were more likely to be using biking as a mode of commuting during the pandemic as compared to more individuals using biking as a form of recreation pre-pandemic.
