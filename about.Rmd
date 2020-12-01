@@ -14,7 +14,7 @@ Bikes, mopeds. e-bikes. e-scooters are all fair game.
 
 This is great! But, with more bikes, scooters, mopeds and the like out in the street, we wanted to know more about how, if at all, the number of microvehicle/bikes incidents in New York City has increased. 
 
-We were also particularly intrested to see how the shelter-in-place due to covid-19 impacted the rate of incidents. 
+We were also particularly intrested to see how the shelter-in-place due to covid-19 impacted the rate of incidents.
 
 With this in mind, we took to the New York City Motor-Vehicle-Collisions-Crashes data to look into this further.
 

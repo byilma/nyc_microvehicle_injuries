@@ -79,8 +79,11 @@ crash_dat = crash_dat %>%
            str_detect(vehicle_options, "MOP")   |
            str_detect(vehicle_options, "ELEC")  |
            str_detect(vehicle_options, "^E-")) %>% 
-  filter(vehicle_options != "ESCOVATOR"
-           ) 
+  filter(vehicle_options != "ESCOVATOR",
+         str_detect(vehicle_options, "Dirt", negate = TRUE),
+         str_detect(vehicle_options, "[Mm]otorbike", negate = TRUE)) 
            
+
 write_csv(crash_dat, "./data/crash_dat.csv")
+
 ```
