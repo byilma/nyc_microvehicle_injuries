@@ -6,15 +6,40 @@ output:
     toc_float: true
 ---
 
-# This is Team-Microvehicle's awesome website
+## About 
+
+New York City is notorious for being a "car-congested" place to live in. The trains can feel just as congested, too. 
+People often opt for alternative ways of commuting, when possible. Recently, the number of options for 'alternative' means of commuting have increased! 
+Bikes, mopeds. e-bikes. e-scooters are all fair game. 
+
+This is great! But, with more bikes, scooters, mopeds and the like out in the street, we wanted to know more about how, if at all, the number of microvehicle/bikes incidents in New York City has increased. 
+
+We were also particularly intrested to see how the shelter-in-place due to covid-19 impacted the rate of incidents.
+
+With this in mind, we took to the New York City Motor-Vehicle-Collisions-Crashes data to look into this further.
+
+* [Data Source](https://data.cityofnewyork.us/Public-Safety/Motor-Vehicle-Collisions-Crashes/h9gi-nx95)
 
 
-# Data Source
-Where we got our data from 
 
-* [NYC Motor-Vehicle Collisions](https://data.cityofnewyork.us/Public-Safety/Motor-Vehicle-Collisions-Crashes/h9gi-nx95)
+### Microvehicles
 
 
-## Link to the About-Us page
+![](https://media.giphy.com/media/S0w2pBxWWJroc/giphy.gif)
 
-[About us](about.html)
+
+### Bike
+
+![](https://media.giphy.com/media/dZLKaImwWkc12rzEoO/giphy.gif)
+
+
+
+#### Revel
+
+![](https://media.giphy.com/media/QUSC0lwVLkyZGbA2Or/giphy.gif)
+
+
+
+#### E-scooters (like "lime")
+
+![](https://media.giphy.com/media/lnDq08VgGZPO0ZU8zw/giphy.gif)
