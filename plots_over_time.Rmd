@@ -24,86 +24,6 @@ scale_colour_discrete = scale_color_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
 ```
 
-
-```{r import MV crash, include=FALSE, cache = TRUE}
-#Importing crash data using the NYC Open Data API. The API response is limited to 50,000 rows, so we need a function that can be used to page through these results to capture all crashes in 2020. 
-crash_api = function(offset, limit = 50000) {
-  GET("https://data.cityofnewyork.us/resource/h9gi-nx95.csv", 
-      query = list("$where" = "crash_date between '2017-01-01T00:00:0' and '2020-10-31T12:00:00'", "$limit" = limit, "$offset" = offset)) %>% 
-  content("parsed") %>%
-  as_tibble() %>% 
-  mutate(longitude = as.double(longitude),
-         latitude = as.double(latitude))
-}
-
-offsets = seq(0, 750000, by = 50000)
-
-crash_dat = map_df(offsets, crash_api)
-
-crash_dat = crash_dat %>% distinct
-```
-
-
-```{r, tidy MV crash}
-#cleaning - transpose so vehicle types are listed in one column
-crash_dat_tidy = 
-  crash_dat %>% 
-  mutate(
-    date = lubridate::date(crash_date)
-  ) %>% 
-  pivot_longer(
-    vehicle_type_code1:vehicle_type_code_5,
-    names_to = "vehicle_number",
-    values_to = "vehicle_options"
-   ) %>%
-  drop_na(vehicle_options)
-```
-
-```{r filtering for microvehicles}
-#Exploring the vehicle types so that we can limit to bicycles -- double check this list
-microvehicle_crash_agg = crash_dat_tidy %>%
-  filter(str_detect(vehicle_options, "[Bb]ike") | 
-           str_detect(vehicle_options, "REVEL") | 
-           str_detect(vehicle_options, "SCO")  |
-           str_detect(vehicle_options, "MOP")   |
-           str_detect(vehicle_options, "ELEC")  |
-           str_detect(vehicle_options, "^E-")) %>% 
-  filter(vehicle_options != "ESCOVATOR" & vehicle_options != "Bike" &
-      str_detect(vehicle_options, "Dirt", negate = TRUE),
-      str_detect(vehicle_options, "[Mm]otorbike", negate = TRUE)
-           ) %>% 
-  group_by(date) %>% 
-  summarize(daily_microveh_crashed = n()) 
-
-# This will give us the daily total of microvehicles that were involved in crashes, rather
-# than the daily total of crashes that involved microvehicles. ie, if there was one crash 
-# involving two microvehicles, that will count as two. (as explained in first version in import file)
-
-
-#Run to check what the filter ^ resulted in
-# bikes %>%
-#   group_by(vehicle_options) %>%
-#   count() %>% View()
-```
-
-```{r filtering for bikes}
-#Exploring the vehicle types so that we can limit to bicycles -- double check this list
-bike_crash_agg = crash_dat_tidy %>%
-  filter(str_starts(vehicle_options, "[Bb]ike")) %>% 
-  group_by(date) %>% 
-  summarize(daily_bikes_crashed = n())
-
-# This will give us the daily total of bikes that were involved in crashes, rather
-# than the daily total of crashes that involved bikes. ie, if there was one crash 
-# involving two bikes, that will count as two. (as explained in first version in import file)
-
-#Run to check what the filter ^ resulted in
-# bike_crash_dat %>%
-#   group_by(vehicle_options) %>%
-#   count() %>% View()
-
-```
-
 "Filter For" function:
 ```{r filter functions, include = FALSE}
 
@@ -125,6 +45,32 @@ filter_for = function(dataset, type) {
   dataset %>% filter(str_starts(vehicle_options, "[Bb]ike")) 
   }
 }
+```
+
+Load bike_crash_agg df
+```{r}
+bike_crash_agg = 
+  read_csv("./data/crash_dat.csv") %>%
+  filter_for("bike") %>% 
+  group_by(date) %>% 
+  summarize(daily_bikes_crashed = n())
+
+# This will give us the daily total of bikes that were involved in crashes, rather
+# than the daily total of crashes that involved bikes. ie, if there was one crash 
+# involving two bikes, that will count as two. (as explained in first version in import file)
+```
+
+Load microvehicle crashed df 
+```{r}
+microvehicle_crash_agg = 
+  read_csv("./data/crash_dat.csv") %>%
+  filter_for("micro") %>% 
+  group_by(date) %>% 
+  summarize(daily_microveh_crashed = n()) 
+
+# This will give us the daily total of microvehicles that were involved in crashes, rather
+# than the daily total of crashes that involved microvehicles. ie, if there was one crash 
+# involving two bikes, that will count as two. (as explained in first version in import file)
 ```
 
 
