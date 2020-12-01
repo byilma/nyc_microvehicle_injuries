@@ -73,35 +73,10 @@ microvehicle_crash_agg =
 # involving two bikes, that will count as two. (as explained in first version in import file)
 ```
 
-
-Import bike count data
-
-```{r import bikes, cache = TRUE}
-#Importing bike data using the NYC Open Data API. The API response is limited to 50,000 rows, so we need a function that can be used to page through these results to capture all bike counts in 2019 and 2020. 
-
-#I think the code below works
-bike_api = function(offset, limit = 50000) {
-  GET("https://data.cityofnewyork.us/resource/uczf-rk3c.csv", 
-      query = list("$where" = "date between '2017-01-01T00:00:00' and '2020-10-31T12:00:00'", "$limit" = limit, "$offset" = offset)) %>% 
-  content("parsed") %>%
-  as_tibble() 
-}
-
-offsets = seq(0, 1800000, by = 50000)
-bike_dat = map_df(offsets, bike_api)
-```
-
-
-```{r tidy bikes}
-bike_counts_aggregate = 
-  bike_dat %>% 
-  mutate(
-    date_time = date,
-    date = lubridate::date(date_time)
-  ) %>% 
-  group_by(date) %>% 
-  summarize(total_daily_bikes = sum(counts, na.rm = TRUE))
-
+Load bike count data
+```{r}
+bike_count_agg = 
+  read_csv("./data/bike_count_df.csv")
 ```
 
 ## Visualization option 1:
@@ -131,7 +106,7 @@ bike_crash_plot = bike_crash_agg %>%
     y = ""
   )
   
-bike_count_plot = bike_counts_aggregate %>%
+bike_count_plot = bike_count_agg %>%
   ggplot(aes(x = date, y = total_daily_bikes)) +
   geom_point(alpha = .3) +
   geom_smooth(se = FALSE) +
@@ -150,7 +125,7 @@ bike_count_plot / bike_crash_plot / microveh_crash_plot
 
 Plotly plot of daily bike counts. 
 ```{r}
-bike_count_yr_plot = bike_counts_aggregate %>% 
+bike_count_yr_plot = bike_count_agg %>% 
   mutate(year = lubridate::year(date),
          month = lubridate::month(date),
          day_of_year = lubridate::yday(date)) %>%
