@@ -1,12 +1,47 @@
 ---
-title: "About us page"
+title: "New York City"
 output: 
   html_document:
     toc: true
     toc_float: true
 ---
 
-# Microvehicle and Bike Incidents in New York
+## About 
 
+New York City is notorious for being a "car-congested" place to live in. The trains can feel just as congested, too. 
+People often opt for alternative ways of commuting, when possible. Recently, the number of options for 'alternative' means of commuting have increased! 
+Bikes, mopeds. e-bikes. e-scooters are all fair game. 
+
+This is great! But, with more bikes, scooters, mopeds and the like out in the street, we wanted to know more about how, if at all, the number of microvehicle/bikes incidents in New York City has increased. 
+
+We were also particularly intrested to see how the shelter-in-place due to covid-19 impacted the rate of incidents. 
+
+With this in mind, we took to the New York City Motor-Vehicle-Collisions-Crashes data to look into this further.
+
+* [Data Source](https://data.cityofnewyork.us/Public-Safety/Motor-Vehicle-Collisions-Crashes/h9gi-nx95)
+
+
+
+### Microvehicles
+
+
+![](https://media.giphy.com/media/S0w2pBxWWJroc/giphy.gif)
+
+
+### Bike
+
+![](https://media.giphy.com/media/dZLKaImwWkc12rzEoO/giphy.gif)
+
+
+
+#### Revel
+
+![](https://media.giphy.com/media/QUSC0lwVLkyZGbA2Or/giphy.gif)
+
+
+
+#### E-scooters (like "lime")
+
+![](https://media.giphy.com/media/lnDq08VgGZPO0ZU8zw/giphy.gif)
 
 
