@@ -125,29 +125,24 @@ bike_count_plot / bike_crash_plot / microveh_crash_plot
 
 Plotly plot of daily bike counts. 
 ```{r}
-bike_count_agg = bike_count_agg %>% 
+bike_count_yr_plot = bike_count_agg %>% 
   mutate(year = lubridate::year(date),
          month = lubridate::month(date),
          day_of_month = lubridate::mday(date), 
-         day_of_year = lubridate::yday(date),
-         common_date = lubridate::mdy(paste(month, day_of_month, "2020")))
-  
-bike_count_yr_plot = bike_count_agg %>%  
-  ggplot(aes(x = day_of_year, y = total_daily_bikes, 
+         common_date = lubridate::mdy(paste(month, day_of_month, "2020"))) %>%  
+  ggplot(aes(x = common_date, y = total_daily_bikes, 
              group = year, color = as.factor(year))) +
   geom_point(alpha = .3) +
   geom_smooth(se = FALSE) + 
   labs(
     title = "Bicycles counted daily by NYC DOT 2017-2020",
-    x = "Month and Day",
+    x = "Month",
     y = "Number of Collisions"
     ) +
   theme(text = element_text(size = 15), 
-        axis.text.x = element_text(angle = 60, hjust=1, size=10)) +
+        axis.text.x = element_text(angle = 60, hjust = 1, size = 10)) +
   scale_colour_discrete("Year") +
-  scale_x_date(labels = lubridate::month(bike_count_agg$date))
-  
-  
+  scale_x_date(date_breaks = "1 month", labels = function(x) format(x, "%b"))
 
 ggplotly(bike_count_yr_plot)
 ```
@@ -156,9 +151,10 @@ Analagous plot of bikes involved in crashes:
 ```{r}
 bike_crash_yr_plot = bike_crash_agg %>% 
     mutate(year = lubridate::year(date),
-         month = lubridate::month(date),
-         day_of_year = lubridate::yday(date)) %>% 
-  ggplot(aes(x = day_of_year, y = daily_bikes_crashed, 
+           month = lubridate::month(date),
+           day_of_month = lubridate::mday(date), 
+           common_date = lubridate::mdy(paste(month, day_of_month, "2020"))) %>% 
+  ggplot(aes(x = common_date, y = daily_bikes_crashed, 
              group = year, color = as.factor(year))) +
   geom_point(alpha = .3) +
   geom_smooth(se = FALSE) + 
@@ -168,8 +164,9 @@ bike_crash_yr_plot = bike_crash_agg %>%
     y = "Bikes involved in crashes"
     ) +
   theme(text = element_text(size = 15), 
-        axis.text.x = element_text(angle = 60, hjust=1, size=10)) +
-  scale_colour_discrete("Year")
+        axis.text.x = element_text(angle = 60, hjust = 1, size = 10)) +
+  scale_colour_discrete("Year") +
+  scale_x_date(date_breaks = "1 month", labels = function(x) format(x, "%b"))
 
 ggplotly(bike_crash_yr_plot)
 ```
@@ -192,9 +189,10 @@ bike_count_and_crash =
 
 bike_count_and_crash %>% 
     mutate(year = lubridate::year(date),
-         month = lubridate::month(date),
-         day_of_year = lubridate::yday(date)) %>% 
-  ggplot(aes(x = day_of_year, y = crashes_per_bike, 
+           month = lubridate::month(date),
+           day_of_month = lubridate::mday(date), 
+           common_date = lubridate::mdy(paste(month, day_of_month, "2020"))) %>%
+  ggplot(aes(x = common_date, y = crashes_per_bike, 
              group = year, color = as.factor(year))) +
   geom_point(alpha = .3) +
   geom_smooth(se = FALSE) + 
@@ -205,6 +203,8 @@ bike_count_and_crash %>%
     ) +
   theme(text = element_text(size = 15), 
         axis.text.x = element_text(angle = 60, hjust=1, size=10)) +
-  scale_colour_discrete("Year")
+  scale_colour_discrete("Year") +
+  scale_x_date(date_breaks = "1 month", labels = function(x) format(x, "%b"))
+  
 ```
 
