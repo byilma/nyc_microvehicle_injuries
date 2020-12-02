@@ -3,19 +3,20 @@ title: "Geolocation and Maps"
 date: "11/30/2020"
 output: 
   html_document:
+    toc: true
 always_allow_html: true
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
 library(tidyverse)
-library(readr)
 library(httr)
 library(purrr)
 library(plotly)
+library(jsonlite)
+library(knitr)
 options(scipen = 999)
-
-Sys.setenv('MAPBOX_TOKEN' = 'pk.eyJ1IjoiYWFicmFtb3Y5MCIsImEiOiJja2gyZm5obzQwNWIxMnFxc3phcWh1MWtwIn0.amAvJHtFkTl9XWJ68fh96Q')
 
 theme_set(theme_minimal() + theme(legend.position = "bottom"))
 options(
@@ -25,6 +26,7 @@ options(
 scale_colour_discrete = scale_color_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
 
+Sys.setenv('MAPBOX_TOKEN' = 'pk.eyJ1IjoiYWFicmFtb3Y5MCIsImEiOiJja2gyZm5obzQwNWIxMnFxc3phcWh1MWtwIn0.amAvJHtFkTl9XWJ68fh96Q')
 ```
 
 Data Import
@@ -67,15 +69,14 @@ crash_map_bikes =
     text_label = str_c("Crash Time: ", covid, "\nCyclists Injured: ", 
                        number_of_cyclist_injured)) %>% 
   plot_mapbox(
-    x = ~longitude, 
-    y = ~latitude,  
-    mode = 'scattermapbox', 
+    lon = ~longitude, 
+    lat = ~latitude,  
+    type = 'scattermapbox',     
     split = ~covid,
     size = ~number_of_cyclist_injured,
     color = ~borough,
     text = ~text_label,
     hoverinfo = "text") %>% 
-  
   layout(
     mapbox = 
       list(
@@ -100,9 +101,9 @@ crash_map_microvehicles =
       str_c("Time Period: ", covid, 
             "\nNumber of People Injured: ", number_of_persons_injured)) %>% 
   plot_mapbox(
-    x = ~longitude, 
-    y = ~latitude,  
-    mode = 'scattermapbox', 
+    lon = ~longitude, 
+    lat = ~latitude,  
+    type = 'scattermapbox', 
     split = ~covid,
     size = ~number_of_persons_injured,
     color = ~borough,
