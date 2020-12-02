@@ -225,4 +225,29 @@ Crashes per bicycle counted appear remain steady overall, and don't have a clear
 
 Finally, while we don't have data on microvehicle use, we can look at overlaid microvehicle crashes from 2017-2020 in a similar way.
 
+```{r}
+microvehicle_crash_yr_plot = microvehicle_crash_agg %>% 
+    mutate(year = lubridate::year(date),
+           month = lubridate::month(date),
+           day_of_month = lubridate::mday(date), 
+           common_date = lubridate::mdy(paste(month, day_of_month, "2020")),
+           year = as.factor(year)) %>%
+  ggplot(aes(x = common_date, y = daily_microveh_crashed, 
+             group = year, color = year)) +
+  geom_point(alpha = .3) +
+  geom_smooth(se = FALSE) + 
+  labs(
+    title = "Microvehicles involved in crashes daily in NYC 2017-2020",
+    x = "Month",
+    y = "Microvehicles involved in crashes"
+    ) +
+  theme(text = element_text(size = 15), 
+        axis.text.x = element_text(angle = 60, hjust = 1, size = 10)) +
+  scale_colour_discrete("Year") +
+  scale_x_date(date_breaks = "1 month", labels = function(x) format(x, "%b")) +
+  scale_color_viridis_d(end = .8)
 
+ggplotly(microvehicle_crash_yr_plot)
+```
+
+As we can see in the plot, microvehicle crashes were very few during 2017 and 2018. An increase occurs starting in the summer of 2019, peaking for 2019 around September, and dropping again in the colder months. Crashes are higher overall in 2020, rise substantially higher than 2019 during the summer and fall especially, peaking again in September. Since we don't have data about microvehicle use, it's not possible to establish whether this increase in crashes corresponds to an increase in microvehicle use or an increase in the rate of crashes per vehicle, or both.
