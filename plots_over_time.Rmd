@@ -16,16 +16,10 @@ library(patchwork)
 options(scipen=999)
 
 theme_set(theme_minimal() + theme(legend.position = "bottom"))
-options(
-  ggplot2.continuous.colour = "viridis",
-  ggplot2.continuous.fill = "viridis"
-)
-scale_colour_discrete = scale_color_viridis_d
-scale_fill_discrete = scale_fill_viridis_d
 ```
 
-"Filter For" function:
-```{r filter functions, include = FALSE}
+
+```{r filter function, include = FALSE}
 
 filter_for = function(dataset, type) {
   if (type == "micro") {
@@ -47,8 +41,7 @@ filter_for = function(dataset, type) {
 }
 ```
 
-Load bike_crash_agg df
-```{r}
+```{r load bike crash data, include = FALSE}
 bike_crash_agg = 
   read_csv("./data/crash_dat.csv") %>%
   filter_for("bike") %>% 
@@ -60,8 +53,7 @@ bike_crash_agg =
 # involving two bikes, that will count as two. (as explained in first version in import file)
 ```
 
-Load microvehicle crashed df 
-```{r}
+```{r load microvehicle data, include = FALSE}
 microvehicle_crash_agg = 
   read_csv("./data/crash_dat.csv") %>%
   filter_for("micro") %>% 
@@ -73,19 +65,23 @@ microvehicle_crash_agg =
 # involving two bikes, that will count as two. (as explained in first version in import file)
 ```
 
-Load bike count data
-```{r}
+```{r load bike count data, include = FALSE}
 bike_count_agg = 
   read_csv("./data/bike_count_df.csv")
 ```
 
-## Visualization option 1:
+On this page, we'll explore trends of bicycle use and bicycle and motorvehicle crashes over time, from 2017 through the end of October of 2020. This birds-eye-view will let us start to get a sense of whether there were noticeable differences pre and post covid, and of general trends over time. 
 
-One way of visualizing: 2017-2020 Bike use, bikes involved in crashes, microvehicles involved in crashes. I thought it would be valuable to go back to 2017 to get a sense of non-covid bike use to compare to 2020.
+## Bike and microvehicle use and crashes in NYC, 2017-2020
 
-This will need to have an aspect ratio tall enough to show all three clearly.
+In order to get a sense of bicycle use and bicycle and microvehicle crashes in the context of the covid pandemic in NYC, we start by looking at bicycle and microvehicle crashes and bicycle use over time. The plots below show, from top to bottom:
+* Daily number of bicycles counted in NYC by the Department of Transportation's counters from 2017-2020
+* Daily number of bicycles involved in crashes in NYC according to NYPD data on motorvehicle collisions from 2017-2020
+* Daily number of microvehicles (including scooters, mopeds, electric bikes, e-bikes, and revel scooters) involved in crashes in NYC according to NYPD data on motorvehicle collisions from 2017-2020. 
 
-```{r}
+Note that crashes are quantified as the number of bicycles (or microvehicles) involved, rather than the number of crashes - ie, if one crash occured involving two bicycles, that would count as two.
+
+```{r initial plots over time, collapse = TRUE}
 microveh_crash_plot = microvehicle_crash_agg %>% 
   ggplot(aes(x = date, y = daily_microveh_crashed)) +
   geom_point(alpha = .3) +
@@ -119,12 +115,14 @@ bike_count_plot = bike_count_agg %>%
 bike_count_plot / bike_crash_plot / microveh_crash_plot
 ```
 
-## Visualization option 2: Overlay years for bike use, overlay years for bike crashes
+As we can see, there's a strong seasonal trend for bicycle use and a corresponding seasonal trend for bicycles involved in crashes. 
 
-**Still to do for both plots: change x-axis labels, Adjust colors so 2020 isn't yellow...**
+## Overlay years
 
-Plotly plot of daily bike counts. 
-```{r}
+**Bike use**
+In order to take a more detailed look at how bicycle use and may have differed during 2020, we'll overlay each year of daily bicycle counts onto one plot. Click on the years to select/unselect.
+
+```{r bike use overlay, collapse = TRUE}
 bike_count_yr_plot = bike_count_agg %>% 
   mutate(year = lubridate::year(date),
          month = lubridate::month(date),
@@ -143,13 +141,19 @@ bike_count_yr_plot = bike_count_agg %>%
   theme(text = element_text(size = 15), 
         axis.text.x = element_text(angle = 60, hjust = 1, size = 10)) +
   scale_colour_discrete("Year") +
-  scale_x_date(date_breaks = "1 month", labels = function(x) format(x, "%b"))
+  scale_x_date(date_breaks = "1 month", labels = function(x) format(x, "%b")) +
+  scale_color_viridis_d(end = .8)
 
 ggplotly(bike_count_yr_plot)
 ```
 
-Analagous plot of bikes involved in crashes:
-```{r}
+As we can see, 2020 started out with higher bike use than the previous years, dipped slightly, and then surpassed the other years seasonal bike counts starting around July. From this visualizaion, we can't say definitively if COVID played a role in trends related to bicycle use, but it is interesting to observe how trends in 2020 differed from prior years.
+
+**Bike crashes**
+
+We can visualize the bike crash data in a similar way.
+
+```{r bike crash overlay, collapse = TRUE}
 bike_crash_yr_plot = bike_crash_agg %>% 
     mutate(year = lubridate::year(date),
            month = lubridate::month(date),
@@ -174,14 +178,15 @@ bike_crash_yr_plot = bike_crash_agg %>%
 ggplotly(bike_crash_yr_plot)
 ```
 
-Notes: bicycle use in 2020 seems comparable, and at some points slightly higher than bike use in previous years. However, bicycle crashes were lower than in previous years. It's hard to know if this is due to an improvement in bicycle safety in general or if reduced car traffic during covid had an impact.
+Bike crash data in 2020 follows a similar curve to bike use data - however, it is noticeably offset lower than bike crash data from previous years. 
 
-Crashes per observed bike:
+**Crashes per observed bike**
 
+In order to more specifically visualize whether crashes in 2020 were fewer per bicyclist, we look at a similar visualization plotting bikes involved in crashes per counted bicycle. This gives a sense of how bike safety (as measured by likelihood of being involved in a crash) has evolved over time in NYC.
 
-Analagous plot to those above looking at crashes PER observed bike. 
+Note that, since bike count is based on bicycles that passed counters maintained by the DOT and represent only a sample of all bicycles used daily in NYC, these ratios should not be interpreted as estimates of the rate of crashing. Nevertheless, they can be used to illustrate trends over time.
 
-```{r}
+```{r crashes per bike, collapse = TRUE}
 bike_count_and_crash = 
   inner_join(
     bike_count_agg,
@@ -190,7 +195,7 @@ bike_count_and_crash =
   ) %>% 
   mutate(crashes_per_bike = daily_bikes_crashed/total_daily_bikes)
 
-bike_count_and_crash %>% 
+bike_count_crash_yr_plot = bike_count_and_crash %>% 
     mutate(year = lubridate::year(date),
            month = lubridate::month(date),
            day_of_month = lubridate::mday(date), 
@@ -206,10 +211,18 @@ bike_count_and_crash %>%
     y = "Crashes per bike"
     ) +
   theme(text = element_text(size = 15), 
-        axis.text.x = element_text(angle = 60, hjust=1, size=10)) +
+        axis.text.x = element_text(angle = 60, hjust = 1, size = 10)) +
   scale_colour_discrete("Year") +
   scale_x_date(date_breaks = "1 month", labels = function(x) format(x, "%b")) +
-  scale_colour_viridis(option = magma)
-  
+  scale_color_viridis_d(end = .8)
+
+ggplotly(bike_count_crash_yr_plot)
 ```
+
+Crashes per bicycle counted appear remain steady overall, and don't have a clear seasonal pattern. Crashes per bicycle dip starting in the second half of 2019 through the first half of 2020, when they rise again to reflect trends in previous years.
+
+**Microvehicle crashes**
+
+Finally, while we don't have data on microvehicle use, we can look at overlaid microvehicle crashes from 2017-2020 in a similar way.
+
 
