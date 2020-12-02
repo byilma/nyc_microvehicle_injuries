@@ -1,6 +1,6 @@
 ---
-title: "Pull and Tidy"
-date: "11/6/2020"
+title: "Rates of Injury"
+date: "12/2/2020"
 output: 
   github_document:
   always_allow_html: true
@@ -39,6 +39,8 @@ offsets = seq(0, 750000, by = 50000)
 crash_dat = map_df(offsets, crash_api)
 crash_dat = crash_dat %>% distinct
 ```
+
+**Below, we tidied the imported data. We ensured that the dates were in the appropriate format, and we additionally created separate variables for year, month, and day. We also pivoted the data from wide to long so that number of vehicles and type of vehicle were each in their own columns. We also dropped missing observations.**
 
 ```{r, tidy MV crash}
 #cleaning - transpose so vehicle types are listed in one column
@@ -131,6 +133,26 @@ fit_injuries_micro_all
 
 **Although there was no statistically significant evidence for a different rate of injury in 2020 v. 21 in any month, I proceeded to examine this stratified by borough.**
 
+**I also wanted to get descriptives for number of microvehicle crashes and injuries in each borough in each month.**
+
+```{r}
+crash_dat_tidy %>%
+  filter_for("micro") %>% 
+  filter(year %in% c(2019, 2020)) %>%
+  group_by(year, month, borough) %>%
+  summarise(number_of_crashes = n(),
+            mean_number_of_injuries = mean(number_of_persons_injured)) %>%
+  drop_na(borough) %>%
+  left_join(month_df, by = "month") %>%
+  as.tibble() %>%
+  select(year, month_name, borough, number_of_crashes, 
+         mean_number_of_injuries) %>%
+  mutate(borough = str_to_title(borough)) %>%
+  knitr::kable(digits = 2)
+```
+
+**It is apparent that there are very low numbers of crashes when stratifying by both month and borough - sometimes as low as only 1 crash, or even 0 crashes (particularly in Staten Island).**
+
 **Below, I extract the rate ratio estimates for the microvehicle data by borough.**
 
 ```{r lm for microvehicle injuries by month and borough}
@@ -138,6 +160,7 @@ fit_injuries_micro_all
 fit_injuries_micro = crash_dat_tidy %>%
   filter_for("micro") %>% 
   filter(year %in% c(2019, 2020)) %>%
+  mutate(borough = str_to_title(borough)) %>%
   group_by(year) %>%
   mutate(year_2020 = year - 2019) %>%
   nest(data = -month) %>%
@@ -192,7 +215,7 @@ fit_injuries_micro %>%
 
 ```{r lm for bike injuries by month}
 
-fit_injuries_micro_all = crash_dat_tidy %>%
+fit_injuries_bike_all = crash_dat_tidy %>%
   filter_for("bike") %>% 
   filter(year %in% c(2019, 2020)) %>%
   group_by(year) %>%
@@ -211,11 +234,32 @@ fit_injuries_micro_all = crash_dat_tidy %>%
   filter(term != "(Intercept)" & month != "November" & month != "December") %>%
   select(month, everything()) 
 
-fit_injuries_micro_all
+fit_injuries_bike_all
 
 ```
 
 **Although there was no statistically significant evidence for a different rate of injury in 2020 v. 21 in any month, I proceeded to examine this stratified by borough.**
+
+
+**I also wanted to get descriptives for number of bike crashes and injuries in each borough in each month.**
+
+```{r}
+crash_dat_tidy %>%
+  filter_for("bike") %>% 
+  filter(year %in% c(2019, 2020)) %>%
+  group_by(year, month, borough) %>%
+  summarise(number_of_crashes = n(),
+            mean_number_of_injuries = mean(number_of_persons_injured)) %>%
+  drop_na(borough) %>%
+  left_join(month_df, by = "month") %>%
+  as.tibble() %>%
+  select(year, month_name, borough, number_of_crashes, 
+         mean_number_of_injuries) %>%
+  mutate(borough = str_to_title(borough)) %>%
+  knitr::kable(digits = 2)
+```
+
+**It is again apparent that there are very low numbers of crashes when stratifying by both month and borough.**
 
 **Below, I extract the rate ratio estimates for the bike data by borough (as in the microvehicle data).**
 
@@ -223,6 +267,7 @@ fit_injuries_micro_all
 
 fit_injuries_bike = crash_dat_tidy %>%
   filter_for("bike") %>% 
+  mutate(borough = str_to_title(borough)) %>%
   filter(year %in% c(2019, 2020)) %>%
   group_by(year) %>%
   mutate(year_2020 = year - 2019) %>%
