@@ -26,44 +26,10 @@ scale_fill_discrete = scale_fill_viridis_d
 ```
 
 
-```{r import MV crash, include=FALSE}
-crash_api = function(offset, limit = 50000) {
-  GET("https://data.cityofnewyork.us/resource/h9gi-nx95.csv", 
-      query = list("$where" = "crash_date between '2017-01-01T00:00:0' and '2020-10-31T12:00:00'", "$limit" = limit, "$offset" = offset)) %>% 
-  content("parsed") %>%
-  as_tibble() %>% 
-  select(-latitude, -longitude)
-}
+```{r, read data}
 
-offsets = seq(0, 750000, by = 50000)
+crash_dat_tidy = read_csv("./data/crash_dat.csv") 
 
-crash_dat = map_df(offsets, crash_api)
-crash_dat = crash_dat %>% distinct
-```
-
-**Below, we tidied the imported data. We ensured that the dates were in the appropriate format, and we additionally created separate variables for year, month, and day. We also pivoted the data from wide to long so that number of vehicles and type of vehicle were each in their own columns. We also dropped missing observations.**
-
-```{r, tidy MV crash}
-#cleaning - transpose so vehicle types are listed in one column
-crash_dat_tidy = 
-  crash_dat %>% 
-  mutate(
-    date = lubridate::date(crash_date)
-  ) %>% 
-  mutate(
-    dow = as.factor(weekdays(crash_date))
-  ) %>%
-  separate(crash_date, into = c("year", "month", "day"), sep = "-") %>%
-  mutate(year = as.integer(year),
-         month = as.integer(month),
-         day = as.integer(day)) %>%
-  pivot_longer(
-    vehicle_type_code1:vehicle_type_code_5,
-    names_to = "vehicle_number",
-    values_to = "vehicle_options"
-   ) %>%
-  drop_na(vehicle_options) %>%
-  select(date, everything())
 ```
 
 **My goal was to compare the rate of injuries in a crash in 2020 to the same month in 2019 (e.g., rate of injuries in January 2020 v. rate of injuries in January 2019). I examined January through October. I additionally stratified these rate ratio estimates by borough.**

@@ -281,6 +281,12 @@ $(document).ready(function () {
   <a href="about.html">About</a>
 </li>
 <li>
+  <a href="contributing_factors.html">Contributing Factors</a>
+</li>
+<li>
+  <a href="geolocation_maps.html">Geolocation</a>
+</li>
+<li>
   <a href="dashboard.html">Dashboard</a>
 </li>
 <li>
@@ -422,9 +428,9 @@ gam(n_incidents ~ s(ny_tmax) + s(ny_tmin) + s(ny_prcp), data = df) %&gt;%
 <pre><code>## # A tibble: 3 x 3
 ##   term       ci_lower ci_upper
 ##   &lt;chr&gt;         &lt;dbl&gt;    &lt;dbl&gt;
-## 1 s(ny_prcp)     2.54     8.44
-## 2 s(ny_tmax)     1.62     8.46
-## 3 s(ny_tmin)     3.03     7.09</code></pre>
+## 1 s(ny_prcp)     2.79     8.26
+## 2 s(ny_tmax)     1.66     8.27
+## 3 s(ny_tmin)     2.40     7.26</code></pre>
 <p>#making a prediction plot of the smooth model estimates (edf)</p>
 <pre class="r"><code>smooth = gam(n_incidents ~ s(ny_tmax) + s(ny_tmin) + s(ny_prcp), data = df) 
 
