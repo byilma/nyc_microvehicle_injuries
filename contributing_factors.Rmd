@@ -35,8 +35,7 @@ filter_for = function(dataset, type) {
            str_detect(vehicle_options, "^E-")) %>% 
   filter(vehicle_options != "ESCOVATOR" & vehicle_options != "Bike" &
       str_detect(vehicle_options, "Dirt", negate = TRUE),
-      str_detect(vehicle_options, "[Mm]otorbike", negate = TRUE)
-           )
+      str_detect(vehicle_options, "[Mm]otorbike", negate = TRUE))
 }
 
   else if (type == "bike") {
