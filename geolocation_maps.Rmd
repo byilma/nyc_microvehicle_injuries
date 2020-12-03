@@ -4,19 +4,13 @@ date: "11/30/2020"
 output: 
   html_document:
     toc: true
-always_allow_html: true
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
 library(tidyverse)
-library(httr)
-library(purrr)
 library(plotly)
-library(jsonlite)
-library(knitr)
-options(scipen = 999)
 
 theme_set(theme_minimal() + theme(legend.position = "bottom"))
 options(
@@ -26,7 +20,7 @@ options(
 scale_colour_discrete = scale_color_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
 
-Sys.setenv('MAPBOX_TOKEN' = 'pk.eyJ1IjoiYWFicmFtb3Y5MCIsImEiOiJja2gyZm5obzQwNWIxMnFxc3phcWh1MWtwIn0.amAvJHtFkTl9XWJ68fh96Q')
+Sys.setenv('MAPBOX_TOKEN' = 'pk.eyJ1IjoiYWFicmFtb3Y5MCIsImEiOiJja2k4OWpmNWcwM2puMnhzOGhoOTl0ZzJhIn0.1DdYryz7XmehjnULYi6Hew')
 ```
 
 Data Import
@@ -62,33 +56,25 @@ I could change the size of the marker based on # people injured, or the color of
 ## Crashes with Cyclist Injuries by Borough  / Pre-Post Covid
 
 ```{r}
-crash_map_bikes = 
-  microvehicles %>% 
+microvehicles %>% 
   filter(
     str_detect(vehicle_options, "[Bb]ike"),
     number_of_cyclist_injured > 0) %>%
   mutate(
     covid = as.factor(if_else(year == 2019, 'Pre-COVID', 'COVID')),
-    text_label = str_c("Crash Time: ", covid, "\nCyclists Injured: ", 
-                       number_of_cyclist_injured)) %>% 
+    text_label = str_c("Crash Time: ", covid)) %>% 
   plot_mapbox(
-    lon = ~longitude, 
-    lat = ~latitude,  
-    type = 'scattermapbox',     
-    split = ~covid,
-    size = ~number_of_cyclist_injured,
-    color = ~borough,
-    text = ~text_label,
-    hoverinfo = "text") %>% 
+    x = ~longitude, 
+    y = ~latitude,  
+    mode = 'scattermapbox',
+    color = ~covid,
+    text = ~text_label) %>% 
   layout(
     mapbox = 
       list(
-        style = "dark",
-        zoom = 9.5,
+        style = "dark", zoom = 9.5,
         center = list(lat = 40.71, lon = -73.97)),
     title = "Cyclist Injuries in NYC \nPre and Post Covid")
-
-crash_map_bikes
 ```
 
 Microvehicles with People Injured
@@ -101,19 +87,18 @@ crash_map_microvehicles =
   mutate(
     covid = as.factor(if_else(year == 2019, 'Pre-COVID', 'COVID')),
     text_label = 
-      str_c("Time Period: ", covid, 
-            "\nNumber of People Injured: ", number_of_persons_injured)) %>% 
+      str_c("Time Period: ", covid)) %>% 
   plot_mapbox(
-    lon = ~longitude, 
-    lat = ~latitude,  
-    type = 'scattermapbox', 
-    split = ~covid,
-    size = ~number_of_persons_injured,
+    x = ~longitude, 
+    y = ~latitude,  
     color = ~borough,
-    text = ~text_label,
-    hoverinfo = "text") %>% 
-  layout(mapbox = 
-           list(style = "dark",zoom = 9.5, center = list(lat = 40.71, lon = -73.97)),
+    text = ~text_label) %>% 
+  layout(
+    mapbox = 
+           list(
+             style = "light",
+             zoom = 9.5, 
+             center = list(lat = 40.71, lon = -73.97)),
     title = "Microvehicle Injuries in NYC \nPre and Post Covid")
 
 crash_map_microvehicles
