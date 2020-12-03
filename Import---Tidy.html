@@ -312,7 +312,376 @@ $(document).ready(function () {
 </div>
 
 
+<p>Bike count dataset</p>
+<pre class="r"><code>bike_api = function(offset, limit = 50000) {
+  GET(&quot;https://data.cityofnewyork.us/resource/uczf-rk3c.csv&quot;, 
+      query = list(&quot;$where&quot; = &quot;date between &#39;2017-01-01T00:00:00&#39; and &#39;2020-10-31T12:00:00&#39;&quot;, &quot;$limit&quot; = limit, &quot;$offset&quot; = offset)) %&gt;% 
+  content(&quot;parsed&quot;) %&gt;%
+  as_tibble() 
+}
 
+offsets = seq(0, 1800000, by = 50000)
+bike_count_df = 
+  map_df(offsets, bike_api) %&gt;% 
+  mutate(
+    date_time = date,
+    date = lubridate::date(date_time)
+  ) %&gt;% 
+  group_by(date) %&gt;% 
+  summarize(total_daily_bikes = sum(counts, na.rm = TRUE))</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   id1 = col_double(),
+##   counts = col_double(),
+##   date = col_datetime(format = &quot;&quot;),
+##   status = col_double(),
+##   site = col_double()
+## )
+## Parsed with column specification:
+## cols(
+##   id1 = col_double(),
+##   counts = col_double(),
+##   date = col_datetime(format = &quot;&quot;),
+##   status = col_double(),
+##   site = col_double()
+## )
+## Parsed with column specification:
+## cols(
+##   id1 = col_double(),
+##   counts = col_double(),
+##   date = col_datetime(format = &quot;&quot;),
+##   status = col_double(),
+##   site = col_double()
+## )
+## Parsed with column specification:
+## cols(
+##   id1 = col_double(),
+##   counts = col_double(),
+##   date = col_datetime(format = &quot;&quot;),
+##   status = col_double(),
+##   site = col_double()
+## )
+## Parsed with column specification:
+## cols(
+##   id1 = col_double(),
+##   counts = col_double(),
+##   date = col_datetime(format = &quot;&quot;),
+##   status = col_double(),
+##   site = col_double()
+## )
+## Parsed with column specification:
+## cols(
+##   id1 = col_double(),
+##   counts = col_double(),
+##   date = col_datetime(format = &quot;&quot;),
+##   status = col_double(),
+##   site = col_double()
+## )
+## Parsed with column specification:
+## cols(
+##   id1 = col_double(),
+##   counts = col_double(),
+##   date = col_datetime(format = &quot;&quot;),
+##   status = col_double(),
+##   site = col_double()
+## )
+## Parsed with column specification:
+## cols(
+##   id1 = col_double(),
+##   counts = col_double(),
+##   date = col_datetime(format = &quot;&quot;),
+##   status = col_double(),
+##   site = col_double()
+## )
+## Parsed with column specification:
+## cols(
+##   id1 = col_double(),
+##   counts = col_double(),
+##   date = col_datetime(format = &quot;&quot;),
+##   status = col_double(),
+##   site = col_double()
+## )
+## Parsed with column specification:
+## cols(
+##   id1 = col_double(),
+##   counts = col_double(),
+##   date = col_datetime(format = &quot;&quot;),
+##   status = col_double(),
+##   site = col_double()
+## )
+## Parsed with column specification:
+## cols(
+##   id1 = col_double(),
+##   counts = col_double(),
+##   date = col_datetime(format = &quot;&quot;),
+##   status = col_double(),
+##   site = col_double()
+## )
+## Parsed with column specification:
+## cols(
+##   id1 = col_double(),
+##   counts = col_double(),
+##   date = col_datetime(format = &quot;&quot;),
+##   status = col_double(),
+##   site = col_double()
+## )
+## Parsed with column specification:
+## cols(
+##   id1 = col_double(),
+##   counts = col_double(),
+##   date = col_datetime(format = &quot;&quot;),
+##   status = col_double(),
+##   site = col_double()
+## )
+## Parsed with column specification:
+## cols(
+##   id1 = col_double(),
+##   counts = col_double(),
+##   date = col_datetime(format = &quot;&quot;),
+##   status = col_double(),
+##   site = col_double()
+## )
+## Parsed with column specification:
+## cols(
+##   id1 = col_double(),
+##   counts = col_double(),
+##   date = col_datetime(format = &quot;&quot;),
+##   status = col_double(),
+##   site = col_double()
+## )
+## Parsed with column specification:
+## cols(
+##   id1 = col_double(),
+##   counts = col_double(),
+##   date = col_datetime(format = &quot;&quot;),
+##   status = col_double(),
+##   site = col_double()
+## )
+## Parsed with column specification:
+## cols(
+##   id1 = col_double(),
+##   counts = col_double(),
+##   date = col_datetime(format = &quot;&quot;),
+##   status = col_double(),
+##   site = col_double()
+## )
+## Parsed with column specification:
+## cols(
+##   id1 = col_double(),
+##   counts = col_double(),
+##   date = col_datetime(format = &quot;&quot;),
+##   status = col_double(),
+##   site = col_double()
+## )
+## Parsed with column specification:
+## cols(
+##   id1 = col_double(),
+##   counts = col_double(),
+##   date = col_datetime(format = &quot;&quot;),
+##   status = col_double(),
+##   site = col_double()
+## )
+## Parsed with column specification:
+## cols(
+##   id1 = col_double(),
+##   counts = col_double(),
+##   date = col_datetime(format = &quot;&quot;),
+##   status = col_double(),
+##   site = col_double()
+## )
+## Parsed with column specification:
+## cols(
+##   id1 = col_double(),
+##   counts = col_double(),
+##   date = col_datetime(format = &quot;&quot;),
+##   status = col_double(),
+##   site = col_double()
+## )
+## Parsed with column specification:
+## cols(
+##   id1 = col_double(),
+##   counts = col_double(),
+##   date = col_datetime(format = &quot;&quot;),
+##   status = col_double(),
+##   site = col_double()
+## )
+## Parsed with column specification:
+## cols(
+##   id1 = col_double(),
+##   counts = col_double(),
+##   date = col_datetime(format = &quot;&quot;),
+##   status = col_double(),
+##   site = col_double()
+## )
+## Parsed with column specification:
+## cols(
+##   id1 = col_double(),
+##   counts = col_double(),
+##   date = col_datetime(format = &quot;&quot;),
+##   status = col_double(),
+##   site = col_double()
+## )
+## Parsed with column specification:
+## cols(
+##   id1 = col_double(),
+##   counts = col_double(),
+##   date = col_datetime(format = &quot;&quot;),
+##   status = col_double(),
+##   site = col_double()
+## )
+## Parsed with column specification:
+## cols(
+##   id1 = col_double(),
+##   counts = col_double(),
+##   date = col_datetime(format = &quot;&quot;),
+##   status = col_double(),
+##   site = col_double()
+## )
+## Parsed with column specification:
+## cols(
+##   id1 = col_double(),
+##   counts = col_double(),
+##   date = col_datetime(format = &quot;&quot;),
+##   status = col_double(),
+##   site = col_double()
+## )
+## Parsed with column specification:
+## cols(
+##   id1 = col_double(),
+##   counts = col_double(),
+##   date = col_datetime(format = &quot;&quot;),
+##   status = col_double(),
+##   site = col_double()
+## )
+## Parsed with column specification:
+## cols(
+##   id1 = col_double(),
+##   counts = col_double(),
+##   date = col_datetime(format = &quot;&quot;),
+##   status = col_double(),
+##   site = col_double()
+## )
+## Parsed with column specification:
+## cols(
+##   id1 = col_double(),
+##   counts = col_double(),
+##   date = col_datetime(format = &quot;&quot;),
+##   status = col_double(),
+##   site = col_double()
+## )
+## Parsed with column specification:
+## cols(
+##   id1 = col_double(),
+##   counts = col_double(),
+##   date = col_datetime(format = &quot;&quot;),
+##   status = col_double(),
+##   site = col_double()
+## )
+## Parsed with column specification:
+## cols(
+##   id1 = col_double(),
+##   counts = col_double(),
+##   date = col_datetime(format = &quot;&quot;),
+##   status = col_double(),
+##   site = col_double()
+## )
+## Parsed with column specification:
+## cols(
+##   id1 = col_double(),
+##   counts = col_double(),
+##   date = col_datetime(format = &quot;&quot;),
+##   status = col_double(),
+##   site = col_double()
+## )
+## Parsed with column specification:
+## cols(
+##   id1 = col_double(),
+##   counts = col_double(),
+##   date = col_datetime(format = &quot;&quot;),
+##   status = col_double(),
+##   site = col_double()
+## )
+## Parsed with column specification:
+## cols(
+##   id1 = col_double(),
+##   counts = col_double(),
+##   date = col_datetime(format = &quot;&quot;),
+##   status = col_double(),
+##   site = col_double()
+## )
+## Parsed with column specification:
+## cols(
+##   id1 = col_double(),
+##   counts = col_double(),
+##   date = col_datetime(format = &quot;&quot;),
+##   status = col_double(),
+##   site = col_double()
+## )
+## Parsed with column specification:
+## cols(
+##   id1 = col_double(),
+##   counts = col_double(),
+##   date = col_datetime(format = &quot;&quot;),
+##   status = col_double(),
+##   site = col_double()
+## )</code></pre>
+<pre><code>## `summarise()` ungrouping output (override with `.groups` argument)</code></pre>
+<pre class="r"><code>write_csv(bike_count_df, &quot;./data/bike_count_df.csv&quot;)</code></pre>
+<p>#Import weather date for NYC from 3 weather stations located at: Central Park, JFK airport, La Guardia_NY</p>
+<pre class="r"><code>weather = rnoaa::meteo_pull_monitors(
+    c(&quot;USW00094728&quot;, &quot;USW00094789&quot;, &quot;USW00014732&quot;),
+    var = c(&quot;PRCP&quot;, &quot;TMIN&quot;, &quot;TMAX&quot;), 
+    date_min = &quot;2017-01-01&quot;,
+    date_max = &quot;2020-10-31&quot;) %&gt;%
+  mutate(
+    name = recode(
+      id, 
+      USW00094728 = &quot;CentralPark_NY&quot;, 
+      USW00094789 = &quot;JFK Airport_NY&quot;,
+      USW00014732 = &quot;La Guardia_NY&quot;),
+    tmin = tmin / 10,
+    tmax = tmax / 10) %&gt;%
+  select(name, id, everything())</code></pre>
+<pre><code>## Registered S3 method overwritten by &#39;hoardr&#39;:
+##   method           from
+##   print.cache_info httr</code></pre>
+<pre><code>## using cached file: /Users/binyamyilma/Library/Caches/R/noaa_ghcnd/USW00094728.dly</code></pre>
+<pre><code>## date created (size, mb): 2020-10-09 22:03:28 (7.524)</code></pre>
+<pre><code>## file min/max dates: 1869-01-01 / 2020-10-31</code></pre>
+<pre><code>## using cached file: /Users/binyamyilma/Library/Caches/R/noaa_ghcnd/USW00094789.dly</code></pre>
+<pre><code>## date created (size, mb): 2020-12-03 09:54:01 (6.346)</code></pre>
+<pre><code>## file min/max dates: 1948-07-01 / 2020-12-31</code></pre>
+<pre><code>## using cached file: /Users/binyamyilma/Library/Caches/R/noaa_ghcnd/USW00014732.dly</code></pre>
+<pre><code>## date created (size, mb): 2020-12-03 09:54:15 (7.277)</code></pre>
+<pre><code>## file min/max dates: 1939-10-01 / 2020-12-31</code></pre>
+<p>Here we can see that the weather pattern from these 3 stations tracks pretty well with one another. So, we’ll take the average tmax, tmin, and precipitation from these 3 nyc weather stations to construct a weather_nyc dataframe</p>
+<p>#Taking the average from te 3 weather stations first we pivot the weather data we got from NOAA</p>
+<pre class="r"><code>weather_pivot = weather %&gt;% select(-id) %&gt;% 
+  pivot_wider(
+    id_cols = date,
+    names_from = name, 
+    values_from = c(prcp, tmax, tmin)) %&gt;% 
+    janitor::clean_names()
+
+
+weather_nyc = weather_pivot %&gt;% rowwise() %&gt;% 
+  mutate(
+    ny_prcp = mean(c(prcp_central_park_ny, prcp_jfk_airport_ny, prcp_la_guardia_ny)),
+    ny_tmax = mean(c(tmax_central_park_ny, tmax_jfk_airport_ny, tmax_la_guardia_ny)),
+    ny_tmin = mean(c(tmin_central_park_ny, tmin_jfk_airport_ny, tmin_la_guardia_ny))
+  ) %&gt;% select(date, ny_prcp, ny_tmin, ny_tmax)
+
+#the date in crash_dat doesn&#39;t include the date &quot;2017-01-07&quot; - it skips it for some reason. 
+# So to merge the two datafranes `weather_nyc` &amp; `crash_dat` we&#39;ll remove that date
+
+weather_nyc = weather_nyc %&gt;% filter(date != as.POSIXct(&quot;2017-01-07&quot;))</code></pre>
+<p>#Merging crash_dat &amp; weather_nyc We’ll overwrite the crash_dat dataframe to keep it consistent with the other code we have in our data</p>
+<pre class="r"><code>crash_dat = left_join(crash_dat, weather_nyc, by = &quot;date&quot;)
+
+#output crash_dat to our local &#39;data&#39; directory
+write_csv(crash_dat, &quot;./data/crash_dat.csv&quot;)
+#code to import crash_dat - muted. 
+#crash_dat = read_csv(&quot;./data/crash_dat.csv&quot;)</code></pre>
 
 
 

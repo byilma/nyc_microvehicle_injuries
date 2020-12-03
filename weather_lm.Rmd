@@ -1,0 +1,37 @@
+---
+title: "weather_lm"
+author: "Binyam Yilma"
+date: "12/3/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(httr)
+library(purrr)
+library(leaflet)
+library(plotly)
+library(flexdashboard)
+library(ggplot2)
+
+
+knitr::opts_chunk$set(echo = TRUE)
+options(scipen=999)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+scale_colour_discrete = scale_color_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+
+
+```
+
+Import data
+```{r, , message = FALSE}
+crash_dat = read_csv("./data/crash_dat.csv")
+```
+

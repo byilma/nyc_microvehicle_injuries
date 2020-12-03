@@ -14,6 +14,7 @@ library(purrr)
 library(leaflet)
 library(plotly)
 library(flexdashboard)
+library(ggplot2)
 
 
 knitr::opts_chunk$set(echo = TRUE)
@@ -83,9 +84,6 @@ crash_dat = crash_dat %>%
          str_detect(vehicle_options, "Dirt", negate = TRUE),
          str_detect(vehicle_options, "[Mm]otorbike", negate = TRUE)) 
            
-
-write_csv(crash_dat, "./data/crash_dat.csv")
-
 ```
 
 Bike count dataset
@@ -108,6 +106,90 @@ bike_count_df =
   summarize(total_daily_bikes = sum(counts, na.rm = TRUE))
 
 write_csv(bike_count_df, "./data/bike_count_df.csv")
+```
+
+#Import weather date for NYC from 3 weather stations located at: Central Park, JFK airport, La Guardia_NY
+```{r}
+weather = rnoaa::meteo_pull_monitors(
+    c("USW00094728", "USW00094789", "USW00014732"),
+    var = c("PRCP", "TMIN", "TMAX"), 
+    date_min = "2017-01-01",
+    date_max = "2020-10-31") %>%
+  mutate(
+    name = recode(
+      id, 
+      USW00094728 = "CentralPark_NY", 
+      USW00094789 = "JFK Airport_NY",
+      USW00014732 = "La Guardia_NY"),
+    tmin = tmin / 10,
+    tmax = tmax / 10) %>%
+  select(name, id, everything())
 
 ```
+
+Here we can see that the weather pattern from these 3 stations tracks pretty well with one another. So, we'll take the average tmax, tmin, and precipitation from these 3 nyc weather stations to construct a weather_nyc dataframe
+```{r, include=FALSE}
+#plotting tmin & tmax from each weather station to see how well they track with each other      
+ggplot(weather, aes(x = tmin, y = tmax)) + 
+  geom_point(aes(color = name)) + 
+  facet_grid(. ~ name)
+  
+#plotting prcp in each weather station to see how well they track with each other
+ggplot(weather, aes(x = date, y = tmax, color = name)) + 
+  geom_point(aes(size = prcp), alpha = .5) +
+  geom_smooth() + 
+  labs(
+    title = "tmax tracks really well across 3 weather stations in NYC"
+  )
+  
+#distribution of tmax across 3 weather stations
+ggplot(weather, aes(x = tmax, fill = name)) + 
+  geom_density(alpha = .4, adjust = .5, color = "blue")
+
+#distribution of tmin across 3 weather stations
+ggplot(weather, aes(x = tmin, fill = name)) + 
+  geom_density(alpha = .4, adjust = .5, color = "blue")
+
+#distribution of tmax across 3 weather stations
+ggplot(weather, aes(x = prcp, fill = name)) + 
+  geom_density(alpha = .4, adjust = .5, color = "blue") + 
+  ylim(0, 0.025)
+```
+
+#Taking the average from te 3 weather stations
+first we pivot the weather data we got from NOAA
+```{r}
+weather_pivot = weather %>% select(-id) %>% 
+  pivot_wider(
+    id_cols = date,
+    names_from = name, 
+    values_from = c(prcp, tmax, tmin)) %>% 
+    janitor::clean_names()
+
+
+weather_nyc = weather_pivot %>% rowwise() %>% 
+  mutate(
+    ny_prcp = mean(c(prcp_central_park_ny, prcp_jfk_airport_ny, prcp_la_guardia_ny)),
+    ny_tmax = mean(c(tmax_central_park_ny, tmax_jfk_airport_ny, tmax_la_guardia_ny)),
+    ny_tmin = mean(c(tmin_central_park_ny, tmin_jfk_airport_ny, tmin_la_guardia_ny))
+  ) %>% select(date, ny_prcp, ny_tmin, ny_tmax)
+
+#the date in crash_dat doesn't include the date "2017-01-07" - it skips it for some reason. 
+# So to merge the two datafranes `weather_nyc` & `crash_dat` we'll remove that date
+
+weather_nyc = weather_nyc %>% filter(date != as.POSIXct("2017-01-07"))
+```
+
+#Merging crash_dat & weather_nyc
+We'll overwrite the crash_dat dataframe to keep it consistent with the other code we have in our data
+```{r}
+crash_dat = left_join(crash_dat, weather_nyc, by = "date")
+
+#output crash_dat to our local 'data' directory
+write_csv(crash_dat, "./data/crash_dat.csv")
+#code to import crash_dat - muted. 
+#crash_dat = read_csv("./data/crash_dat.csv")
+```
+
+
 
