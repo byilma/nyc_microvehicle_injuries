@@ -79,8 +79,35 @@ crash_dat = crash_dat %>%
            str_detect(vehicle_options, "MOP")   |
            str_detect(vehicle_options, "ELEC")  |
            str_detect(vehicle_options, "^E-")) %>% 
-  filter(vehicle_options != "ESCOVATOR"
-           ) 
+  filter(vehicle_options != "ESCOVATOR",
+         str_detect(vehicle_options, "Dirt", negate = TRUE),
+         str_detect(vehicle_options, "[Mm]otorbike", negate = TRUE)) 
            
+
 write_csv(crash_dat, "./data/crash_dat.csv")
+
 ```
+
+Bike count dataset
+```{r}
+bike_api = function(offset, limit = 50000) {
+  GET("https://data.cityofnewyork.us/resource/uczf-rk3c.csv", 
+      query = list("$where" = "date between '2017-01-01T00:00:00' and '2020-10-31T12:00:00'", "$limit" = limit, "$offset" = offset)) %>% 
+  content("parsed") %>%
+  as_tibble() 
+}
+
+offsets = seq(0, 1800000, by = 50000)
+bike_count_df = 
+  map_df(offsets, bike_api) %>% 
+  mutate(
+    date_time = date,
+    date = lubridate::date(date_time)
+  ) %>% 
+  group_by(date) %>% 
+  summarize(total_daily_bikes = sum(counts, na.rm = TRUE))
+
+write_csv(bike_count_df, "./data/bike_count_df.csv")
+
+```
+

@@ -33,8 +33,11 @@ Data Import
 ```{r}
 crash_dat = read_csv("./data/crash_dat.csv")
 
+
+#the code below is not just filtering for microvehicles, it also includes "bikes" ... consider using the `filter_for` function
+#why do we drop_na "borough", we lose about 7,000 obs when we drop_na(borough) - wonder if there's a way to figure out the "NA"-boroughs based on latitude & longitude info
 microvehicles = 
-  crash_dat %>%
+  crash_dat %>% 
   drop_na(c(latitude, longitude, borough)) %>% 
   filter(latitude > 0) %>% 
   filter(str_detect(vehicle_options, "[Bb]ike") | 
@@ -45,7 +48,7 @@ microvehicles =
            str_detect(vehicle_options, "^E-")) %>% 
   filter(vehicle_options != "ESCOVATOR",
       str_detect(vehicle_options, "Dirt", negate = TRUE),
-      str_detect(vehicle_options, "[Mm]otorbike", negate = TRUE))
+      str_detect(vehicle_options, "[Mm]otorbike", negate = TRUE)) 
 ```
 
 # Visualizations: Maps

@@ -1,12 +1,18 @@
 ---
-title: "About us page"
+title: "New York City"
 output: 
   html_document:
     toc: true
     toc_float: true
 ---
 
-# Microvehicle and Bike Incidents in New York
+## About Us
+
+Emma Gorin - emg2237
+Sarah Conderino - sec2209
+Talea Cornelius - tmc2184
+Alexey Abramov - aa3832
+Binyam Yilma - by2287
 
 
 
