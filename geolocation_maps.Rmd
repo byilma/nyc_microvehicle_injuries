@@ -6,11 +6,13 @@ output:
     toc: true
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-
 library(tidyverse)
+library(httr)
+library(jsonlite)
 library(plotly)
+library(readr)
 
 theme_set(theme_minimal() + theme(legend.position = "bottom"))
 options(
@@ -20,20 +22,20 @@ options(
 scale_colour_discrete = scale_color_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
 
-Sys.setenv('MAPBOX_TOKEN' = 'pk.eyJ1IjoiYWFicmFtb3Y5MCIsImEiOiJja2k4OWpmNWcwM2puMnhzOGhoOTl0ZzJhIn0.1DdYryz7XmehjnULYi6Hew')
+Sys.setenv("MAPBOX_TOKEN" = 'pk.eyJ1IjoiYWFicmFtb3Y5MCIsImEiOiJja2k4OWpmNWcwM2puMnhzOGhoOTl0ZzJhIn0.1DdYryz7XmehjnULYi6Hew')
+
 ```
 
 Data Import
-```{r}
+```{r, import}
 crash_dat = read_csv("./data/crash_dat.csv")
 
-
-#the code below is not just filtering for microvehicles, it also includes "bikes" ... consider using the `filter_for` function
-#why do we drop_na "borough", we lose about 7,000 obs when we drop_na(borough) - wonder if there's a way to figure out the "NA"-boroughs based on latitude & longitude info
 microvehicles = 
   crash_dat %>% 
   drop_na(c(latitude, longitude, borough)) %>% 
-  filter(latitude > 0) %>% 
+  filter(
+    year > 2018,
+    latitude > 0) %>%  
   filter(str_detect(vehicle_options, "[Bb]ike") | 
            str_detect(vehicle_options, "REVEL") | 
            str_detect(vehicle_options, "SCO")  |
@@ -55,26 +57,32 @@ I could change the size of the marker based on # people injured, or the color of
 
 ## Crashes with Cyclist Injuries by Borough  / Pre-Post Covid
 
-```{r}
-microvehicles %>% 
+```{r, map1}
+microvehicles =
+  microvehicles %>% 
   filter(
     str_detect(vehicle_options, "[Bb]ike"),
     number_of_cyclist_injured > 0) %>%
   mutate(
     covid = as.factor(if_else(year == 2019, 'Pre-COVID', 'COVID')),
-    text_label = str_c("Crash Time: ", covid)) %>% 
+    text_label = str_c("Crash Time: ", covid))
+
+map1 = microvehicles %>% 
   plot_mapbox(
     x = ~longitude, 
-    y = ~latitude,  
-    mode = 'scattermapbox',
-    color = ~covid,
+    y = ~latitude, 
+    split = ~covid, 
     text = ~text_label) %>% 
   layout(
     mapbox = 
+      list(zoom = 9,center = list(lat = 40.67, lon = -73.97))) %>% 
+  layout(
+    mapbox = 
       list(
-        style = "dark", zoom = 9.5,
-        center = list(lat = 40.71, lon = -73.97)),
+        zoom = 9.5, center = list(lat = 40.71, lon = -73.97)),
     title = "Cyclist Injuries in NYC \nPre and Post Covid")
+
+map1
 ```
 
 Microvehicles with People Injured
