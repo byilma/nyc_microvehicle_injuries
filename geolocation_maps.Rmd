@@ -10,9 +10,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 
 library(tidyverse)
-library(jsonlite)
 library(plotly)
-options(scipen = 999)
 
 theme_set(theme_minimal() + theme(legend.position = "bottom"))
 options(
@@ -93,15 +91,14 @@ crash_map_microvehicles =
   plot_mapbox(
     x = ~longitude, 
     y = ~latitude,  
-    mode = 'scattermapbox', 
-    split = ~covid,
-    size = ~number_of_persons_injured,
     color = ~borough,
     text = ~text_label) %>% 
   layout(
     mapbox = 
            list(
-             style = "dark",zoom = 9.5, center = list(lat = 40.71, lon = -73.97)),
+             style = "light",
+             zoom = 9.5, 
+             center = list(lat = 40.71, lon = -73.97)),
     title = "Microvehicle Injuries in NYC \nPre and Post Covid")
 
 crash_map_microvehicles
