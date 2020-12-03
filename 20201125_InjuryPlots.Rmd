@@ -12,6 +12,7 @@ library(tidyverse)
 library(httr)
 library(purrr)
 library(leaflet)
+library(zoo)
 options(scipen=999)
 
 theme_set(theme_minimal() + theme(legend.position = "bottom"))
@@ -135,8 +136,8 @@ fit_injuries_micro_all
 
 **I also wanted to get descriptives for number of microvehicle crashes and injuries in each borough in each month.**
 
-```{r}
-crash_dat_tidy %>%
+```{r get totals for microvehicles}
+micro_num = crash_dat_tidy %>%
   filter_for("micro") %>% 
   filter(year %in% c(2019, 2020)) %>%
   group_by(year, month, borough) %>%
@@ -145,13 +146,34 @@ crash_dat_tidy %>%
   drop_na(borough) %>%
   left_join(month_df, by = "month") %>%
   as.tibble() %>%
+  mutate(borough = str_to_title(borough))
+
+micro_num %>%
   select(year, month_name, borough, number_of_crashes, 
          mean_number_of_injuries) %>%
-  mutate(borough = str_to_title(borough)) %>%
   knitr::kable(digits = 2)
 ```
 
-**It is apparent that there are very low numbers of crashes when stratifying by both month and borough - sometimes as low as only 1 crash, or even 0 crashes (particularly in Staten Island).**
+```{r histogram for n microvehicle crashes}
+
+micro_num %>%
+  mutate(date = as.yearmon(paste(year, month, sep = "-"))) %>%
+  ggplot(aes(x = date, y = number_of_crashes, fill = borough)) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  labs(
+    title = "Number of Crashes by Borough",
+    x = "Month",
+    y = "Number of Crashes"
+  ) +
+  theme(legend.position="right", legend.title = element_blank(),
+        text = element_text(size = 10),
+        axis.text.x = element_text(angle = 90, hjust = 1, size = 8)) +
+  facet_grid(. ~ borough)
+
+```
+
+
+**It is apparent that there are very low numbers of microvehicle crashes when stratifying by both month and borough - sometimes as low as only 1 crash, or even 0 crashes (particularly in Staten Island).**
 
 **Below, I extract the rate ratio estimates for the microvehicle data by borough.**
 
@@ -243,8 +265,8 @@ fit_injuries_bike_all
 
 **I also wanted to get descriptives for number of bike crashes and injuries in each borough in each month.**
 
-```{r}
-crash_dat_tidy %>%
+```{r get totals for bikes}
+bike_num = crash_dat_tidy %>%
   filter_for("bike") %>% 
   filter(year %in% c(2019, 2020)) %>%
   group_by(year, month, borough) %>%
@@ -253,11 +275,31 @@ crash_dat_tidy %>%
   drop_na(borough) %>%
   left_join(month_df, by = "month") %>%
   as.tibble() %>%
+  mutate(borough = str_to_title(borough))
+
+bike_num %>%
   select(year, month_name, borough, number_of_crashes, 
          mean_number_of_injuries) %>%
-  mutate(borough = str_to_title(borough)) %>%
   knitr::kable(digits = 2)
 ```
+
+```{r histogram for n bike crashes}
+
+bike_num %>%
+  mutate(date = as.yearmon(paste(year, month, sep = "-"))) %>%
+  ggplot(aes(x = date, y = number_of_crashes, fill = borough)) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  labs(
+    title = "Number of Bike Crashes by Borough",
+    x = "Month",
+    y = "Number of Crashes"
+  ) +
+  theme(legend.position="right", legend.title = element_blank(),
+        text = element_text(size = 10),
+        axis.text.x = element_text(angle = 90, hjust = 1, size = 8)) +
+  facet_grid(. ~ borough)
+
+``` 
 
 **It is again apparent that there are very low numbers of crashes when stratifying by both month and borough.**
 
