@@ -82,6 +82,22 @@ Here are some gifs (pronounced 'jif', of course) to show you what we mean
 
 ![](https://media.giphy.com/media/dZLKaImwWkc12rzEoO/giphy.gif)
 
+## Main Questions
+
+We wanted to ask some of the big questions on incidents involving Bikes and Microvehicles: 
+
+*Where in  NYC* do we see the most incidents involving Bikes and Microvehicles?
+
+What does the *trend* of incidents involving Bikes and Microvehicles look like? 
+
+What are some *factors* that contribute to these incidents?
+
+In particular we also wanted to see how the these incidents may have changed in the context of COVID-19 and the shelter in place?
+
+Do we see any *statistically significant* differences in incident rates comparing pre-covid to post covid? 
+
+Lastly, we wanted to see if we could build a predictive model using weather data, considering factors such as maximum/minimum temperature and daily precipitation? 
+
 
 ## Take aways
 
