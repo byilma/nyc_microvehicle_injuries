@@ -16,7 +16,7 @@
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<link href="site_libs/bootstrap-3.3.5/css/cerulean.min.css" rel="stylesheet" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
@@ -376,9 +376,9 @@ gam(n_incidents ~ s(ny_tmax) + s(ny_tmin) + s(ny_prcp), data = df) %&gt;%
 <pre><code>## # A tibble: 3 x 5
 ##   term         edf ref.df statistic  p.value
 ##   &lt;chr&gt;      &lt;dbl&gt;  &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
-## 1 s(ny_tmax)  3.80   4.82     13.2  4.80e-12
-## 2 s(ny_tmin)  4.29   5.38      5.73 1.97e- 5
-## 3 s(ny_prcp)  4.05   5.00     20.7  5.72e-20</code></pre>
+## 1 s(ny_tmax)  3.79   4.81     13.3  4.71e-12
+## 2 s(ny_tmin)  4.29   5.38      5.74 1.95e- 5
+## 3 s(ny_prcp)  4.05   5.00     20.7  5.71e-20</code></pre>
 <pre class="r"><code>df %&gt;% 
   ggplot(aes(x = ny_tmax, y = n_incidents)) + 
   geom_point()</code></pre>
@@ -428,9 +428,9 @@ gam(n_incidents ~ s(ny_tmax) + s(ny_tmin) + s(ny_prcp), data = df) %&gt;%
 <pre><code>## # A tibble: 3 x 3
 ##   term       ci_lower ci_upper
 ##   &lt;chr&gt;         &lt;dbl&gt;    &lt;dbl&gt;
-## 1 s(ny_prcp)     2.79     8.26
-## 2 s(ny_tmax)     1.66     8.27
-## 3 s(ny_tmin)     2.40     7.26</code></pre>
+## 1 s(ny_prcp)     3.07     8.39
+## 2 s(ny_tmax)     1.68     8.35
+## 3 s(ny_tmin)     2.92     7.21</code></pre>
 <p>#making a prediction plot of the smooth model estimates (edf)</p>
 <pre class="r"><code>smooth = gam(n_incidents ~ s(ny_tmax) + s(ny_tmin) + s(ny_prcp), data = df) 
 
