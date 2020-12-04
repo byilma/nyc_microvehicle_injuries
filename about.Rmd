@@ -1,5 +1,5 @@
 ---
-title: "New York City"
+title: "About Us"
 output: 
   html_document:
     toc: true
@@ -8,13 +8,18 @@ output:
   always_allow_html: true
 ---
 
-## About Us
+## Quick Intro 
 
-Emma Gorin - emg2237
-Sarah Conderino - sec2209
-Talea Cornelius - tmc2184
-Alexey Abramov - aa3832
-Binyam Yilma - by2287
+We're all graduate students at Columbia University, and we each come from a very diverse background. What unites us, besides our shared curiosity, is the Data Science course we're all taking, taught by Professor Jeff Goldsmith. 
+
+## Link to our personal websites
+
+* [Binyam Yilma](https://byilma.github.io/)
+* [Emma Gorin ](https://emmagorin.github.io)
+* [Sarah Conderino](https://sarah8105.github.io/) 
+* [Talea Cornelius](https://taleac.github.io/this_is_a_website/)
+* [Alexey Abramov](https://aabramov90.github.io/aa3832.github.io/)
+
 
 
 
