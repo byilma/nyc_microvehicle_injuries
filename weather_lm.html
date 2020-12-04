@@ -285,7 +285,10 @@ $(document).ready(function () {
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="about.html">Our Project</a>
+      <a href="project_report.html">Our Project</a>
+    </li>
+    <li>
+      <a href="about.html">Us</a>
     </li>
   </ul>
 </li>
@@ -314,9 +317,6 @@ $(document).ready(function () {
       <a href="weather_lm.html">Predictive Model</a>
     </li>
   </ul>
-</li>
-<li>
-  <a href="dashboard.html">Dashboard</a>
 </li>
 <li>
   <a href="mailto:&lt;you@youremail.com&gt;">
@@ -354,10 +354,10 @@ $(document).ready(function () {
 
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
-<div id="can-we-build-a-predictive-model-to-predict-number-of-incidents-involving-both-bikes-and-micro-vehicle" class="section level4">
-<h4>Can we build a predictive model to predict number of incidents involving both bikes and micro-vehicle?</h4>
-<p>From our exploratory analysis on bike/micro-vehicles incident trends over the last 3 years, we observed that these number of these incidents had an overall seasonal pattern … just like weather.</p>
-<p>So, naturally, we want to see if we could build a model to try and predict the number of bike and micro-vehicle incidents in NYC. To do this, on top of the data we obtained from the New York City Motor-Vehicle-Collisions-Crashes web page, we also incorporate weather data from NOAA.</p>
+<div id="can-we-build-a-predictive-model-to-predict-number-of-incidents-involving-both-bikes-and-microvehicles" class="section level4">
+<h4>Can we build a predictive model to predict number of incidents involving both bikes and microvehicles?</h4>
+<p>From our exploratory analysis on bike and microvehicle incident trends over the last 3 years, we observed that these number of these incidents had an overall seasonal pattern … just like weather.</p>
+<p>So, naturally, we want to see if we could build a model to try and predict the number of bike and microvehicle incidents in NYC. To do this, on top of the data we obtained from the New York City Motor-Vehicle-Collisions-Crashes web page, we also incorporate weather data from NOAA.</p>
 <p>In specific, from the weather data we obtain three key variables - average daily maximum temperature, average daily minimum temperature, and average daily precipitation. The ‘average’ here refers to how we averaged these measurements from the 3 weather stations located in New York City: There’s one in Central Park, one by JFK Airport, and another one by La Guardia.</p>
 <p>The main quest of this page is to see if we could:</p>
 <ul>
@@ -555,24 +555,24 @@ smooth_model %&gt;% knitr::kable()</code></pre>
 <tbody>
 <tr class="odd">
 <td align="left">s(ny_prcp)</td>
-<td align="right">5.160535</td>
-<td align="right">1.661541</td>
-<td align="right">2.712792</td>
-<td align="right">8.354553</td>
+<td align="right">5.234862</td>
+<td align="right">1.684452</td>
+<td align="right">2.654258</td>
+<td align="right">8.455177</td>
 </tr>
 <tr class="even">
 <td align="left">s(ny_tmax)</td>
-<td align="right">5.110168</td>
-<td align="right">2.043615</td>
-<td align="right">1.159527</td>
-<td align="right">8.468070</td>
+<td align="right">5.040977</td>
+<td align="right">2.097470</td>
+<td align="right">1.172590</td>
+<td align="right">8.500920</td>
 </tr>
 <tr class="odd">
 <td align="left">s(ny_tmin)</td>
-<td align="right">4.859555</td>
-<td align="right">1.193856</td>
-<td align="right">2.666931</td>
-<td align="right">7.462888</td>
+<td align="right">4.884438</td>
+<td align="right">1.193560</td>
+<td align="right">2.675688</td>
+<td align="right">7.586333</td>
 </tr>
 </tbody>
 </table>
@@ -587,7 +587,7 @@ smooth_model %&gt;% knitr::kable()</code></pre>
 </div>
 <div id="summary" class="section level2">
 <h2>Summary</h2>
-<p>In this section we follow up on one of our earlier observations on how incidents involving micro-vehicles and bikes (overall) displayed seasonality (like the weather.) We subsequently try to build a predictive model, using these (weather related) predictor: daily maximum temperature, daily minimum temperature, and precipitation.</p>
+<p>In this section we follow up on one of our earlier observations on how incidents involving microvehicles and bikes (overall) displayed seasonality (like the weather.) We subsequently try to build a predictive model, using these (weather related) predictor: daily maximum temperature, daily minimum temperature, and precipitation.</p>
 <p>To that end, we first use cross validation to compare a linear model and a smooth model. Using RMSE as a discriminator, we decide to use the smooth model to build our predictive equation. Lastly, we use bootsrapping to obtain non-parametric estimates and confidence intervals of the final model equation.</p>
 <p>N.B:</p>
 <p>Some* reasons that our model is not the best possible predictive model:</p>

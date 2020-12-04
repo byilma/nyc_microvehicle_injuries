@@ -22,8 +22,6 @@ navbar:
         href: 20201125_InjuryPlots.html
       - text: "Predictive Model"
         href: weather_lm.html
-    - text: "Dashboard"
-      href: dashboard.html
     - icon: fa-envelope fa-lg
       href: mailto:<you@youremail.com>
     - icon: fa-github fa-lg

@@ -8,11 +8,11 @@ output:
 
 ## Introduction 
 
-#### Can we build a predictive model to predict number of incidents involving both bikes and micro-vehicle? 
+#### Can we build a predictive model to predict number of incidents involving both bikes and microvehicles? 
 
-From our exploratory analysis on bike/micro-vehicles incident trends over the last 3 years, we observed that these number of these incidents had an overall seasonal pattern ... just like weather. 
+From our exploratory analysis on bike and microvehicle incident trends over the last 3 years, we observed that these number of these incidents had an overall seasonal pattern ... just like weather. 
 
-So, naturally, we want to see if we could build a model to try and predict the number of bike and micro-vehicle incidents in NYC. To do this, on top of the data we obtained from the New York City Motor-Vehicle-Collisions-Crashes web page, we also incorporate weather data from NOAA. 
+So, naturally, we want to see if we could build a model to try and predict the number of bike and microvehicle incidents in NYC. To do this, on top of the data we obtained from the New York City Motor-Vehicle-Collisions-Crashes web page, we also incorporate weather data from NOAA. 
 
 In specific, from the weather data we obtain three key variables - average daily maximum temperature, average daily minimum temperature, and average daily precipitation. The 'average' here refers to how we averaged these measurements from the 3 weather stations located in New York City: There's one in Central Park, one by JFK Airport, and another one by La Guardia. 
 
@@ -236,7 +236,7 @@ df_boot_results %>%
 
 ## Summary
 
-In this section we follow up on one of our earlier observations on how incidents involving micro-vehicles and bikes (overall) displayed seasonality (like the weather.) We subsequently try to build a predictive model, using these (weather related) predictor: daily maximum temperature, daily minimum temperature, and precipitation. 
+In this section we follow up on one of our earlier observations on how incidents involving microvehicles and bikes (overall) displayed seasonality (like the weather.) We subsequently try to build a predictive model, using these (weather related) predictor: daily maximum temperature, daily minimum temperature, and precipitation. 
 
 To that end, we first use cross validation to compare a linear model and a smooth model. Using RMSE as a discriminator, we decide to use the smooth model to build our predictive equation. Lastly, we use bootsrapping to obtain non-parametric estimates and confidence intervals of the final model equation. 
 

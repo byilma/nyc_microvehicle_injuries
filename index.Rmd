@@ -108,12 +108,12 @@ We wanted to ask some of the big questions on incidents involving Bikes and Micr
 
 ## Take aways
 
-- Bike and Micro-Vehicles incidents tend display seasonality, just like the weather. 
+- Bike and microvehicles incidents tend display seasonality, just like the weather. 
 - The Top contributing factor to these incidents is: Driver Inattention. 
 - The Possion regression analysis we computed showed that were no signifcant differences in the rate of incidents involving bikes or Microvehicles. 
 - Downtown Manhattan saw the most crashes within the last 2 years. 
 
 ## Fun facts
 
-- Folks that use micro-vehicles are referred to as 'micro-motorists'
+- Folks that use microvehicles are referred to as 'micromotorists'
 
