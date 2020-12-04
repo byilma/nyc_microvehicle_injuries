@@ -26,8 +26,13 @@ options(
 )
 scale_colour_discrete = scale_color_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
+# setting user, api key and access token
+Sys.setenv("plotly_username"="aabramov90")
 
-Sys.setenv('MAPBOX_TOKEN' = 'pk.eyJ1IjoiYWFicmFtb3Y5MCIsImEiOiJja2gyZm5obzQwNWIxMnFxc3phcWh1MWtwIn0.amAvJHtFkTl9XWJ68fh96Q')
+Sys.setenv("plotly_api_key"="TcaNTrLIJVEJyrUlhXgd")
+
+Sys.setenv('MAPBOX_TOKEN' = 'pk.eyJ1IjoiYWFicmFtb3Y5MCIsImEiOiJja2k5aHQ4ZWswZnhmMnNtcDJ0b2FlZzdjIn0.QcpV6ynhO9mlLga7CvUJwA')
+
 ```
 
 
@@ -107,32 +112,29 @@ Column {.tabset data-width=400}
 ### Cyclist Injuries by Borough  / Pre-Post Covid
 
 ```{r, echo=FALSE}
-  crash_dat %>%  
-  filter_for("micro") %>% 
-  drop_na(c(latitude, longitude, borough)) %>% 
+map_cyclists_injured=  crash_dat %>% 
   filter(
     str_detect(vehicle_options, "[Bb]ike"),
     number_of_cyclist_injured > 0) %>%
   mutate(
     covid = as.factor(if_else(year == 2019, 'Pre-COVID', 'COVID')),
-    text_label = str_c("Crash Time: ", covid, "\nCyclists Injured: ", 
-                       number_of_cyclist_injured)) %>% 
+    text_label = str_c("Crash Time: ", covid)) %>% 
   plot_mapbox(
-    x = ~longitude, 
-    y = ~latitude,  
-    mode = 'scattermapbox', 
-    split = ~covid,
-    size = ~number_of_cyclist_injured,
-    color = ~borough,
-    text = ~text_label,
-    hoverinfo = "text") %>% 
+    lon = ~longitude, 
+    lat = ~latitude, 
+    split = ~borough, 
+    color = ~covid,
+    mode = 'markers',
+    text = ~text_label) %>% 
   layout(
     mapbox = 
       list(
-        style = "dark",
-        zoom = 9.5,
-        center = list(lat = 40.71, lon = -73.97)),
+        style = 'dark',
+        zoom = 9.5, 
+           center = list(lat = 40.71, lon = -73.97)),
     title = "Cyclist Injuries in NYC \nPre and Post Covid")
+
+map_cyclists_injured %>% config(mapboxAccessToken = Sys.getenv("MAPBOX_TOKEN"))
 
 #Here we're looking 2017-2020 instead - check w/Alexey
 ```
@@ -143,29 +145,29 @@ Column {.tabset data-width=400}
 ### Microvehicles with People Injured
 
 ```{r, echo=FALSE}
- crash_dat %>%  
-  filter_for("micro") %>% 
-  drop_na(c(latitude, longitude, borough)) %>% 
+crash_map_microvehicles = 
+  crash_dat %>% 
   filter(
     number_of_persons_injured > 0)   %>%
   mutate(
     covid = as.factor(if_else(year == 2019, 'Pre-COVID', 'COVID')),
     text_label = 
-      str_c("Time Period: ", covid, 
-            "\nNumber of People Injured: ", number_of_persons_injured)) %>% 
+      str_c("Time Period: ", covid)) %>% 
   plot_mapbox(
     x = ~longitude, 
-    y = ~latitude,  
-    mode = 'scattermapbox', 
-    split = ~covid,
-    size = ~number_of_persons_injured,
+    y = ~latitude) %>% 
+  add_polygons(
     color = ~borough,
-    text = ~text_label,
-    hoverinfo = "text") %>% 
-  layout(mapbox = 
-           list(style = "dark",zoom = 9.5, center = list(lat = 40.71, lon = -73.97)),
+    text = ~text_label) %>% 
+  layout(
+    mapbox = 
+           list(
+             style = "light",
+             zoom = 9.5, 
+             center = list(lat = 40.71, lon = -73.97)),
     title = "Microvehicle Injuries in NYC \nPre and Post Covid")
 
+crash_map_microvehicles
 
 ```
 
