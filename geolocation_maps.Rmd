@@ -4,6 +4,7 @@ date: "11/30/2020"
 output: 
   html_document:
     toc: true
+    always_allow_html: true
 ---
 
 ```{r setup, include = FALSE}
@@ -22,7 +23,10 @@ options(
 scale_colour_discrete = scale_color_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
 
-Sys.setenv("MAPBOX_TOKEN" = 'pk.eyJ1IjoiYWFicmFtb3Y5MCIsImEiOiJja2k4OWpmNWcwM2puMnhzOGhoOTl0ZzJhIn0.1DdYryz7XmehjnULYi6Hew')
+# setting user, api key and access token
+Sys.setenv("plotly_username"="aabramov90")
+Sys.setenv("plotly_api_key"="TcaNTrLIJVEJyrUlhXgd")
+Sys.setenv('MAPBOX_TOKEN' = 'pk.eyJ1IjoiYWFicmFtb3Y5MCIsImEiOiJja2k5aHQ4ZWswZnhmMnNtcDJ0b2FlZzdjIn0.QcpV6ynhO9mlLga7CvUJwA')
 
 ```
 
@@ -68,18 +72,13 @@ microvehicles =
     text_label = str_c("Crash Time: ", covid))
 
 map1 = microvehicles %>% 
-  plot_mapbox(
+  plot_ly(
     x = ~longitude, 
     y = ~latitude, 
-    split = ~covid, 
+    color = ~covid, 
     text = ~text_label) %>% 
-  layout(
-    mapbox = 
-      list(zoom = 9,center = list(lat = 40.67, lon = -73.97))) %>% 
-  layout(
-    mapbox = 
-      list(
-        zoom = 9.5, center = list(lat = 40.71, lon = -73.97)),
+  layout(mapbox = 
+      list(zoom = 9.5, center = list(lat = 40.71, lon = -73.97)),
     title = "Cyclist Injuries in NYC \nPre and Post Covid")
 
 map1
@@ -98,7 +97,8 @@ crash_map_microvehicles =
       str_c("Time Period: ", covid)) %>% 
   plot_mapbox(
     x = ~longitude, 
-    y = ~latitude,  
+    y = ~latitude) %>% 
+  add_polygons(
     color = ~borough,
     text = ~text_label) %>% 
   layout(
