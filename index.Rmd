@@ -113,4 +113,7 @@ We wanted to ask some of the big questions on incidents involving Bikes and Micr
 - The Possion regression analysis we computed showed that were no signifcant differences in the rate of incidents involving bikes or Microvehicles. 
 - Downtown Manhattan saw the most crashes within the last 2 years. 
 
+## Fun facts
+
+- Folks that use micro-vehicles are referred to as 'micro-motorists'
 
