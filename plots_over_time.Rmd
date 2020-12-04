@@ -3,7 +3,8 @@ title: "Bike use and bike and microvehicles crashes over time"
 date: 
 output: 
   html_document:
-  always_allow_html: true
+    code_folding: hide
+    always_allow_html: true
 ---
 
 ```{r setup, include=FALSE}
@@ -220,7 +221,7 @@ bike_count_crash_yr_plot = bike_count_and_crash %>%
 ggplotly(bike_count_crash_yr_plot)
 ```
 
-Crashes per bicycle counted appear remain steady overall, and don't have a clear seasonal pattern. Crashes per bicycle dip starting in the second half of 2019 through the first half of 2020, when they rise again to reflect trends in previous years.
+Crashes per bicycle counted appear remain steady overall, and don't have a clear seasonal pattern. Crashes per bicycle dip starting in the second half of 2019 and continue to dip further during the first half of 2020, after which they rise again to a level similar to previous years.
 
 **Microvehicle crashes**
 
@@ -252,3 +253,7 @@ ggplotly(microvehicle_crash_yr_plot)
 ```
 
 As we can see in the plot, microvehicle crashes were very few during 2017 and 2018. An increase occurs starting in the summer of 2019, peaking for 2019 around September, and dropping again in the colder months. Crashes are higher overall in 2020, rise substantially higher than 2019 during the summer and fall especially, peaking again in September. Since we don't have data about microvehicle use, it's not possible to establish whether this increase in crashes corresponds to an increase in microvehicle use or an increase in the rate of crashes per vehicle, or both.
+
+## Summary
+
+The visualizations of bicycle use and crashes over time suggest a clear seasonal pattern of bicycle use and similar seasonal pattern of bicycle crashes over time. Bicycle crashes per observed bike was relatively steady seasonally, but dipped noticeably from mid 2019 through mid 2020. Microvehicle crashes don't seem to follow a seasonal pattern, but display a notable recent increasing trend. Based on this initial exploration, there wasn't a clear change in the pattern of bike use, crashes, or microvehicle crashes coinciding with the COVID lockdown in NYC.
