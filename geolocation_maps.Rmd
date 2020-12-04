@@ -137,6 +137,11 @@ knitr::include_graphics("./data/manhattan_neighborhood_map.jpg")
 
 With ongoing road improvements and the construction of more bike lanes in New York City in an effort to promote safety, more New Yorkers are traveling by bike.  
 
+```{r, echo=FALSE, out.width="50%", fig.cap="Bike Lane", fig.align = 'center'}
+knitr::include_graphics("./data/bike_lane.jpg")
+```
+[Source:  CurbedNY]("https://ny.curbed.com/2018/12/19/18148685/nyc-protected-bike-lane-expansion-vision-zero-2018")
+
 ## Cyclist Injuries
 
 This map displays the geolocation of cyclist injuries in New York City from January 2019 to November 2020. 
@@ -170,7 +175,6 @@ map_cyclists_injured =
 
 map_cyclists_injured %>% config(mapboxAccessToken = Sys.getenv("MAPBOX_TOKEN"))
 ```
-
 
 ### Year to Year Comparison
 
