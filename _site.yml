@@ -28,6 +28,6 @@ navbar:
       href: https://github.com/byilma/nyc_microvehicle_injuries
 output:
   html_document:
-    theme: cerulean
+    theme: cosmo
     
    
