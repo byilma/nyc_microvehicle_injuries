@@ -1,5 +1,5 @@
 ---
-title: "weather_lm"
+title: "Predictive Model"
 author: "Binyam Yilma"
 date: "12/3/2020"
 output: 

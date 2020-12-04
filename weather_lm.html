@@ -12,7 +12,7 @@
 <meta name="author" content="Binyam Yilma" />
 
 
-<title>weather_lm</title>
+<title>Predictive Model</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -278,13 +278,21 @@ $(document).ready(function () {
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-        
+        <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    About
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="about.html">Our Project</a>
+    </li>
+  </ul>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        <li>
-  <a href="about.html">About</a>
-</li>
-<li class="dropdown">
+        <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     Sections
      
@@ -292,19 +300,19 @@ $(document).ready(function () {
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="weather_lm.html">Predictive Model</a>
+      <a href="geolocation_maps.html">Location of Incidents in NYC</a>
     </li>
     <li>
-      <a href="contributing_factors.html">Contributing Factors</a>
+      <a href="plots_over_time.html">Trend of Incidents in NYC over time</a>
     </li>
     <li>
-      <a href="geolocation_maps.html">Geolocation</a>
-    </li>
-    <li>
-      <a href="plots_over_time.html">Incidents Over Time</a>
+      <a href="contributing_factors.html">What factors contribute to Incidents</a>
     </li>
     <li>
       <a href="20201125_InjuryPlots.html">Regression Analysis</a>
+    </li>
+    <li>
+      <a href="weather_lm.html">Predictive Model</a>
     </li>
   </ul>
 </li>
@@ -340,7 +348,7 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">weather_lm</h1>
+<h1 class="title toc-ignore">Predictive Model</h1>
 <h4 class="author">Binyam Yilma</h4>
 <h4 class="date">12/3/2020</h4>
 
@@ -458,9 +466,9 @@ gam(n_incidents ~ s(ny_tmax) + s(ny_tmin) + s(ny_prcp), data = df) %&gt;%
 <pre><code>## # A tibble: 3 x 3
 ##   term       ci_lower ci_upper
 ##   &lt;chr&gt;         &lt;dbl&gt;    &lt;dbl&gt;
-## 1 s(ny_prcp)     2.34     8.51
-## 2 s(ny_tmax)     1.00     8.21
-## 3 s(ny_tmin)     2.62     7.51</code></pre>
+## 1 s(ny_prcp)     2.50     8.49
+## 2 s(ny_tmax)     1.00     8.25
+## 3 s(ny_tmin)     1.32     7.75</code></pre>
 <p>#making a prediction plot of the smooth model estimates (edf)</p>
 <pre class="r"><code>smooth = gam(n_incidents ~ s(ny_tmax) + s(ny_tmin) + s(ny_prcp), data = df) 
 
