@@ -1,0 +1,7 @@
+---
+title: "Project Report"
+output: 
+  html_document:
+    code_folding: hide
+    always_allow_html: true
+---

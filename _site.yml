@@ -6,6 +6,8 @@ navbar:
   - text: About
     menu:
     - text: "Our Project"
+      href: project_report.html
+    - text: "Us"
       href: about.html
   right:
     - text: Sections
