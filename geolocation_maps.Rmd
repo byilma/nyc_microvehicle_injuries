@@ -11,9 +11,9 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(httr)
-library(jsonlite)
 library(plotly)
 library(readr)
+library(knitr)
 
 theme_set(theme_minimal() + theme(legend.position = "bottom"))
 options(
@@ -25,7 +25,9 @@ scale_fill_discrete = scale_fill_viridis_d
 
 # setting user, api key and access token
 Sys.setenv("plotly_username"="aabramov90")
+
 Sys.setenv("plotly_api_key"="TcaNTrLIJVEJyrUlhXgd")
+
 Sys.setenv('MAPBOX_TOKEN' = 'pk.eyJ1IjoiYWFicmFtb3Y5MCIsImEiOiJja2k5aHQ4ZWswZnhmMnNtcDJ0b2FlZzdjIn0.QcpV6ynhO9mlLga7CvUJwA')
 
 ```
@@ -61,27 +63,30 @@ I could change the size of the marker based on # people injured, or the color of
 
 ## Crashes with Cyclist Injuries by Borough  / Pre-Post Covid
 
-```{r, map1}
-microvehicles =
-  microvehicles %>% 
+```{r}
+map_cyclists_injured=  microvehicles %>% 
   filter(
     str_detect(vehicle_options, "[Bb]ike"),
     number_of_cyclist_injured > 0) %>%
   mutate(
     covid = as.factor(if_else(year == 2019, 'Pre-COVID', 'COVID')),
-    text_label = str_c("Crash Time: ", covid))
-
-map1 = microvehicles %>% 
-  plot_ly(
-    x = ~longitude, 
-    y = ~latitude, 
-    color = ~covid, 
+    text_label = str_c("Crash Time: ", covid)) %>% 
+  plot_mapbox(
+    lon = ~longitude, 
+    lat = ~latitude, 
+    split = ~borough, 
+    color = ~covid,
+    mode = 'markers',
     text = ~text_label) %>% 
-  layout(mapbox = 
-      list(zoom = 9.5, center = list(lat = 40.71, lon = -73.97)),
+  layout(
+    mapbox = 
+      list(
+        style = 'dark',
+        zoom = 9.5, 
+           center = list(lat = 40.71, lon = -73.97)),
     title = "Cyclist Injuries in NYC \nPre and Post Covid")
 
-map1
+map_cyclists_injured %>% config(mapboxAccessToken = Sys.getenv("MAPBOX_TOKEN"))
 ```
 
 Microvehicles with People Injured
@@ -179,5 +184,24 @@ crash_map_bike_density_precovid =
 
 crash_map_bike_density_precovid
 
+```
+
+
+```{r}
+map_test =
+  microvehicles %>% 
+  plot_ly(
+    x = ~longitude, 
+    y = ~latitude, 
+    type   = 'scattermapbox', 
+    mode   = 'markers') %>% 
+  layout(
+    mapbox = 
+      list(style = 'dark', 
+           zoom = 9.5, 
+           center = list(lat = 40.71, lon = -73.97)),
+    title = "Cyclist Injuries in NYC \nPre and Post Covid")
+
+map_test %>% config(mapboxAccessToken = Sys.getenv("MAPBOX_TOKEN"))
 ```
 
