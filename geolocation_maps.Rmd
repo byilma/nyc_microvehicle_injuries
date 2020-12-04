@@ -128,7 +128,10 @@ For reference, here is a helpful map of the neighborhoods in Manhattan.
 
 [Source:  MapsManhattan]("https://maps-manhattan.com/manhattan-neighborhood-map")
 
-![](data/manhattan_neighborhood_map.jpg)
+
+```{r, echo=FALSE, out.width="50%", fig.cap="Manhattan Map", fig.align = 'center'}
+knitr::include_graphics("./data/manhattan_neighborhood_map.jpg")
+```
 
 # Bicycles
 
