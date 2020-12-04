@@ -3,7 +3,8 @@ title: "Rates of Injury"
 date: "12/2/2020"
 output: 
   html_document:
-  always_allow_html: true
+    code_folding: hide
+    always_allow_html: true
 ---
 
 ```{r setup, include=FALSE}

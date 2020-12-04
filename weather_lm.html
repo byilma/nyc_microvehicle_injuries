@@ -16,11 +16,12 @@
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<link href="site_libs/bootstrap-3.3.5/css/cerulean.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 <link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
@@ -248,6 +249,9 @@ $(document).ready(function () {
 </style>
 
 <!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
 
 
 
@@ -280,11 +284,29 @@ $(document).ready(function () {
         <li>
   <a href="about.html">About</a>
 </li>
-<li>
-  <a href="contributing_factors.html">Contributing Factors</a>
-</li>
-<li>
-  <a href="geolocation_maps.html">Geolocation</a>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Sections
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="weather_lm.html">Predictive Model</a>
+    </li>
+    <li>
+      <a href="contributing_factors.html">Contributing Factors</a>
+    </li>
+    <li>
+      <a href="geolocation_maps.html">Geolocation</a>
+    </li>
+    <li>
+      <a href="plots_over_time.html">Incidents Over Time</a>
+    </li>
+    <li>
+      <a href="20201125_InjuryPlots.html">Regression Analysis</a>
+    </li>
+  </ul>
 </li>
 <li>
   <a href="dashboard.html">Dashboard</a>
@@ -307,6 +329,14 @@ $(document).ready(function () {
 </div><!--/.navbar -->
 
 <div class="fluid-row" id="header">
+
+<div class="btn-group pull-right">
+<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
 
 
 
@@ -428,9 +458,9 @@ gam(n_incidents ~ s(ny_tmax) + s(ny_tmin) + s(ny_prcp), data = df) %&gt;%
 <pre><code>## # A tibble: 3 x 3
 ##   term       ci_lower ci_upper
 ##   &lt;chr&gt;         &lt;dbl&gt;    &lt;dbl&gt;
-## 1 s(ny_prcp)     3.07     8.39
-## 2 s(ny_tmax)     1.68     8.35
-## 3 s(ny_tmin)     2.92     7.21</code></pre>
+## 1 s(ny_prcp)     2.34     8.51
+## 2 s(ny_tmax)     1.00     8.21
+## 3 s(ny_tmin)     2.62     7.51</code></pre>
 <p>#making a prediction plot of the smooth model estimates (edf)</p>
 <pre class="r"><code>smooth = gam(n_incidents ~ s(ny_tmax) + s(ny_tmin) + s(ny_prcp), data = df) 
 
@@ -482,6 +512,11 @@ $(document).ready(function () {
 </script>
 
 <!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
 
 
 <!-- dynamically load mathjax for compatibility with self-contained -->

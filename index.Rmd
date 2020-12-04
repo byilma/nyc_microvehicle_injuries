@@ -1,32 +1,81 @@
 ---
-title: "Microvehicles Initial Website"
+title: "Bikes & Microvehicles in New York City"
+subtitle: "Exploring incidents involving Bicycles and Microvehicles in New York City from 2017 to 2020"
 output: 
   html_document:
+    code_folding: hide
     toc: true
     toc_float: true
   always_allow_html: true
 ---
 
-## About 
+```{r, include = FALSE}
+library(tidyverse)
+```
+
+<h6 style="text-align: left;" markdown="1">By: Emma Gorin |  Sarah Conderino |  Talea Cornelius |  Alexey Abramov |  Binyam Yilma </h6>
+
+
+## Background
+
 
 New York City is notorious for being a "car-congested" place to live in. The trains can feel just as congested, too. 
 People often opt for alternative ways of commuting, when possible. Recently, the number of options for 'alternative' means of commuting have increased! 
 Bikes, mopeds. e-bikes. e-scooters are all fair game. 
 
-This is great! But, with more bikes, scooters, mopeds and the like out in the street, we wanted to know more about how, if at all, the number of microvehicle/bikes incidents in New York City has increased. 
+This is great! But, with more bikes, scooters, mopeds and the like out in the streets, we wanted to know more about how, if at all, the number of incidents involving these alternative means commuting has changed. 
 
-We were also particularly intrested to see how the shelter-in-place due to covid-19 impacted the rate of incidents.
+We were also particularly interested to see how the shelter-in-place due to covid-19 impacted the rate of incidents. How do the number of incidents post-covide compare to pre-covid times? 
+
+
+
+
+
+## Datasets
+
 
 With this in mind, we took to the New York City Motor-Vehicle-Collisions-Crashes data to look into this further.
 
-* [Data Source](https://data.cityofnewyork.us/Public-Safety/Motor-Vehicle-Collisions-Crashes/h9gi-nx95)
+* [Crash Data Source](https://data.cityofnewyork.us/Public-Safety/Motor-Vehicle-Collisions-Crashes/h9gi-nx95)
 
 
+Here's a sneak peak of what our data looks like:
+
+```{r}
+crash_dat = read.csv("./data/crash_dat.csv")
+
+crash_dat %>% select(date, crash_time, borough,number_of_persons_injured, contributing_factor_vehicle_1) %>% head(6) %>% knitr::kable()
+```
+
+We also incorporate weather data from NOAA 
+
+* [Weather Data Source](https://www.noaa.gov)
+
+
+As well as data on `bike count` data, which gave us the daily total of bikes that were involved in crashes
+
+
+* [Weather Data Source](https://data.cityofnewyork.us)
+
+
+## Focus of our Project
+
+Our project focuses on the use of particular types of alternate means of transportations, namely: bicycles and microvehicles. 
+
+We all know what bikes are, but what exactly are `Microvehicles`: 
+
+The ITF report, defined Microvehicles as: “: vehicles with a mass of no more than 350 kg (771 lb) and a design speed no higher than 45 km/h. Here's [ITF's report](https://data.cityofnewyork.us) if you're interested. 
+
+Here are some gifs (pronounced 'jif', of course) to show you what we mean
 
 ### Microvehicles
 
 
 ![](https://media.giphy.com/media/S0w2pBxWWJroc/giphy.gif)
+
+#### E-scooters (like "lime")
+
+![](https://media.giphy.com/media/lnDq08VgGZPO0ZU8zw/giphy.gif)
 
 
 ### Bike
@@ -34,13 +83,11 @@ With this in mind, we took to the New York City Motor-Vehicle-Collisions-Crashes
 ![](https://media.giphy.com/media/dZLKaImwWkc12rzEoO/giphy.gif)
 
 
-
-#### Revel
-
-![](https://media.giphy.com/media/QUSC0lwVLkyZGbA2Or/giphy.gif)
+## Take aways
 
 
 
-#### E-scooters (like "lime")
+## Fun facts
 
-![](https://media.giphy.com/media/lnDq08VgGZPO0ZU8zw/giphy.gif)
+
+

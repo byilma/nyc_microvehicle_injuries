@@ -5,7 +5,6 @@ output:
     code_folding: hide
     toc: true
     toc_float: true
-    always_allow_html: true
 ---
 
 ```{r setup, include = FALSE}

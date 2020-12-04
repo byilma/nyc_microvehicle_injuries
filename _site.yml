@@ -1,17 +1,25 @@
-name: "NYC Microvehicles"
+name: "Website Settings"
 output_dir: "."
 navbar:
   title: "Home"
-  right:
-    - text: About
+  left:
+  - text: About
+    menu:
+    - text: "Our Project"
       href: about.html
+  right:
+    - text: Sections
       menu:
-      - text: "weather_lm"
+      - text: "Location of Incidents in NYC"
+        href: geolocation_maps.html
+      - text: "Trend of Incidents in NYC over time"
+        href: plots_over_time.html
+      - text: "What factors contribute to Incidents"
+        href: contributing_factors.html
+      - text: "Regression Analysis"
+        href: 20201125_InjuryPlots.html
+      - text: "Predictive Model"
         href: weather_lm.html
-    - text: "Contributing Factors"
-      href: contributing_factors.html
-    - text: "Geolocation"
-      href: geolocation_maps.html
     - text: "Dashboard"
       href: dashboard.html
     - icon: fa-envelope fa-lg
