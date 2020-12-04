@@ -3,7 +3,7 @@ title: "Geolocation and Maps"
 date: "11/30/2020"
 output: 
   html_document:
-    toc: true
+    code_folding: hide
     always_allow_html: true
 ---
 
