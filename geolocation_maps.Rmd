@@ -147,7 +147,7 @@ knitr::include_graphics("./data/bike_lane.jpg")
 This map displays the geolocation of cyclist injuries in New York City from January 2019 to November 2020. 
 The data are interactive and organized by borough and also split by year. Data are not available on the severity of the cyclist's injuries.  
 
-```{r}
+```{r, fig.width=8}
 map_cyclists_injured =  
   microvehicles %>% 
   filter(
@@ -198,7 +198,7 @@ These vehicles also provide an important alternative to using public transportat
 
 This map displays the geolocation of microvehicle-related motorist injuries in New York City from January 2019 to November 2020. The data are interactive and organized by borough and also split by year. Data are not available on the severity of the motorist's injuries or which vehicle the motorist was traveling in.  
 
-```{r}
+```{r, fig.width=8}
 map_motorist_injured = 
   microvehicles %>% 
   filter(
@@ -243,7 +243,7 @@ These data may be related to the rollout of Revel mopeds in 2020 which began off
 
 This map displays the geolocation of bicycle and microvehicle-related deaths in New York City from January 2019 to November 2020. The data are interactive and organized by borough and also split by year. These data report fatal injuries at the time of the incident and may not include fatalities from hospitalized trauma patients.    
 
-```{r}
+```{r, fig.width=8}
 map_fatalities = 
   microvehicles %>% 
   filter(
@@ -275,7 +275,7 @@ These maps include data provided by the City of New York available in the [open 
 
 ### Density of Bicycle Crashes with Cyclists Injured in 2019
 
-```{r}
+```{r, fig.width=8}
 map_cyclist_density_2019 = 
   microvehicles %>% 
   filter(
@@ -300,7 +300,7 @@ map_cyclist_density_2019 %>% config(mapboxAccessToken = Sys.getenv("MAPBOX_TOKEN
 
 ### Density of Bicycle Crashes with Cyclists in 2020
 
-```{r}
+```{r, fig.width=8}
 map_cyclist_density_2020 = 
   microvehicles %>% 
   filter(

@@ -27,13 +27,13 @@ options(
 )
 scale_colour_discrete = scale_color_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
+
 # setting user, api key and access token
 Sys.setenv("plotly_username"="aabramov90")
 
 Sys.setenv("plotly_api_key"="TcaNTrLIJVEJyrUlhXgd")
 
 Sys.setenv('MAPBOX_TOKEN' = 'pk.eyJ1IjoiYWFicmFtb3Y5MCIsImEiOiJja2k5aHQ4ZWswZnhmMnNtcDJ0b2FlZzdjIn0.QcpV6ynhO9mlLga7CvUJwA')
-
 ```
 
 
@@ -110,6 +110,55 @@ Interactive Maps
 Column {.tabset data-width=400}
 -----------------------------------------------------------------------
 
+###
+
+```{r, echo = FALSE}
+
+microvehicles = 
+  crash_dat %>% 
+  drop_na(c(latitude, longitude, borough)) %>% 
+  filter(
+    year > 2018,
+    latitude > 0) %>%  
+  filter(str_detect(vehicle_options, "[Bb]ike") | 
+           str_detect(vehicle_options, "REVEL") | 
+           str_detect(vehicle_options, "SCO")  |
+           str_detect(vehicle_options, "MOP")   |
+           str_detect(vehicle_options, "ELEC")  |
+           str_detect(vehicle_options, "^E-")) %>% 
+  filter(vehicle_options != "ESCOVATOR")
+
+#rmarkdown::render("dashboard.Rmd", output_format = "flexdashboard::flex_dashboard")
+map_cyclists_injured =  
+  microvehicles %>% 
+  filter(
+    number_of_cyclist_injured > 0) %>%
+  mutate(
+    covid = as.factor(if_else(year == 2019, 'Pre-COVID', 'COVID')),
+    text_label = str_c("Number Injured: ", number_of_cyclist_injured)) %>% 
+  plot_mapbox(
+    lon = ~longitude, 
+    lat = ~latitude, 
+    split = ~year, 
+    size = ~number_of_cyclist_injured,
+    color = ~borough,
+    mode = 'markers',
+    text = ~text_label) %>% 
+  layout(
+    mapbox = 
+      list(
+        style = 'dark',
+        zoom = 9.5, 
+        center = list(lat = 40.71, lon = -73.97)),
+    title = "Crashes with Cyclists Injured in New York City 2019 - 
+    2020",
+    width = 900)
+
+map_cyclists_injured %>% config(mapboxAccessToken = Sys.getenv("MAPBOX_TOKEN"))
+```
+
+
+
 ### Density of Bicycle Crashes with Cyclists Injured During Covid
 
 ```{r, echo=FALSE}
@@ -174,41 +223,6 @@ crash_dat %>%
 ```
 
 
-
-Incidents over Time
-=======================================================================
-
-Row
------------------------------------------------------------------------
-
-### Title 1
-
-```{r}
-
-```
-
-### Title 2
-
-```{r}
-
-```
-
-Row
------------------------------------------------------------------------
-
-### Title 3
-
-```{r}
-
-```
-
-### Title 4
-
-```{r}
-
-```
-   
-   
 Contributing Factors
 =======================================================================
 
@@ -317,178 +331,3 @@ ggplotly(top_10_micro, tooltip = c("x", "y"))
 ```
  
  
- 
-
-### Heat maps - Bike
-```{r, echo = FALSE, message = FALSE, warning = FALSE, fig.width = 8}
-
-heat_maps = function(dataset, title) {
-  pre = 
-  dataset %>%
-  filter(covid == "Pre-COVID") %>%
-  plot_ly(
-    x = ~hour, y = ~dow, z = ~collisions, type = "heatmap", colors = "BuPu"
-  ) %>%
-  colorbar(title = "Pre-COVID", x = 1, y = 1) 
-
-covid = 
-  dataset %>%
-  filter(covid == "COVID") %>%
-  plot_ly(
-    x = ~hour, y = ~dow, z = ~collisions, type = "heatmap", colors = "YlGn"
-  ) %>%
-  colorbar(title = "COVID", x = 1, y = 0.5) 
-
-subplot(pre, covid, nrows = 2, margin = .05) %>%
-  layout(title = title)
-}
-
-
-crash_day_time = 
-  bikes %>%
-  group_by(covid, hour, dow) %>%
-  summarise(
-    collisions = n_distinct(collision_id)
-  )  
-
-p = heat_maps(dataset = crash_day_time, title = "Heat Maps of Bike Crashes")
-
-ggplotly(p, tooltip = c("x", "y")) 
-```
-
-### Heat maps - Cyclists
-```{r, echo = FALSE}
-bikes %>%
-  pivot_longer(
-    contributing_factor_vehicle_1:contributing_factor_vehicle_5,
-    names_to = "vehicle_factor_num",
-    names_prefix = "contributing_factor_vehicle_",
-    values_to = "contributing_factor"
-   ) %>%
-  filter((contributing_factor == "Pedestrian/Cyclist Error" |
-           vehicle_factor_num == vehicle_number),
-         contributing_factor != "Unspecified") %>%
-  group_by(covid, hour, dow) %>%
-  summarise(
-    collisions = n_distinct(collision_id)
-  ) %>% heat_maps(title = "Heat Maps of Bike Crashes Involving Cyclist Factors")
-```
-
-### Heat maps - Distraction
-```{r, echo = FALSE}
-
-  bikes %>%
-  pivot_longer(
-    contributing_factor_vehicle_1:contributing_factor_vehicle_5,
-    names_to = "vehicle_factor_num",
-    names_prefix = "contributing_factor_vehicle_",
-    values_to = "contributing_factor"
-   ) %>%
-  filter(
-    contributing_factor == "Driver Inattention/Distraction"
-    ) %>%
-  group_by(covid, hour, dow) %>%
-  summarise(
-    collisions = n_distinct(collision_id)
-  ) %>% heat_maps(title = "Heat Maps of Bike Crashes Involving Driver Inattention")
-```
-
-### Heat maps - Microvehicle
-```{r, echo = FALSE}
-  microveh %>%
-  group_by(covid, hour, dow) %>%
-  summarise(
-    collisions = n_distinct(collision_id)
-  ) %>% heat_maps(title = "Heat Maps of Microvehicle Crashes")
-```
-
-   
-Statistical Models
-=======================================================================
-
-Column {.tabset data-width=650}
------------------------------------------------------------------------
-
-### Possion Regression On Bike-Injuries
-
-```{r, echo = FALSE, fig.width=9, fig.height=7}
-
-crash_dat%>%
-  filter_for("bike") %>% 
-  filter(year %in% c(2019, 2020)) %>%
-  group_by(year) %>%
-  mutate(year_2020 = year - 2019) %>%
-  nest(data = -month) %>%
-  mutate(models = map(data, ~glm(number_of_persons_injured ~ year_2020:borough,
-                                 family = "poisson", data = .x)),
-         models = map(models, broom::tidy)) %>% 
-  select(-data) %>% 
-  unnest(models) %>%
-  select(month, term, estimate, std.error, p.value) %>% 
-  mutate(term = str_replace(term, "year_2020:borough", "2020 v. 2019, Borough: ")) %>%
-  left_join(month_df, by = "month") %>%
-  select(-month) %>%
-  rename(month = month_name) %>%
-  select(month, everything()) %>% 
-  filter(term != "(Intercept)" & month != "November" & month != "December") %>%
-  mutate(term = str_replace(term, "2020 v. 2019, ", "")) %>%
-  ggplot(aes(x = month, y = exp(estimate), color = term)) + 
-  geom_point(show.legend = FALSE, aes(size = estimate, alpha = .7)) +
-  geom_errorbar(aes(ymin = exp(estimate - (1.96*std.error)), 
-                    ymax = exp(estimate + (1.96*std.error)))) +
-  geom_hline(yintercept = 1, linetype="dashed", 
-                color = "darkred", size = 1, alpha = .7) +
-  labs(
-    title = "Difference in Rate of Injuries Per Crash Involving a Bike in 2020 v. 2019",
-    x = "Month",
-    y = "2020 v. 2019 Difference"
-  ) +
-  ylim(0, 5) +
-  theme(legend.title = element_blank(),
-        text = element_text(size = 10),
-        axis.text.x = element_text(angle = 60, hjust = 1, size = 8)) + 
-  facet_grid(. ~ term)
-
-
-```
-
-### Possion Regression On Microvehicle-Injuries
-
-```{r, echo = FALSE, fig.width=9, fig.height=7}
-crash_dat %>%
-  filter_for("micro") %>% 
-  filter(year %in% c(2019, 2020)) %>%
-  group_by(year) %>%
-  mutate(year_2020 = year - 2019) %>%
-  nest(data = -month) %>%
-  mutate(models = map(data, ~glm(number_of_persons_injured ~ year_2020:borough,
-                                 family = "poisson", data = .x)),
-         models = map(models, broom::tidy)) %>% 
-  select(-data) %>% 
-  unnest(models) %>%
-  select(month, term, estimate, std.error, p.value) %>% 
-  mutate(term = str_replace(term, "year_2020:borough", "2020 v. 2019, Borough: ")) %>%
-  left_join(month_df, by = "month") %>%
-  select(-month) %>%
-  rename(month = month_name) %>%
-  select(month, everything()) %>% 
-  filter(term != "(Intercept)" & month != "November" & month != "December") %>%
-  mutate(term = str_replace(term, "2020 v. 2019, ", "")) %>%
-  ggplot(aes(x = month, y = exp(estimate), color = term)) + 
-  geom_point(show.legend = FALSE, aes(size = estimate, alpha = .7)) +
-  geom_errorbar(aes(ymin = exp(estimate - (1.96*std.error)), 
-                    ymax = exp(estimate + (1.96*std.error)))) +
-  geom_hline(yintercept = 1, linetype="dashed", 
-                color = "darkred", size = 1, alpha = .7) +
-  labs(
-    title = "Difference in Rate of Injuries Per Crash Involving a Microvehicle in 2020 v. 2019",
-    x = "Month",
-    y = "2020 v. 2019 Difference"
-  ) +
-  ylim(0, 5) +
-  theme(legend.title = element_blank(),
-        text = element_text(size = 10),
-        axis.text.x = element_text(angle = 60, hjust = 1, size = 8)) + 
-  facet_grid(. ~ term)
-```
-
