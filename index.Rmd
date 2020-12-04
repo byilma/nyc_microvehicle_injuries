@@ -47,15 +47,22 @@ crash_dat = read.csv("./data/crash_dat.csv")
 crash_dat %>% select(date, crash_time, borough,number_of_persons_injured, contributing_factor_vehicle_1) %>% head(6) %>% knitr::kable()
 ```
 
-We also incorporate weather data from NOAA 
-
-* [Weather Data Source](https://www.noaa.gov)
 
 
 As well as data on `bike count` data, which gave us the daily total of bikes that were involved in crashes
 
 
-* [Weather Data Source](https://data.cityofnewyork.us)
+* [Bike-count Data Source](https://data.cityofnewyork.us/Public-Safety/EMS-Incident-Dispatch-Data/76xm-jjuj)
+
+
+
+
+
+We also incorporate weather data from NOAA 
+
+* [Weather Data Source](https://www.noaa.gov)
+
+
 
 
 ## Focus of our Project
@@ -66,7 +73,7 @@ We all know what bikes are, but what exactly are `Microvehicles`:
 
 The ITF report, defined Microvehicles as: “: vehicles with a mass of no more than 350 kg (771 lb) and a design speed no higher than 45 km/h. Here's [ITF's report](https://data.cityofnewyork.us) if you're interested. 
 
-Here are some gifs (pronounced 'jif', of course) to show you what we mean
+Here are some gifs (pronounced 'jif', of course) to show you what we mean:
 
 ### Microvehicles
 
@@ -86,17 +93,17 @@ Here are some gifs (pronounced 'jif', of course) to show you what we mean
 
 We wanted to ask some of the big questions on incidents involving Bikes and Microvehicles: 
 
-*Where in  NYC* do we see the most incidents involving Bikes and Microvehicles?
+- *Where in  NYC* do we see the most incidents involving Bikes and Microvehicles?
 
-What does the *trend* of incidents involving Bikes and Microvehicles look like? 
+- What does the *trend* of incidents involving Bikes and Microvehicles look like? 
 
-What are some *factors* that contribute to these incidents?
+- What are some *factors* that contribute to these incidents?
 
-In particular we also wanted to see how the these incidents may have changed in the context of COVID-19 and the shelter in place?
+- In particular we also wanted to see how the these incidents may have changed in the context of COVID-19 and the shelter in place?
 
-Do we see any *statistically significant* differences in incident rates comparing pre-covid to post covid? 
+- Do we see any *statistically significant* differences in incident rates comparing pre-covid to post covid? 
 
-Lastly, we wanted to see if we could build a predictive model using weather data, considering factors such as maximum/minimum temperature and daily precipitation? 
+- Lastly, we wanted to see if we could build a predictive model using weather data, considering factors such as maximum/minimum temperature and daily precipitation? 
 
 
 ## Take aways
