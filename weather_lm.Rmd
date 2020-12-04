@@ -2,7 +2,9 @@
 title: "weather_lm"
 author: "Binyam Yilma"
 date: "12/3/2020"
-output: html_document
+output: 
+  html_document:
+  always_allow_html: true
 ---
 
 ```{r setup, include=FALSE}

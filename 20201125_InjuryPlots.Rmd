@@ -2,7 +2,7 @@
 title: "Rates of Injury"
 date: "12/2/2020"
 output: 
-  github_document:
+  html_document:
   always_allow_html: true
 ---
 
@@ -27,9 +27,7 @@ scale_fill_discrete = scale_fill_viridis_d
 
 
 ```{r, read data}
-
 crash_dat_tidy = read_csv("./data/crash_dat.csv") 
-
 ```
 
 **My goal was to compare the rate of injuries in a crash in 2020 to the same month in 2019 (e.g., rate of injuries in January 2020 v. rate of injuries in January 2019). I examined January through October. I additionally stratified these rate ratio estimates by borough.**

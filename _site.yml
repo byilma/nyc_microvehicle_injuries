@@ -5,6 +5,9 @@ navbar:
   right:
     - text: About
       href: about.html
+      menu:
+      - text: "weather_lm"
+        href: weather_lm.html
     - text: "Contributing Factors"
       href: contributing_factors.html
     - text: "Geolocation"
