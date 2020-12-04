@@ -3,7 +3,8 @@ title: "Rates of Injury"
 date: "12/2/2020"
 output: 
   html_document:
-  always_allow_html: true
+    code_folding: hide
+    always_allow_html: true
 ---
 
 ```{r setup, include=FALSE}
@@ -30,11 +31,13 @@ scale_fill_discrete = scale_fill_viridis_d
 crash_dat_tidy = read_csv("./data/crash_dat.csv") 
 ```
 
-**My goal was to compare the rate of injuries in a crash in 2020 to the same month in 2019 (e.g., rate of injuries in January 2020 v. rate of injuries in January 2019). I examined January through October. I additionally stratified these rate ratio estimates by borough.**
+## Goal
 
-**To accomplish this, I filtered the tidy data to create one dataset for microvehicles and one for bikes. In each dataset, I then created nested datasets by month, and, in each of these datasets, I mapped Poisson models to extract rate ratio estimates for number of injuries in each borough. Finally, I unnessted these models to extract the desired coefficients: rate ratios and standard errors (used to compute 95% confidence intervals).**
+My goal was to compare the rate of injuries in a crash in 2020 to the same month in 2019 (e.g., rate of injuries in January 2020 v. rate of injuries in January 2019). I examined January through October. I additionally stratified these rate ratio estimates by borough.
 
-**Below, I write functions to easily filter for either microvehicles or for bikes.**
+To accomplish this, I filtered the tidy data to create one dataset for microvehicles and one for bikes. In each dataset, I then created nested datasets by month, and, in each of these datasets, I mapped Poisson models to extract rate ratio estimates for number of injuries in each borough. Finally, I unnessted these models to extract the desired coefficients: rate ratios and standard errors (used to compute 95% confidence intervals).
+
+Below, I write functions to easily filter for either microvehicles or for bikes.
 
 ```{r filter functions}
 
@@ -59,7 +62,6 @@ filter_for = function(dataset, type) {
 
 ```
 
-**First, I tested to see if there was an overall association of 2020 v. 2019 with number of injuries in microvehicle crashes.**
 
 ```{r create month dataset for merging}
 
@@ -71,6 +73,11 @@ month_df=
 
 ```
 
+<br></br> 
+
+## Microvehicles
+
+First, I tested to see if there was an overall association of 2020 v. 2019 with number of injuries in microvehicle crashes.
 
 ```{r lm for microvehicle injuries by month}
 
@@ -96,9 +103,9 @@ fit_injuries_micro_all = crash_dat_tidy %>%
 fit_injuries_micro_all
 ```
 
-**Although there was no statistically significant evidence for a different rate of injury in 2020 v. 21 in any month, I proceeded to examine this stratified by borough.**
+Although there was no statistically significant evidence for a different rate of injury in 2020 v. 21 in any month, I proceeded to examine this stratified by borough.
 
-**I also wanted to get descriptives for number of microvehicle crashes and injuries in each borough in each month.**
+I also wanted to get descriptives for number of microvehicle crashes and injuries in each borough in each month.
 
 ```{r get totals for microvehicles}
 micro_num = crash_dat_tidy %>%
@@ -115,10 +122,28 @@ micro_num = crash_dat_tidy %>%
 micro_num %>%
   select(year, month_name, borough, number_of_crashes, 
          mean_number_of_injuries) %>%
-  knitr::kable(digits = 2)
+  head()
 ```
 
-```{r histogram for n microvehicle crashes}
+```{r graph for mean injuries in microvehicle crashes}
+
+micro_num %>%
+  mutate(date = as.yearmon(paste(year, month, sep = "-"))) %>%
+  ggplot(aes(x = date, y = mean_number_of_injuries, fill = borough)) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  labs(
+    title = "Mean Number of Injuries per Microvehicle Crash by Borough",
+    x = "Month",
+    y = "Mean Number of Injuries"
+  ) +
+  theme(legend.position="right", legend.title = element_blank(),
+        text = element_text(size = 10),
+        axis.text.x = element_text(angle = 90, hjust = 1, size = 8)) +
+  facet_grid(. ~ borough)
+
+```
+
+```{r graph for n microvehicle crashes}
 
 micro_num %>%
   mutate(date = as.yearmon(paste(year, month, sep = "-"))) %>%
@@ -137,9 +162,9 @@ micro_num %>%
 ```
 
 
-**It is apparent that there are very low numbers of microvehicle crashes when stratifying by both month and borough - sometimes as low as only 1 crash, or even 0 crashes (particularly in Staten Island).**
+It is apparent that there are very low numbers of microvehicle crashes when stratifying by both month and borough - sometimes as low as only 1 crash, or even 0 crashes (particularly in Staten Island).
 
-**Below, I extract the rate ratio estimates for the microvehicle data by borough.**
+Below, I extract the rate ratio estimates for the microvehicle data by borough.
 
 ```{r lm for microvehicle injuries by month and borough}
 
@@ -167,7 +192,7 @@ fit_injuries_micro %>%
 
 ```
 
-**Here, I extract my coefficient of interest, which is the difference in injury rate in microvehicle crashes occurring in 2020 v. occurring in 2019. I plot estimates for each borough within each month, making sure to exponentiate these estimates. I include a horizontal line at Y = 1 to indicate the null value.**
+Here, I extract my coefficient of interest, which is the difference in injury rate in microvehicle crashes occurring in 2020 v. occurring in 2019. I plot estimates for each borough within each month, making sure to exponentiate these estimates. I include a horizontal line at Y = 1 to indicate the null value.
 
 ```{r plot microvehicle injuries by month}
 
@@ -193,10 +218,13 @@ fit_injuries_micro %>%
 
 ```
 
-**There is no discernable pattern in the figure, suggesting that rates of injury per microvehicle crash did not differ between 2020 and 2019. In part, this could be due to very wide confidence intervals.**
+There is no discernable pattern in the figure, suggesting that rates of injury per microvehicle crash did not differ between 2020 and 2019. In part, this could be due to very wide confidence intervals.
 
+<br></br> 
 
-**Again, I first tested to see if there was an overall association of 2020 v. 2019 with number of injuries in bike crashes (as in the microvehicle data).**
+## Bikes
+
+Again, I first tested to see if there was an overall association of 2020 v. 2019 with number of injuries in bike crashes (as in the microvehicle data).
 
 
 ```{r lm for bike injuries by month}
@@ -224,10 +252,10 @@ fit_injuries_bike_all
 
 ```
 
-**Although there was no statistically significant evidence for a different rate of injury in 2020 v. 21 in any month, I proceeded to examine this stratified by borough.**
+Although there was no statistically significant evidence for a different rate of injury in 2020 v. 21 in any month, I proceeded to examine this stratified by borough.
 
 
-**I also wanted to get descriptives for number of bike crashes and injuries in each borough in each month.**
+I also wanted to get descriptives for number of bike crashes and injuries in each borough in each month.
 
 ```{r get totals for bikes}
 bike_num = crash_dat_tidy %>%
@@ -244,10 +272,29 @@ bike_num = crash_dat_tidy %>%
 bike_num %>%
   select(year, month_name, borough, number_of_crashes, 
          mean_number_of_injuries) %>%
-  knitr::kable(digits = 2)
+  head()
 ```
 
-```{r histogram for n bike crashes}
+
+```{r graph for mean injuries in bike crashes}
+
+bike_num %>%
+  mutate(date = as.yearmon(paste(year, month, sep = "-"))) %>%
+  ggplot(aes(x = date, y = mean_number_of_injuries, fill = borough)) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  labs(
+    title = "Mean Number of Injuries per Bike Crash by Borough",
+    x = "Month",
+    y = "Mean Number of Injuries"
+  ) +
+  theme(legend.position="right", legend.title = element_blank(),
+        text = element_text(size = 10),
+        axis.text.x = element_text(angle = 90, hjust = 1, size = 8)) +
+  facet_grid(. ~ borough)
+
+```
+
+```{r graph for for n bike crashes}
 
 bike_num %>%
   mutate(date = as.yearmon(paste(year, month, sep = "-"))) %>%
@@ -265,9 +312,9 @@ bike_num %>%
 
 ``` 
 
-**It is again apparent that there are very low numbers of crashes when stratifying by both month and borough.**
+It is again apparent that there are very low numbers of crashes when stratifying by both month and borough.
 
-**Below, I extract the rate ratio estimates for the bike data by borough (as in the microvehicle data).**
+Below, I extract the rate ratio estimates for the bike data by borough (as in the microvehicle data).
 
 ```{r lm for bike injuries by month and borough}
 
@@ -295,7 +342,7 @@ fit_injuries_bike %>%
 
 ```
 
-**Below, I plot the estimates for the bike data (as in the microvehicle data).**
+Below, I plot the estimates for the bike data (as in the microvehicle data).
 
 ```{r plot bike injuries by month}
 
@@ -321,5 +368,9 @@ fit_injuries_bike %>%
 
 ```
 
-**There is no discernable pattern in the figure, suggesting that rates of injury per bike crash did not differ between 2020 and 2019.**
+There is no discernable pattern in the figure, suggesting that rates of injury per bike crash did not differ between 2020 and 2019.
+
+## Summary
+
+In sum, there was no evidence that rates of injuries per crash differed between 2020 and 2019 for crashes that involved either microvehicles or bikes.
 

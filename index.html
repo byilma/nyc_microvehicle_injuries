@@ -11,11 +11,11 @@
 
 
 
-<title>Microvehicles Initial Website</title>
+<title>Bikes &amp; Microvehicles in New York City</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<link href="site_libs/bootstrap-3.3.5/css/cerulean.min.css" rel="stylesheet" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
@@ -23,6 +23,7 @@
 <link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
 <script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 <link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
@@ -250,6 +251,9 @@ $(document).ready(function () {
 </style>
 
 <!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
 
 
 
@@ -349,9 +353,6 @@ div.tocify {
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-        
-      </ul>
-      <ul class="nav navbar-nav navbar-right">
         <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     About
@@ -360,15 +361,35 @@ div.tocify {
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="weather_lm.html">weather_lm</a>
+      <a href="about.html">Our Project</a>
     </li>
   </ul>
 </li>
-<li>
-  <a href="contributing_factors.html">Contributing Factors</a>
-</li>
-<li>
-  <a href="geolocation_maps.html">Geolocation</a>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Sections
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="geolocation_maps.html">Location of Incidents in NYC</a>
+    </li>
+    <li>
+      <a href="plots_over_time.html">Trend of Incidents in NYC over time</a>
+    </li>
+    <li>
+      <a href="contributing_factors.html">What factors contribute to Incidents</a>
+    </li>
+    <li>
+      <a href="20201125_InjuryPlots.html">Regression Analysis</a>
+    </li>
+    <li>
+      <a href="weather_lm.html">Predictive Model</a>
+    </li>
+  </ul>
 </li>
 <li>
   <a href="dashboard.html">Dashboard</a>
@@ -392,38 +413,148 @@ div.tocify {
 
 <div class="fluid-row" id="header">
 
+<div class="btn-group pull-right">
+<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
 
 
-<h1 class="title toc-ignore">Microvehicles Initial Website</h1>
+
+<h1 class="title toc-ignore">Bikes &amp; Microvehicles in New York City</h1>
+<h3 class="subtitle">Exploring incidents involving Bicycles and Microvehicles in New York City from 2017 to 2020</h3>
 
 </div>
 
 
-<div id="about" class="section level2">
-<h2>About</h2>
+<h6 style="text-align: left;">
+By: Emma Gorin | Sarah Conderino | Talea Cornelius | Alexey Abramov | Binyam Yilma
+</h6>
+<div id="background" class="section level2">
+<h2>Background</h2>
 <p>New York City is notorious for being a “car-congested” place to live in. The trains can feel just as congested, too. People often opt for alternative ways of commuting, when possible. Recently, the number of options for ‘alternative’ means of commuting have increased! Bikes, mopeds. e-bikes. e-scooters are all fair game.</p>
-<p>This is great! But, with more bikes, scooters, mopeds and the like out in the street, we wanted to know more about how, if at all, the number of microvehicle/bikes incidents in New York City has increased.</p>
-<p>We were also particularly intrested to see how the shelter-in-place due to covid-19 impacted the rate of incidents.</p>
+<p>This is great! But, with more bikes, scooters, mopeds and the like out in the streets, we wanted to know more about how, if at all, the number of incidents involving these alternative means commuting has changed.</p>
+<p>We were also particularly interested to see how the shelter-in-place due to covid-19 impacted the rate of incidents. How do the number of incidents post-covide compare to pre-covid times?</p>
+</div>
+<div id="datasets" class="section level2">
+<h2>Datasets</h2>
 <p>With this in mind, we took to the New York City Motor-Vehicle-Collisions-Crashes data to look into this further.</p>
 <ul>
-<li><a href="https://data.cityofnewyork.us/Public-Safety/Motor-Vehicle-Collisions-Crashes/h9gi-nx95">Data Source</a></li>
+<li><a href="https://data.cityofnewyork.us/Public-Safety/Motor-Vehicle-Collisions-Crashes/h9gi-nx95">Crash Data Source</a></li>
 </ul>
+<p>Here’s a sneak peak of what our data looks like:</p>
+<pre class="r"><code>crash_dat = read.csv(&quot;./data/crash_dat.csv&quot;)
+
+crash_dat %&gt;% select(date, crash_time, borough,number_of_persons_injured, contributing_factor_vehicle_1) %&gt;% head(6) %&gt;% knitr::kable()</code></pre>
+<table>
+<colgroup>
+<col width="12%" />
+<col width="12%" />
+<col width="11%" />
+<col width="29%" />
+<col width="34%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">date</th>
+<th align="left">crash_time</th>
+<th align="left">borough</th>
+<th align="right">number_of_persons_injured</th>
+<th align="left">contributing_factor_vehicle_1</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">2017-01-01</td>
+<td align="left">19:52:00</td>
+<td align="left">BROOKLYN</td>
+<td align="right">1</td>
+<td align="left">Failure to Yield Right-of-Way</td>
+</tr>
+<tr class="even">
+<td align="left">2017-01-01</td>
+<td align="left">18:00:00</td>
+<td align="left">QUEENS</td>
+<td align="right">1</td>
+<td align="left">Driver Inattention/Distraction</td>
+</tr>
+<tr class="odd">
+<td align="left">2017-01-01</td>
+<td align="left">00:00:00</td>
+<td align="left">NA</td>
+<td align="right">0</td>
+<td align="left">Driver Inattention/Distraction</td>
+</tr>
+<tr class="even">
+<td align="left">2017-01-01</td>
+<td align="left">00:00:00</td>
+<td align="left">MANHATTAN</td>
+<td align="right">2</td>
+<td align="left">Driver Inattention/Distraction</td>
+</tr>
+<tr class="odd">
+<td align="left">2017-01-01</td>
+<td align="left">16:30:00</td>
+<td align="left">BROOKLYN</td>
+<td align="right">0</td>
+<td align="left">Unspecified</td>
+</tr>
+<tr class="even">
+<td align="left">2017-01-01</td>
+<td align="left">18:45:00</td>
+<td align="left">BROOKLYN</td>
+<td align="right">1</td>
+<td align="left">Passing or Lane Usage Improper</td>
+</tr>
+</tbody>
+</table>
+<p>As well as data on <code>bike count</code> data, which gave us the daily total of bikes that were involved in crashes</p>
+<ul>
+<li><a href="https://data.cityofnewyork.us/Public-Safety/EMS-Incident-Dispatch-Data/76xm-jjuj">Bike-count Data Source</a></li>
+</ul>
+<p>We also incorporate weather data from NOAA</p>
+<ul>
+<li><a href="https://www.noaa.gov">Weather Data Source</a></li>
+</ul>
+</div>
+<div id="focus-of-our-project" class="section level2">
+<h2>Focus of our Project</h2>
+<p>Our project focuses on the use of particular types of alternate means of transportations, namely: bicycles and microvehicles.</p>
+<p>We all know what bikes are, but what exactly are <code>Microvehicles</code>:</p>
+<p>The ITF report, defined Microvehicles as: “: vehicles with a mass of no more than 350 kg (771 lb) and a design speed no higher than 45 km/h. Here’s <a href="https://data.cityofnewyork.us">ITF’s report</a> if you’re interested.</p>
+<p>Here are some gifs (pronounced ‘jif’, of course) to show you what we mean:</p>
 <div id="microvehicles" class="section level3">
 <h3>Microvehicles</h3>
 <p><img src="https://media.giphy.com/media/S0w2pBxWWJroc/giphy.gif" /></p>
-</div>
-<div id="bike" class="section level3">
-<h3>Bike</h3>
-<p><img src="https://media.giphy.com/media/dZLKaImwWkc12rzEoO/giphy.gif" /></p>
-<div id="revel" class="section level4">
-<h4>Revel</h4>
-<p><img src="https://media.giphy.com/media/QUSC0lwVLkyZGbA2Or/giphy.gif" /></p>
-</div>
 <div id="e-scooters-like-lime" class="section level4">
 <h4>E-scooters (like “lime”)</h4>
 <p><img src="https://media.giphy.com/media/lnDq08VgGZPO0ZU8zw/giphy.gif" /></p>
 </div>
 </div>
+<div id="bike" class="section level3">
+<h3>Bike</h3>
+<p><img src="https://media.giphy.com/media/dZLKaImwWkc12rzEoO/giphy.gif" /></p>
+</div>
+</div>
+<div id="main-questions" class="section level2">
+<h2>Main Questions</h2>
+<p>We wanted to ask some of the big questions on incidents involving Bikes and Microvehicles:</p>
+<ul>
+<li><p><em>Where in NYC</em> do we see the most incidents involving Bikes and Microvehicles?</p></li>
+<li><p>What does the <em>trend</em> of incidents involving Bikes and Microvehicles look like?</p></li>
+<li><p>What are some <em>factors</em> that contribute to these incidents?</p></li>
+<li><p>In particular we also wanted to see how the these incidents may have changed in the context of COVID-19 and the shelter in place?</p></li>
+<li><p>Do we see any <em>statistically significant</em> differences in incident rates comparing pre-covid to post covid?</p></li>
+<li><p>Lastly, we wanted to see if we could build a predictive model using weather data, considering factors such as maximum/minimum temperature and daily precipitation?</p></li>
+</ul>
+</div>
+<div id="take-aways" class="section level2">
+<h2>Take aways</h2>
+</div>
+<div id="fun-facts" class="section level2">
+<h2>Fun facts</h2>
 </div>
 
 
@@ -461,6 +592,11 @@ $(document).ready(function () {
 </script>
 
 <!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
 
 <script>
 $(document).ready(function ()  {
