@@ -15,7 +15,7 @@
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<link href="site_libs/bootstrap-3.3.5/css/cerulean.min.css" rel="stylesheet" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
@@ -296,7 +296,10 @@ $(document).ready(function () {
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="about.html">Our Project</a>
+      <a href="project_report.html">Our Project</a>
+    </li>
+    <li>
+      <a href="about.html">Us</a>
     </li>
   </ul>
 </li>
@@ -359,7 +362,7 @@ $(document).ready(function () {
 
 
 <h1 class="title toc-ignore">Rates of Injury</h1>
-<h4 class="date">12/2/2020</h4>
+<h4 class="date">12/4/2020</h4>
 
 </div>
 
@@ -484,6 +487,20 @@ fit_injuries_micro_all</code></pre>
 ## 6  2019 March      Bronx                     3                    1.33</code></pre>
 <pre class="r"><code>micro_num %&gt;%
   mutate(date = as.yearmon(paste(year, month, sep = &quot;-&quot;))) %&gt;%
+  ggplot(aes(x = date, y = mean_number_of_injuries, fill = borough)) +
+  geom_bar(stat = &quot;identity&quot;, show.legend = FALSE) +
+  labs(
+    title = &quot;Mean Number of Injuries per Microvehicle Crash by Borough&quot;,
+    x = &quot;Month&quot;,
+    y = &quot;Mean Number of Injuries&quot;
+  ) +
+  theme(legend.position=&quot;right&quot;, legend.title = element_blank(),
+        text = element_text(size = 10),
+        axis.text.x = element_text(angle = 90, hjust = 1, size = 8)) +
+  facet_grid(. ~ borough)</code></pre>
+<p><img src="20201125_InjuryPlots_files/figure-html/graph%20for%20mean%20injuries%20in%20microvehicle%20crashes-1.png" width="672" /></p>
+<pre class="r"><code>micro_num %&gt;%
+  mutate(date = as.yearmon(paste(year, month, sep = &quot;-&quot;))) %&gt;%
   ggplot(aes(x = date, y = number_of_crashes, fill = borough)) +
   geom_bar(stat = &quot;identity&quot;, show.legend = FALSE) +
   labs(
@@ -495,7 +512,7 @@ fit_injuries_micro_all</code></pre>
         text = element_text(size = 10),
         axis.text.x = element_text(angle = 90, hjust = 1, size = 8)) +
   facet_grid(. ~ borough)</code></pre>
-<p><img src="20201125_InjuryPlots_files/figure-html/histogram%20for%20n%20microvehicle%20crashes-1.png" width="672" /></p>
+<p><img src="20201125_InjuryPlots_files/figure-html/graph%20for%20n%20microvehicle%20crashes-1.png" width="672" /></p>
 <p>It is apparent that there are very low numbers of microvehicle crashes when stratifying by both month and borough - sometimes as low as only 1 crash, or even 0 crashes (particularly in Staten Island).</p>
 <p>Below, I extract the rate ratio estimates for the microvehicle data by borough.</p>
 <pre class="r"><code>fit_injuries_micro = crash_dat_tidy %&gt;%
@@ -610,6 +627,20 @@ fit_injuries_bike_all</code></pre>
 ## 6  2019 February   Bronx                        18                   0.833</code></pre>
 <pre class="r"><code>bike_num %&gt;%
   mutate(date = as.yearmon(paste(year, month, sep = &quot;-&quot;))) %&gt;%
+  ggplot(aes(x = date, y = mean_number_of_injuries, fill = borough)) +
+  geom_bar(stat = &quot;identity&quot;, show.legend = FALSE) +
+  labs(
+    title = &quot;Mean Number of Injuries per Bike Crash by Borough&quot;,
+    x = &quot;Month&quot;,
+    y = &quot;Mean Number of Injuries&quot;
+  ) +
+  theme(legend.position=&quot;right&quot;, legend.title = element_blank(),
+        text = element_text(size = 10),
+        axis.text.x = element_text(angle = 90, hjust = 1, size = 8)) +
+  facet_grid(. ~ borough)</code></pre>
+<p><img src="20201125_InjuryPlots_files/figure-html/graph%20for%20mean%20injuries%20in%20bike%20crashes-1.png" width="672" /></p>
+<pre class="r"><code>bike_num %&gt;%
+  mutate(date = as.yearmon(paste(year, month, sep = &quot;-&quot;))) %&gt;%
   ggplot(aes(x = date, y = number_of_crashes, fill = borough)) +
   geom_bar(stat = &quot;identity&quot;, show.legend = FALSE) +
   labs(
@@ -621,7 +652,7 @@ fit_injuries_bike_all</code></pre>
         text = element_text(size = 10),
         axis.text.x = element_text(angle = 90, hjust = 1, size = 8)) +
   facet_grid(. ~ borough)</code></pre>
-<p><img src="20201125_InjuryPlots_files/figure-html/histogram%20for%20n%20bike%20crashes-1.png" width="672" /></p>
+<p><img src="20201125_InjuryPlots_files/figure-html/graph%20for%20for%20n%20bike%20crashes-1.png" width="672" /></p>
 <p>It is again apparent that there are very low numbers of crashes when stratifying by both month and borough.</p>
 <p>Below, I extract the rate ratio estimates for the bike data by borough (as in the microvehicle data).</p>
 <pre class="r"><code>fit_injuries_bike = crash_dat_tidy %&gt;%
