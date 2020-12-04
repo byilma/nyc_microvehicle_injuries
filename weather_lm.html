@@ -9,14 +9,13 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Binyam Yilma" />
 
 
 <title>Predictive Model</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<link href="site_libs/bootstrap-3.3.5/css/cerulean.min.css" rel="stylesheet" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
@@ -349,31 +348,92 @@ $(document).ready(function () {
 
 
 <h1 class="title toc-ignore">Predictive Model</h1>
-<h4 class="author">Binyam Yilma</h4>
-<h4 class="date">12/3/2020</h4>
 
 </div>
 
 
-<p>Import data</p>
-<pre class="r"><code>crash_dat = read_csv(&quot;./data/crash_dat.csv&quot;)</code></pre>
-<p>Subset <code>crash_dat</code></p>
-<pre class="r"><code>df = crash_dat %&gt;% 
-  select(collision_id, date, year, month, day, crash_time, borough, number_of_persons_injured, number_of_persons_killed, vehicle_options, dow, ny_prcp, ny_tmax, ny_tmin) %&gt;% 
-  group_by(date) %&gt;% 
-  summarize(
-    n_incidents = n(),
-    n_injured = sum(number_of_persons_injured),
-    n_killed = sum(number_of_persons_killed),
-    ny_tmin,
-    ny_tmax,
-    ny_prcp
-  ) %&gt;% distinct() </code></pre>
-<pre><code>## `summarise()` regrouping output by &#39;date&#39; (override with `.groups` argument)</code></pre>
-<pre class="r"><code>#  drop_na(borough) 
-
-#  arrange(desc(n_injured))</code></pre>
-<p>Create a cross valdiaton dataset</p>
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<div id="can-we-build-a-predictive-model-to-predict-number-of-incidents-involving-both-bikes-and-micro-vehicle" class="section level4">
+<h4>Can we build a predictive model to predict number of incidents involving both bikes and micro-vehicle?</h4>
+<p>From our exploratory analysis on bike/micro-vehicles incident trends over the last 3 years, we observed that these number of these incidents had an overall seasonal pattern … just like weather.</p>
+<p>So, naturally, we want to see if we could build a model to try and predict the number of bike and micro-vehicle incidents in NYC. To do this, on top of the data we obtained from the New York City Motor-Vehicle-Collisions-Crashes web page, we also incorporate weather data from NOAA.</p>
+<p>In specific, from the weather data we obtain three key variables - average daily maximum temperature, average daily minimum temperature, and average daily precipitation. The ‘average’ here refers to how we averaged these measurements from the 3 weather stations located in New York City: There’s one in Central Park, one by JFK Airport, and another one by La Guardia.</p>
+<p>The main quest of this page is to see if we could:</p>
+<ul>
+<li>Use Cross Validation techniques to compare models</li>
+<li>Use the best model (based on Root Mean Square Errors) and predict number of incidents</li>
+<li>Use bootsrapping to get a more accurate value of our parameter estimates.</li>
+</ul>
+</div>
+</div>
+<div id="methods-results" class="section level2">
+<h2>Methods &amp; Results</h2>
+<div id="steps-in-model-building" class="section level4">
+<h4>Steps in model building:</h4>
+<p>Subset <code>crash_dat</code> to isolate only the vairables we need.</p>
+<p>Here’s a sneak peak of our this subset-ed data:</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">date</th>
+<th align="right">n_incidents</th>
+<th align="right">n_injured</th>
+<th align="right">n_killed</th>
+<th align="right">ny_tmin</th>
+<th align="right">ny_tmax</th>
+<th align="right">ny_prcp</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">2017-01-01</td>
+<td align="right">11</td>
+<td align="right">9</td>
+<td align="right">0</td>
+<td align="right">3.133333</td>
+<td align="right">9.800000</td>
+<td align="right">0.00000</td>
+</tr>
+<tr class="even">
+<td align="left">2017-01-02</td>
+<td align="right">8</td>
+<td align="right">7</td>
+<td align="right">0</td>
+<td align="right">2.400000</td>
+<td align="right">5.566667</td>
+<td align="right">59.33333</td>
+</tr>
+<tr class="odd">
+<td align="left">2017-01-03</td>
+<td align="right">8</td>
+<td align="right">5</td>
+<td align="right">0</td>
+<td align="right">4.433333</td>
+<td align="right">7.400000</td>
+<td align="right">126.00000</td>
+</tr>
+<tr class="even">
+<td align="left">2017-01-04</td>
+<td align="right">10</td>
+<td align="right">6</td>
+<td align="right">0</td>
+<td align="right">1.666667</td>
+<td align="right">12.033333</td>
+<td align="right">0.00000</td>
+</tr>
+<tr class="odd">
+<td align="left">2017-01-05</td>
+<td align="right">2</td>
+<td align="right">2</td>
+<td align="right">0</td>
+<td align="right">-2.300000</td>
+<td align="right">1.666667</td>
+<td align="right">0.00000</td>
+</tr>
+</tbody>
+</table>
+<p>Create a cross validation dataset that splits the data 80% for training and 20% for testing</p>
 <pre class="r"><code>cv_df = 
   crossv_mc(df, 100)
 
@@ -382,7 +442,7 @@ cv_df = cv_df %&gt;%
     train = map(train, as_tibble),
     test = map(test, as_tibble) 
     ) </code></pre>
-<p>Fit different models on the train dataset</p>
+<p>Fit different models on the train dataset and compute RMSE values of the corresponding models</p>
 <pre class="r"><code>cv_df = cv_df %&gt;% 
   mutate(
     linear_mod = map(.x = train, ~lm(n_incidents ~ ny_prcp + ny_tmin + ny_tmax, data = .x)),
@@ -392,7 +452,7 @@ cv_df = cv_df %&gt;%
     rmse_linear = map2_dbl(.x = linear_mod, .y = test, ~rmse(model = .x, data =.y)),
     rmse_smooth = map2_dbl(.x = smooth_mod, .y = test, ~rmse(model = .x, data =.y))
   )</code></pre>
-<p>plot RMSE’s to compare the different models</p>
+<p>Plot RMSE’s to compare the different models</p>
 <pre class="r"><code>cv_df %&gt;% 
   select(starts_with(&quot;rmse&quot;)) %&gt;% 
   pivot_longer(
@@ -406,74 +466,14 @@ cv_df = cv_df %&gt;%
   labs(
     title = &quot;Comparing RMSEs of the linear model to the smooth model&quot;
   )</code></pre>
-<p><img src="weather_lm_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
-<p>fit a smooth model - n_incidents on ny_prcp + ny_tmin + ny_tmax</p>
-<pre class="r"><code>#multiple regression under normal assumptions
-gam(n_incidents ~ s(ny_tmax) + s(ny_tmin) + s(ny_prcp), data = df) %&gt;%
-  broom::tidy() </code></pre>
-<pre><code>## # A tibble: 3 x 5
-##   term         edf ref.df statistic  p.value
-##   &lt;chr&gt;      &lt;dbl&gt;  &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
-## 1 s(ny_tmax)  3.79   4.81     13.3  4.71e-12
-## 2 s(ny_tmin)  4.29   5.38      5.74 1.95e- 5
-## 3 s(ny_prcp)  4.05   5.00     20.7  5.71e-20</code></pre>
-<pre class="r"><code>df %&gt;% 
-  ggplot(aes(x = ny_tmax, y = n_incidents)) + 
-  geom_point()</code></pre>
-<pre><code>## Warning: Removed 24 rows containing missing values (geom_point).</code></pre>
 <p><img src="weather_lm_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p>We note that the Smooth model has a lower RMSE, so we will build a model based off that.</p>
+<p>Fitting a smooth model using daily average maximum temperature and average daily precipitation to predict number of incidents</p>
+<pre class="r"><code>smooth = gam(n_incidents ~ s(ny_tmax) + + s(ny_tmin) + s(ny_prcp), data = df) </code></pre>
+</div>
+<div id="making-a-prediction-plot-of-the-smooth-model-estimates-edf" class="section level4">
+<h4>Making a prediction plot of the smooth model estimates (edf)</h4>
 <pre class="r"><code>df %&gt;% 
-  ggplot(aes(x = ny_tmin, y = n_incidents)) + 
-  geom_point()</code></pre>
-<pre><code>## Warning: Removed 24 rows containing missing values (geom_point).</code></pre>
-<p><img src="weather_lm_files/figure-html/unnamed-chunk-6-2.png" width="672" /></p>
-<pre class="r"><code>df %&gt;% 
-  ggplot(aes(x = ny_prcp, y = n_incidents)) + 
-  geom_point()</code></pre>
-<pre><code>## Warning: Removed 24 rows containing missing values (geom_point).</code></pre>
-<p><img src="weather_lm_files/figure-html/unnamed-chunk-6-3.png" width="672" /></p>
-<p>Bootstrapping using modelr</p>
-<pre class="r"><code>df_boot_results = df %&gt;% 
-  bootstrap(100, id = &quot;strap_number&quot;) %&gt;% 
-  mutate(
-    strap = map(strap, as_tibble), 
-    models = map(.x = strap, ~gam(n_incidents ~ s(ny_tmax) + s(ny_tmin) + s(ny_prcp), data = .x)),
-    results = map(models, broom::tidy)
-  ) %&gt;% 
-  select(strap_number, results) %&gt;% 
-  unnest(results) </code></pre>
-<pre class="r"><code>smooth_model = df_boot_results %&gt;% 
-  group_by(term) %&gt;% 
-  summarize(
-    mean_est = mean(edf),
-    sd_est = sd(edf)
-  )</code></pre>
-<pre><code>## `summarise()` ungrouping output (override with `.groups` argument)</code></pre>
-<p>#under repeated sampling, using bootstrap, we see that the distribution of our estimate is skewed</p>
-<pre class="r"><code>df_boot_results %&gt;% 
-  filter(term == &quot;s(ny_prcp)&quot;)  %&gt;% 
-  ggplot(aes(x = edf)) + 
-  geom_density()</code></pre>
-<p><img src="weather_lm_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
-<p>#cosntructing confidence intervals based on bootsrap confidence intervals</p>
-<pre class="r"><code>df_boot_results %&gt;% 
-  group_by(term) %&gt;% 
-  summarize(
-    ci_lower = quantile(edf, 0.025),
-    ci_upper = quantile(edf, 0.975)
-  )</code></pre>
-<pre><code>## `summarise()` ungrouping output (override with `.groups` argument)</code></pre>
-<pre><code>## # A tibble: 3 x 3
-##   term       ci_lower ci_upper
-##   &lt;chr&gt;         &lt;dbl&gt;    &lt;dbl&gt;
-## 1 s(ny_prcp)     2.50     8.49
-## 2 s(ny_tmax)     1.00     8.25
-## 3 s(ny_tmin)     1.32     7.75</code></pre>
-<p>#making a prediction plot of the smooth model estimates (edf)</p>
-<pre class="r"><code>smooth = gam(n_incidents ~ s(ny_tmax) + s(ny_tmin) + s(ny_prcp), data = df) 
-
-
-df %&gt;% 
   add_predictions(smooth) %&gt;% 
   ggplot(aes(x = date, y = n_incidents)) + 
   geom_point() + 
@@ -483,9 +483,122 @@ df %&gt;%
     x = &quot;Date&quot;,
     y = &quot;Number of Incidents&quot;
   )</code></pre>
-<pre><code>## `geom_smooth()` using method = &#39;gam&#39; and formula &#39;y ~ s(x, bs = &quot;cs&quot;)&#39;</code></pre>
-<pre><code>## Warning: Removed 24 rows containing non-finite values (stat_smooth).</code></pre>
-<p><img src="weather_lm_files/figure-html/plotting%20predictions%20with%20actual%20numbers-1.png" width="672" /></p>
+<p><img src="weather_lm_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<p>We see that the smooth line tracks really well the observed number of predictions. Note however, this is not the most perfect model for a couple of reasons discussed in the summary section of this page.</p>
+<p>Assessing the relationship between n_incidents and our predictos variables</p>
+<pre class="r"><code>#Fit a smooth model - n_incidents on ny_prcp + ny_tmin + ny_tmax
+#multiple regression under normal assumptions
+#gam(n_incidents ~ s(ny_tmax) + s(ny_tmin) + s(ny_prcp), data = df) %&gt;%
+#  broom::tidy() 
+
+p1 = df %&gt;% 
+  ggplot(aes(x = ny_tmax, y = n_incidents)) + 
+  geom_point() + 
+  labs(
+    y = &quot;Number of Incidents&quot;,
+    x = &quot;Daily Macimum Temperature&quot;
+  )
+
+p2 = df %&gt;% 
+  ggplot(aes(x = ny_tmin, y = n_incidents)) + 
+  geom_point() + 
+    labs(
+    y = &quot;Number of Incidents&quot;,
+    x = &quot;Daily Minimum Temperature&quot;
+  )
+
+p3 = df %&gt;% 
+  ggplot(aes(x = ny_prcp, y = n_incidents)) + 
+  geom_point() + 
+    labs(
+    y = &quot;Number of Incidents&quot;,
+    x = &quot;Daily Precipitation&quot;
+  )
+
+ 
+p1 / p2 / p3</code></pre>
+<p><img src="weather_lm_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+</div>
+<div id="in-the-next-section-we-use-bootsrapping-to-obtain-estimates-that-dont-any-parameteric-assumptions" class="section level4">
+<h4>In the next section, we use Bootsrapping to obtain estimates that don’t any parameteric assumptions</h4>
+<p>Bootstrapping using modelr</p>
+<pre class="r"><code>df_boot_results = df %&gt;% 
+  bootstrap(1000, id = &quot;strap_number&quot;) %&gt;% 
+  mutate(
+    strap = map(strap, as_tibble), 
+    models = map(.x = strap, ~gam(n_incidents ~ s(ny_tmax) + s(ny_tmin) + s(ny_prcp), data = .x)),
+    results = map(models, broom::tidy)
+  ) %&gt;% 
+  select(strap_number, results) %&gt;% 
+  unnest(results) </code></pre>
+<p>Computing mean parameter estimates and cosntructing confidence intervals based on bootsrap confidence intervals</p>
+<pre class="r"><code>smooth_model = df_boot_results %&gt;% 
+  group_by(term) %&gt;% 
+  summarize(
+    mean_est = mean(edf),
+    sd_est = sd(edf),
+     ci_lower = quantile(edf, 0.025),
+    ci_upper = quantile(edf, 0.975)
+  )
+
+smooth_model %&gt;% knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">term</th>
+<th align="right">mean_est</th>
+<th align="right">sd_est</th>
+<th align="right">ci_lower</th>
+<th align="right">ci_upper</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">s(ny_prcp)</td>
+<td align="right">5.160535</td>
+<td align="right">1.661541</td>
+<td align="right">2.712792</td>
+<td align="right">8.354553</td>
+</tr>
+<tr class="even">
+<td align="left">s(ny_tmax)</td>
+<td align="right">5.110168</td>
+<td align="right">2.043615</td>
+<td align="right">1.159527</td>
+<td align="right">8.468070</td>
+</tr>
+<tr class="odd">
+<td align="left">s(ny_tmin)</td>
+<td align="right">4.859555</td>
+<td align="right">1.193856</td>
+<td align="right">2.666931</td>
+<td align="right">7.462888</td>
+</tr>
+</tbody>
+</table>
+<p>Model Equation:</p>
+<p><span class="math display">\[Y = 5.2X_1 + 5.0X_2 + 4.9X_3\]</span> <span class="math display">\[Where:\]</span> <span class="math display">\[X_1= average\:daily\:max\:temp\]</span> <span class="math display">\[X_2= average\:daily\:min\:temp\]</span> <span class="math display">\[X_3= average\:daily\:precipiation\]</span> Lastly, we show here that under repeated sampling, using <code>bootstrap</code>, we see that the distribution of our estimate is skewed</p>
+<pre class="r"><code>df_boot_results %&gt;% 
+  filter(term == &quot;s(ny_prcp)&quot;)  %&gt;% 
+  ggplot(aes(x = edf)) + 
+  geom_density()</code></pre>
+<p><img src="weather_lm_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+</div>
+</div>
+<div id="summary" class="section level2">
+<h2>Summary</h2>
+<p>In this section we follow up on one of our earlier observations on how incidents involving micro-vehicles and bikes (overall) displayed seasonality (like the weather.) We subsequently try to build a predictive model, using these (weather related) predictor: daily maximum temperature, daily minimum temperature, and precipitation.</p>
+<p>To that end, we first use cross validation to compare a linear model and a smooth model. Using RMSE as a discriminator, we decide to use the smooth model to build our predictive equation. Lastly, we use bootsrapping to obtain non-parametric estimates and confidence intervals of the final model equation.</p>
+<p>N.B:</p>
+<p>Some* reasons that our model is not the best possible predictive model:</p>
+<ul>
+<li><p>Our outcome variable, <code>number of incidents</code>, is a count variable that we’re treating as continuous.</p></li>
+<li><p>A smooth model tends to over fit the model</p></li>
+<li><p>We use both daily maximum temperature and daily minimum temperatures, and we don’t address the potential issues of confounding.</p></li>
+<li><p>there’s probably a lot more.</p></li>
+</ul>
+<p>We would appreciate any feed back you may have on this and other sections.</p>
+</div>
 
 
 

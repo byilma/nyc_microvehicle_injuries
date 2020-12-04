@@ -1,12 +1,26 @@
 ---
 title: "Predictive Model"
-author: "Binyam Yilma"
-date: "12/3/2020"
 output: 
   html_document:
     code_folding: hide
     always_allow_html: true
 ---
+
+## Introduction 
+
+#### Can we build a predictive model to predict number of incidents involving both bikes and micro-vehicle? 
+
+From our exploratory analysis on bike/micro-vehicles incident trends over the last 3 years, we observed that these number of these incidents had an overall seasonal pattern ... just like weather. 
+
+So, naturally, we want to see if we could build a model to try and predict the number of bike and micro-vehicle incidents in NYC. To do this, on top of the data we obtained from the New York City Motor-Vehicle-Collisions-Crashes web page, we also incorporate weather data from NOAA. 
+
+In specific, from the weather data we obtain three key variables - average daily maximum temperature, average daily minimum temperature, and average daily precipitation. The 'average' here refers to how we averaged these measurements from the 3 weather stations located in New York City: There's one in Central Park, one by JFK Airport, and another one by La Guardia. 
+
+The main quest of this page is to see if we could:
+
+- Use Cross Validation techniques to compare models
+- Use the best model (based on Root Mean Square Errors) and predict number of incidents 
+- Use bootsrapping to get a more accurate value of our parameter estimates. 
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -19,6 +33,7 @@ library(flexdashboard)
 library(ggplot2)
 library(modelr)
 library(mgcv)
+library(patchwork)
 
 
 knitr::opts_chunk$set(echo = TRUE)
@@ -31,18 +46,19 @@ options(
 )
 scale_colour_discrete = scale_color_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
-
-
 ```
 
-Import data
-```{r, , message = FALSE}
+```{r, include = FALSE, message = FALSE}
 crash_dat = read_csv("./data/crash_dat.csv")
 ```
 
-Subset `crash_dat`
+## Methods & Results
 
-```{r}
+#### Steps in model building: 
+
+Subset `crash_dat` to isolate only the vairables we need.
+
+```{r, include = FALSE, warning=FALSE, message=FALSE}
 df = crash_dat %>% 
   select(collision_id, date, year, month, day, crash_time, borough, number_of_persons_injured, number_of_persons_killed, vehicle_options, dow, ny_prcp, ny_tmax, ny_tmin) %>% 
   group_by(date) %>% 
@@ -54,17 +70,17 @@ df = crash_dat %>%
     ny_tmax,
     ny_prcp
   ) %>% distinct() 
-
-
-#  drop_na(borough) 
-
-#  arrange(desc(n_injured))
-
 ```
 
-Create a cross valdiaton dataset
+Here's a sneak peak of our this subset-ed data: 
 
-```{r}
+```{r, echo = FALSE}
+df %>% head(5) %>% knitr::kable()
+```
+
+
+Create a cross validation dataset that splits the data 80% for training and 20% for testing
+```{r, warning=F, message=F}
 cv_df = 
   crossv_mc(df, 100)
 
@@ -76,7 +92,7 @@ cv_df = cv_df %>%
 ```
 
 
-Fit different models on the train dataset
+Fit different models on the train dataset and compute RMSE values of the corresponding models
 ```{r}
 cv_df = cv_df %>% 
   mutate(
@@ -87,12 +103,10 @@ cv_df = cv_df %>%
     rmse_linear = map2_dbl(.x = linear_mod, .y = test, ~rmse(model = .x, data =.y)),
     rmse_smooth = map2_dbl(.x = smooth_mod, .y = test, ~rmse(model = .x, data =.y))
   )
-
 ```
 
 
-plot RMSE's to compare the different models
-
+Plot RMSE's to compare the different models
 ```{r}
 cv_df %>% 
   select(starts_with("rmse")) %>% 
@@ -109,31 +123,75 @@ cv_df %>%
   )
 ```
 
+We note that the Smooth model has a lower RMSE, so we will build a model based off that. 
 
-fit a smooth model - n_incidents on ny_prcp + ny_tmin + ny_tmax
-```{r}
-#multiple regression under normal assumptions
-gam(n_incidents ~ s(ny_tmax) + s(ny_tmin) + s(ny_prcp), data = df) %>%
-  broom::tidy() 
 
-df %>% 
-  ggplot(aes(x = ny_tmax, y = n_incidents)) + 
-  geom_point()
-
-df %>% 
-  ggplot(aes(x = ny_tmin, y = n_incidents)) + 
-  geom_point()
-
-df %>% 
-  ggplot(aes(x = ny_prcp, y = n_incidents)) + 
-  geom_point()
+Fitting a smooth model using daily average maximum temperature and average daily precipitation to predict number of incidents
+```{r, plotting predictions with actual numbers}
+smooth = gam(n_incidents ~ s(ny_tmax) + + s(ny_tmin) + s(ny_prcp), data = df) 
 ```
 
 
+#### Making a prediction plot of the smooth model estimates (edf)
+```{r, warning=F, message=F}
+df %>% 
+  add_predictions(smooth) %>% 
+  ggplot(aes(x = date, y = n_incidents)) + 
+  geom_point() + 
+  geom_smooth(aes(y = pred)) + 
+  labs(
+    title = "Actual Number of Incidents + Predicted Number of Incidents",
+    x = "Date",
+    y = "Number of Incidents"
+  )
+```
+
+We see that the smooth line tracks really well the observed number of predictions. 
+Note however, this is not the most perfect model for a couple of reasons discussed in the summary section of this page.  
+ 
+
+
+Assessing the relationship between n_incidents and our predictos variables
+```{r, warning=F, message=F}
+#Fit a smooth model - n_incidents on ny_prcp + ny_tmin + ny_tmax
+#multiple regression under normal assumptions
+#gam(n_incidents ~ s(ny_tmax) + s(ny_tmin) + s(ny_prcp), data = df) %>%
+#  broom::tidy() 
+
+p1 = df %>% 
+  ggplot(aes(x = ny_tmax, y = n_incidents)) + 
+  geom_point() + 
+  labs(
+    y = "Number of Incidents",
+    x = "Daily Macimum Temperature"
+  )
+
+p2 = df %>% 
+  ggplot(aes(x = ny_tmin, y = n_incidents)) + 
+  geom_point() + 
+    labs(
+    y = "Number of Incidents",
+    x = "Daily Minimum Temperature"
+  )
+
+p3 = df %>% 
+  ggplot(aes(x = ny_prcp, y = n_incidents)) + 
+  geom_point() + 
+    labs(
+    y = "Number of Incidents",
+    x = "Daily Precipitation"
+  )
+
+ 
+p1 / p2 / p3
+```
+
+#### In the next section, we use Bootsrapping to obtain estimates that don't any parameteric assumptions
+
 Bootstrapping using modelr
-```{r}
+```{r, warning=F, message=F}
 df_boot_results = df %>% 
-  bootstrap(100, id = "strap_number") %>% 
+  bootstrap(1000, id = "strap_number") %>% 
   mutate(
     strap = map(strap, as_tibble), 
     models = map(.x = strap, ~gam(n_incidents ~ s(ny_tmax) + s(ny_tmin) + s(ny_prcp), data = .x)),
@@ -145,53 +203,51 @@ df_boot_results = df %>%
 
 
 
-```{r}
+Computing mean parameter estimates and cosntructing confidence intervals based on bootsrap confidence intervals 
+```{r, warning=F, message=F}
 smooth_model = df_boot_results %>% 
   group_by(term) %>% 
   summarize(
     mean_est = mean(edf),
-    sd_est = sd(edf)
+    sd_est = sd(edf),
+     ci_lower = quantile(edf, 0.025),
+    ci_upper = quantile(edf, 0.975)
   )
 
+smooth_model %>% knitr::kable()
 ```
 
-#under repeated sampling, using bootstrap, we see that the distribution of our estimate is skewed
-```{r}
+Model Equation:
+
+$$Y = 5.2X_1 + 5.0X_2 + 4.9X_3$$
+$$Where:$$
+$$X_1= average\:daily\:max\:temp$$
+$$X_2= average\:daily\:min\:temp$$
+$$X_3= average\:daily\:precipiation$$
+Lastly, we show here that under repeated sampling, using `bootstrap`, we see that the distribution of our estimate is skewed
+```{r, warning=F, message=F}
 df_boot_results %>% 
   filter(term == "s(ny_prcp)")  %>% 
   ggplot(aes(x = edf)) + 
   geom_density()
 ```
 
-#cosntructing confidence intervals based on bootsrap confidence intervals 
-
-```{r}
-df_boot_results %>% 
-  group_by(term) %>% 
-  summarize(
-    ci_lower = quantile(edf, 0.025),
-    ci_upper = quantile(edf, 0.975)
-  )
-```
 
 
-#making a prediction plot of the smooth model estimates (edf)
+## Summary
 
+In this section we follow up on one of our earlier observations on how incidents involving micro-vehicles and bikes (overall) displayed seasonality (like the weather.) We subsequently try to build a predictive model, using these (weather related) predictor: daily maximum temperature, daily minimum temperature, and precipitation. 
 
-```{r, plotting predictions with actual numbers}
-smooth = gam(n_incidents ~ s(ny_tmax) + s(ny_tmin) + s(ny_prcp), data = df) 
+To that end, we first use cross validation to compare a linear model and a smooth model. Using RMSE as a discriminator, we decide to use the smooth model to build our predictive equation. Lastly, we use bootsrapping to obtain non-parametric estimates and confidence intervals of the final model equation. 
 
+N.B: 
 
-df %>% 
-  add_predictions(smooth) %>% 
-  ggplot(aes(x = date, y = n_incidents)) + 
-  geom_point() + 
-  geom_smooth(aes(y = pred)) + 
-  labs(
-    title = "Actual Number of Incidents + Predicted Number of Incidents",
-    x = "Date",
-    y = "Number of Incidents"
-  )
-  
-```
+Some* reasons that our model is not the best possible predictive model: 
 
+ - Our outcome variable, `number of incidents`, is a count variable that we're treating as continuous. 
+ - A smooth model tends to over fit the model
+ - We use both daily maximum temperature and daily minimum temperatures, and we don't address the potential issues of confounding.
+
+* there's probably a lot more.
+
+We would appreciate any feed back you may have on this and other sections. 
