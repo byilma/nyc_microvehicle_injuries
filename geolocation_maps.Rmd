@@ -1,6 +1,5 @@
 ---
-title: "Geolocation and Maps"
-date: "11/30/2020"
+title: "Maps and Density Heatmaps"
 output: 
   html_document:
     code_folding: hide
