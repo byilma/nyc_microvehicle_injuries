@@ -113,9 +113,16 @@ Citing recent trends in increased affordability and more ride sharing services s
 
 These vehicles also provide an important alternative to using public transportation. Considering the contagious spread of SARS-COV2 in crowded indoor settings, essential workers in New York considered these means of transport to limit their risk of contracting the virus.  
 
-## Microvehicles with Motorists Injured
+## Microvehicle-related Crashes with Motorists Injured
 
-This map displays the geolocation of microvehicle-related motorist injuries in New York City from January 2019 to November 2020. The data are interactive and organized by borough and also split by year. Data are not available on the severity of the motorist's injuries.  
+This map displays the geolocation of microvehicle-related motorist injuries in New York City from January 2019 to November 2020. The data are interactive and organized by borough and also split by year. Data are not available on the severity of the motorist's injuries or which vehicle the motorist was traveling in.  
+
+
+### Year to Year and Clustering 
+
+There appear to more microvehicle-related crashes with motorists injured 2019 and 2020, especially in the Bronx and East Harlem in 2020, when compared to to 2019. These data may be related to the rollout of Revel mopeds in 2020 which began offering a newly expanded ride-sharing service in the Bronx and Northern Manhattan.  
+
+Note that these data are only a graphical representation of the data and no statistical analysis was performed.  
 
 
 ```{r}
@@ -132,7 +139,6 @@ map_motorist_injured =
     lon = ~longitude, 
     lat = ~latitude, 
     split = ~year, 
-    color = ~borough,
     mode = 'markers',
     text = ~text_label) %>% 
   layout(
@@ -145,7 +151,6 @@ map_motorist_injured =
 
 map_motorist_injured %>% config(mapboxAccessToken = Sys.getenv("MAPBOX_TOKEN"))
 ```
-
 
 ## Bicycle and Microvehicle-Related Crashes with Deaths
 
