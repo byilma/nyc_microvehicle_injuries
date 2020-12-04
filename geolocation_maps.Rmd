@@ -55,6 +55,67 @@ microvehicles =
   filter(vehicle_options != "ESCOVATOR")
 ```
 
+
+```{r}
+microvehicles_count_bikes = 
+  crash_dat %>% 
+  drop_na(c(latitude, longitude, borough)) %>% 
+  filter(
+    year > 2018,
+    latitude > 0) %>%  
+  filter(str_detect(vehicle_options, "[Bb]ike"))
+```
+
+
+```{r}
+microvehicles_count_mv_injuries = 
+  crash_dat %>% 
+  drop_na(c(latitude, longitude, borough)) %>% 
+  filter(year > 2018,
+         number_of_motorist_injured >0) %>% 
+  filter(str_detect(vehicle_options, "REVEL") |
+           str_detect(vehicle_options, "SCO") |
+           str_detect(vehicle_options, "MOP") |
+           str_detect(vehicle_options, "ELEC") |
+           str_detect(vehicle_options, "^E-")) %>% 
+  filter(vehicle_options != "ESCOVATOR")
+```
+
+```{r}
+microvehicles_count_bike_injuries = 
+  crash_dat %>% 
+  drop_na(c(latitude, longitude, borough)) %>% 
+  filter(year > 2018,
+         str_detect(vehicle_options, "[Bb]ike"),
+         number_of_cyclist_injured >0)
+```
+
+
+```{r}
+microvehicles_count_mv = 
+  crash_dat %>% 
+  drop_na(c(latitude, longitude, borough)) %>% 
+  filter(
+    year > 2018,
+    latitude > 0) %>%  
+  filter(str_detect(vehicle_options, "REVEL") | 
+           str_detect(vehicle_options, "SCO")  |
+           str_detect(vehicle_options, "MOP")   |
+           str_detect(vehicle_options, "ELEC")  |
+           str_detect(vehicle_options, "^E-")) %>% 
+  filter(vehicle_options != "ESCOVATOR") 
+```
+
+# Count Data
+
+There are a total of `r nrow(microvehicles)` incidents analyzed in this dataset with complete location data in 2019 and 2020.  
+
+### Bikes
+Of those crashes, `r nrow(microvehicles_count_bike_injuries)` involved bicycles  with cyclists injured.  
+
+### Microvehicles
+Of those crashes, `r nrow(microvehicles_count_mv_injuries)` involved microvehicles with motorists  injured. 
+
 # Maps
 
 ## Data and Design
@@ -99,8 +160,10 @@ map_cyclists_injured =
       list(
         style = 'dark',
         zoom = 9.5, 
-           center = list(lat = 40.71, lon = -73.97)),
-    title = "Crashes with Cyclists Injured in New York City 2019 - 2020")
+        center = list(lat = 40.71, lon = -73.97)),
+    title = "Crashes with Cyclists Injured in New York City 2019 - 
+    2020",
+    width = 900)
 
 map_cyclists_injured %>% config(mapboxAccessToken = Sys.getenv("MAPBOX_TOKEN"))
 ```
@@ -150,7 +213,8 @@ map_motorist_injured =
         style = 'dark',
         zoom = 9.5, 
            center = list(lat = 40.71, lon = -73.97)),
-    title = "Microvehicle-Related Motorists Injured in New York City 2019 - 2020")
+    title = "Microvehicle-Related Motorists Injured in New York City 2019 - 2020",
+    width = 900)
 
 map_motorist_injured %>% config(mapboxAccessToken = Sys.getenv("MAPBOX_TOKEN"))
 ```
@@ -190,7 +254,8 @@ map_fatalities =
         style = 'dark',
         zoom = 9.5, 
            center = list(lat = 40.71, lon = -73.97)),
-    title = "Fatalities involving Microvehicles and Bicycles in New York City 2019 - 2020")
+    title = "Fatalities involving Microvehicles and Bicycles in New York City 2019 - 2020",
+    width = 900)
 
 map_fatalities %>% config(mapboxAccessToken = Sys.getenv("MAPBOX_TOKEN"))
 ```
@@ -255,4 +320,3 @@ map_cyclist_density_2020 %>% config(mapboxAccessToken = Sys.getenv("MAPBOX_TOKEN
 ### Year to Year Comparison
 
 The data in these density plots suggest there are relatively more crashes with cyclists injured in downtown Manhattan in 2019 and 2020.  Further, there appears to be a relative increase in the Jackson Heights commmunity in 2020.  
-
