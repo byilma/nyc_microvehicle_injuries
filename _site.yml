@@ -16,14 +16,14 @@ navbar:
         href: geolocation_maps.html
       - text: "Trend of Incidents in NYC over time"
         href: plots_over_time.html
-      - text: "What factors contribute to Incidents"
+      - text: "Contributing Factors"
         href: contributing_factors.html
-      - text: "Regression Analysis"
+      - text: "Poisson Analysis"
         href: 20201125_InjuryPlots.html
       - text: "Predictive Model"
         href: weather_lm.html
     - icon: fa-envelope fa-lg
-      href: mailto:<you@youremail.com>
+      href: mailto:<tmc2184@cumc.columbia.edu>
     - icon: fa-github fa-lg
       href: https://github.com/byilma/nyc_microvehicle_injuries
 output:
