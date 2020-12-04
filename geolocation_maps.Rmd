@@ -327,3 +327,7 @@ map_cyclist_density_2020 %>% config(mapboxAccessToken = Sys.getenv("MAPBOX_TOKEN
 ### Year to Year Comparison
 
 The data in these density plots suggest there are relatively more crashes with cyclists injured in downtown Manhattan in 2019 and 2020.  Further, there appears to be a relative increase in the Jackson Heights commmunity in 2020.  
+
+# Summary
+
+Data in these geolocation and density heatmap plots help identify certain neighborhoods in New York City that appear to be relatively more dangerous to cyclists.  They include  Manhattan's East Village and Lower East Side, as well as the Jackson Heights area of Queens. Further, the maps suggest a relative increase in the incidence of microvehicle-related motorist injuries in the South Bronx and the East Harlem neighborhood when comparing 2020 to 2019.  
