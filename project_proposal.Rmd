@@ -3,7 +3,7 @@ title: "NYC Microvehicles: Final Project Proposal"
 date: "11/6/2020"
 output: 
   html_document:
-  always_allow_html: true
+    always_allow_html: true
 ---
 
 ### Group members:

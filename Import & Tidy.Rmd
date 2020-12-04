@@ -4,8 +4,10 @@ author: "Binyam Yilma"
 date: "11/30/2020"
 output: 
   html_document:
-  always_allow_html: true
+    code_folding: hide
+    always_allow_html: true
 ---
+
 
 
 

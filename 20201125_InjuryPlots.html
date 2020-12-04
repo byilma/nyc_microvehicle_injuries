@@ -23,19 +23,8 @@
 <script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
-<link href="site_libs/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
-<script src="site_libs/anchor-sections-1.0/anchor-sections.js"></script>
 <link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
 <link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
-
-<style type="text/css">
-  code{white-space: pre-wrap;}
-  span.smallcaps{font-variant: small-caps;}
-  span.underline{text-decoration: underline;}
-  div.column{display: inline-block; vertical-align: top; width: 50%;}
-  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-  ul.task-list{list-style: none;}
-    </style>
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css">
@@ -319,10 +308,10 @@ $(document).ready(function () {
       <a href="plots_over_time.html">Trend of Incidents in NYC over time</a>
     </li>
     <li>
-      <a href="contributing_factors.html">What factors contribute to Incidents</a>
+      <a href="contributing_factors.html">Contributing Factors</a>
     </li>
     <li>
-      <a href="20201125_InjuryPlots.html">Regression Analysis</a>
+      <a href="20201125_InjuryPlots.html">Poisson Analysis</a>
     </li>
     <li>
       <a href="weather_lm.html">Predictive Model</a>
@@ -330,10 +319,7 @@ $(document).ready(function () {
   </ul>
 </li>
 <li>
-  <a href="dashboard.html">Dashboard</a>
-</li>
-<li>
-  <a href="mailto:&lt;you@youremail.com&gt;">
+  <a href="mailto:&lt;tmc2184@cumc.columbia.edu&gt;">
     <span class="fa fa-envelope fa-lg"></span>
      
   </a>
@@ -466,12 +452,12 @@ fit_injuries_micro_all</code></pre>
   left_join(month_df, by = &quot;month&quot;) %&gt;%
   as.tibble() %&gt;%
   mutate(borough = str_to_title(borough))</code></pre>
+<pre><code>## `summarise()` regrouping output by &#39;year&#39;, &#39;month&#39; (override with `.groups` argument)</code></pre>
 <pre><code>## Warning: `as.tibble()` is deprecated as of tibble 2.0.0.
 ## Please use `as_tibble()` instead.
 ## The signature and semantics have changed, see `?as_tibble`.
 ## This warning is displayed once every 8 hours.
 ## Call `lifecycle::last_warnings()` to see where this warning was generated.</code></pre>
-<pre><code>## `summarise()` regrouping output by &#39;year&#39;, &#39;month&#39; (override with `.groups` argument)</code></pre>
 <pre class="r"><code>micro_num %&gt;%
   select(year, month_name, borough, number_of_crashes, 
          mean_number_of_injuries) %&gt;%
@@ -537,8 +523,8 @@ fit_injuries_micro_all</code></pre>
 fit_injuries_micro %&gt;% 
   filter(term != &quot;(Intercept)&quot; &amp; month != &quot;November&quot; &amp; month != &quot;December&quot; &amp; p.value &lt; .05)</code></pre>
 <pre><code>## # A tibble: 0 x 5
-## # ... with 5 variables: month &lt;ord&gt;, term &lt;chr&gt;, estimate &lt;dbl&gt;,
-## #   std.error &lt;dbl&gt;, p.value &lt;dbl&gt;</code></pre>
+## # … with 5 variables: month &lt;ord&gt;, term &lt;chr&gt;, estimate &lt;dbl&gt;, std.error &lt;dbl&gt;,
+## #   p.value &lt;dbl&gt;</code></pre>
 <p>Here, I extract my coefficient of interest, which is the difference in injury rate in microvehicle crashes occurring in 2020 v. occurring in 2019. I plot estimates for each borough within each month, making sure to exponentiate these estimates. I include a horizontal line at Y = 1 to indicate the null value.</p>
 <pre class="r"><code>fit_injuries_micro %&gt;% 
   filter(term != &quot;(Intercept)&quot; &amp; month != &quot;November&quot; &amp; month != &quot;December&quot;) %&gt;%
@@ -718,7 +704,7 @@ fit_injuries_bike %&gt;%
 
 // add bootstrap table styles to pandoc tables
 function bootstrapStylePandocTables() {
-  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
 }
 $(document).ready(function () {
   bootstrapStylePandocTables();
