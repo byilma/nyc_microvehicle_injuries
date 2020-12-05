@@ -1,5 +1,6 @@
 ---
-title: "Bike use and bike and microvehicles crashes over time"
+title: "Trend of Incidents over time"
+subtitle: "Bike use and bike and microvehicles crashes over time"
 date: 
 output: 
   html_document:
@@ -227,7 +228,7 @@ Crashes per bicycle counted appear remain steady overall, and don't have a clear
 
 Finally, while we don't have data on microvehicle use, we can look at overlaid microvehicle crashes from 2017-2020 in a similar way.
 
-```{r}
+```{r, warning=F, message=F}
 microvehicle_crash_yr_plot = microvehicle_crash_agg %>% 
     mutate(year = lubridate::year(date),
            month = lubridate::month(date),

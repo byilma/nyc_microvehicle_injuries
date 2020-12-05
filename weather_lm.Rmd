@@ -8,28 +8,24 @@ output:
 
 ## Introduction 
 
-#### Can we build a predictive model to predict number of incidents involving both bikes and microvehicles? 
+#### Building a model to predict the number of incidents involving both bikes and microvehicles in a given day in NYC? 
 
 From our exploratory analysis on bike and microvehicle incident trends over the last 3 years, we observed that these number of these incidents had an overall seasonal pattern ... just like weather. 
 
-So, naturally, we want to see if we could build a model to try and predict the number of bike and microvehicle incidents in NYC. To do this, on top of the data we obtained from the New York City Motor-Vehicle-Collisions-Crashes web page, we also incorporate weather data from NOAA. 
+So, naturally, we wanted to see if we could build a model to try and predict the number of bike and microvehicle incidents in NYC. To do this, on top of the data we obtained from the New York City Motor-Vehicle-Collisions-Crashes web page, we also incorporate weather data from NOAA. 
 
-In specific, from the weather data we obtain three key variables - average daily maximum temperature, average daily minimum temperature, and average daily precipitation. The 'average' here refers to how we averaged these measurements from the 3 weather stations located in New York City: There's one in Central Park, one by JFK Airport, and another one by La Guardia. 
+In specific, from the weather data we obtained three key variables - average daily maximum temperature, average daily minimum temperature, and average daily precipitation. The 'average' here refers to how we averaged these measurements from the 3 weather stations located in New York City: The one in Central Park, one by JFK Airport, and another one by La Guardia Airport. 
 
 The main quest of this page is to see if we could:
 
-- Use Cross Validation techniques to compare models
+- Use Cross Validation techniques to compare different models
 - Use the best model (based on Root Mean Square Errors) and predict number of incidents 
 - Use bootsrapping to get a more accurate value of our parameter estimates. 
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
-library(httr)
 library(purrr)
-library(leaflet)
-library(plotly)
-library(flexdashboard)
 library(ggplot2)
 library(modelr)
 library(mgcv)
@@ -79,7 +75,7 @@ df %>% head(5) %>% knitr::kable()
 ```
 
 
-Create a cross validation dataset that splits the data 80% for training and 20% for testing
+Create a cross validation dataset that splits the data: 80% for training and 20% for testing
 ```{r, warning=F, message=F}
 cv_df = 
   crossv_mc(df, 100)
@@ -132,7 +128,7 @@ smooth = gam(n_incidents ~ s(ny_tmax) + + s(ny_tmin) + s(ny_prcp), data = df)
 ```
 
 
-#### Making a prediction plot of the smooth model estimates (edf)
+#### Making a prediction plot using the smooth model outputs
 ```{r, warning=F, message=F}
 df %>% 
   add_predictions(smooth) %>% 
@@ -147,17 +143,12 @@ df %>%
 ```
 
 We see that the smooth line tracks really well the observed number of predictions. 
-Note however, this is not the most perfect model for a couple of reasons discussed in the summary section of this page.  
+Note however, this is not the most thorough model for a couple of reasons discussed in the summary section of this page.  
  
+## Bootstrapping to obtain non-parametric estimates of out model
 
-
-Assessing the relationship between n_incidents and our predictos variables
+We first assessing the relationship between n_incidents and our predictor variables
 ```{r, warning=F, message=F}
-#Fit a smooth model - n_incidents on ny_prcp + ny_tmin + ny_tmax
-#multiple regression under normal assumptions
-#gam(n_incidents ~ s(ny_tmax) + s(ny_tmin) + s(ny_prcp), data = df) %>%
-#  broom::tidy() 
-
 p1 = df %>% 
   ggplot(aes(x = ny_tmax, y = n_incidents)) + 
   geom_point() + 
@@ -186,7 +177,7 @@ p3 = df %>%
 p1 / p2 / p3
 ```
 
-#### In the next section, we use Bootsrapping to obtain estimates that don't any parameteric assumptions
+#### In the next section, we apply Bootsrapping to obtain estimates without making parameteric assumptions
 
 Bootstrapping using modelr
 ```{r, warning=F, message=F}
@@ -202,8 +193,7 @@ df_boot_results = df %>%
 ```
 
 
-
-Computing mean parameter estimates and cosntructing confidence intervals based on bootsrap confidence intervals 
+Computing mean parameter estimates and constructing confidence intervals based on bootstrap confidence intervals 
 ```{r, warning=F, message=F}
 smooth_model = df_boot_results %>% 
   group_by(term) %>% 
@@ -219,11 +209,10 @@ smooth_model %>% knitr::kable()
 
 Model Equation:
 
-$$Y = 5.2X_1 + 5.0X_2 + 4.9X_3$$
 $$Where:$$
-$$X_1= average\:daily\:max\:temp$$
-$$X_2= average\:daily\:min\:temp$$
-$$X_3= average\:daily\:precipiation$$
+$$tmax= average\:daily\:max\:temp\:in\:NYC$$
+$$tmin= average\:daily\:min\:temp\:in\:NYC$$
+$$prcp= average\:daily\:precipiation\:in\:NYC$$
 Lastly, we show here that under repeated sampling, using `bootstrap`, we see that the distribution of our estimate is skewed
 ```{r, warning=F, message=F}
 df_boot_results %>% 
@@ -242,12 +231,11 @@ To that end, we first use cross validation to compare a linear model and a smoot
 
 N.B: 
 
-Some* reasons that our model is not the best possible predictive model: 
+Some (but not all) of the reasons that our model is not the best possible predictive model: 
 
  - Our outcome variable, `number of incidents`, is a count variable that we're treating as continuous. 
  - A smooth model tends to over fit the model
- - We use both daily maximum temperature and daily minimum temperatures, and we don't address the potential issues of confounding.
+ - We use both daily maximum temperature and daily minimum temperatures, and we don't address the potential issues of collinearity.
 
-* there's probably a lot more.
 
 We would appreciate any feed back you may have on this and other sections. 

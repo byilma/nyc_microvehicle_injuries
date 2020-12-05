@@ -441,7 +441,7 @@ By: Emma Gorin | Sarah Conderino | Talea Cornelius | Alexey Abramov | Binyam Yil
 <h2>Background</h2>
 <p>New York City is notorious for being a “car-congested” place to live in. The trains can feel just as congested, too. People often opt for alternative ways of commuting, when possible. Recently, the number of options for ‘alternative’ means of commuting have increased! Bikes, mopeds. e-bikes. e-scooters are all fair game.</p>
 <p>This is great! But, with more bikes, scooters, mopeds and the like out in the streets, we wanted to know more about how, if at all, the number of incidents involving these alternative means commuting has changed.</p>
-<p>We were also particularly interested to see how the shelter-in-place due to covid-19 impacted the rate of incidents. How do the number of incidents post-covide compare to pre-covid times?</p>
+<p>We were also particularly interested to see how the shelter-in-place due to COVID-19 impacted the rate of incidents. How do the number of incidents post-COVID19 compare to ‘COVID19’ times?</p>
 </div>
 <div id="datasets" class="section level2">
 <h2>Datasets</h2>
@@ -449,7 +449,7 @@ By: Emma Gorin | Sarah Conderino | Talea Cornelius | Alexey Abramov | Binyam Yil
 <ul>
 <li><a href="https://data.cityofnewyork.us/Public-Safety/Motor-Vehicle-Collisions-Crashes/h9gi-nx95">Crash Data Source</a></li>
 </ul>
-<p>Here’s a sneak peak of what our data looks like:</p>
+<p>Here’s a sneak peak of what our main data looks like:</p>
 <pre class="r"><code>crash_dat = read.csv(&quot;./data/crash_dat.csv&quot;)
 
 crash_dat %&gt;% select(date, crash_time, borough,number_of_persons_injured, contributing_factor_vehicle_1) %&gt;% head(6) %&gt;% knitr::kable()</code></pre>
@@ -515,7 +515,7 @@ crash_dat %&gt;% select(date, crash_time, borough,number_of_persons_injured, con
 </tr>
 </tbody>
 </table>
-<p>As well as data on <code>bike count</code> data, which gave us the daily total of bikes that were involved in crashes</p>
+<p>We also used data on <code>bike count</code>, which gave us the daily total of bikes that were involved in crashes. Source:</p>
 <ul>
 <li><a href="https://data.cityofnewyork.us/Public-Safety/EMS-Incident-Dispatch-Data/76xm-jjuj">Bike-count Data Source</a></li>
 </ul>
@@ -526,21 +526,24 @@ crash_dat %&gt;% select(date, crash_time, borough,number_of_persons_injured, con
 </div>
 <div id="focus-of-our-project" class="section level2">
 <h2>Focus of our Project</h2>
-<p>Our project focuses on the use of particular types of alternate means of transportations, namely: bicycles and microvehicles.</p>
+<p>Our project focuses on the use of particular types of alternate means of transformations, namely: bicycles and microvehicles.</p>
 <p>We all know what bikes are, but what exactly are <code>Microvehicles</code>:</p>
 <p>The ITF report, defined Microvehicles as: “: vehicles with a mass of no more than 350 kg (771 lb) and a design speed no higher than 45 km/h. Here’s <a href="https://data.cityofnewyork.us">ITF’s report</a> if you’re interested.</p>
 <p>Here are some gifs (pronounced ‘jif’, of course) to show you what we mean:</p>
 <div id="microvehicles" class="section level3">
 <h3>Microvehicles</h3>
+<div id="microvehicles-can-be-mopeds-or-e-bikes" class="section level4">
+<h4>Microvehicles can be Mopeds or e-bikes</h4>
 <p><img src="https://media.giphy.com/media/S0w2pBxWWJroc/giphy.gif" /></p>
-<div id="e-scooters-like-lime" class="section level4">
-<h4>E-scooters (like “lime”)</h4>
+</div>
+<div id="microvehicles-can-also-be-e-scooters" class="section level4">
+<h4>Microvehicles can also be E-scooters</h4>
 <p><img src="https://media.giphy.com/media/lnDq08VgGZPO0ZU8zw/giphy.gif" /></p>
 </div>
-</div>
-<div id="bike" class="section level3">
-<h3>Bike</h3>
+<div id="not-techinically-considered-a-miceovehicle-but-as-a-reminder-heres-a-cool-gif-of-a-bike-which-we-also-look-into" class="section level4">
+<h4>Not techinically considered a Miceovehicle, but as a reminder, here’s a cool gif of a Bike (which we also look into)</h4>
 <p><img src="https://media.giphy.com/media/dZLKaImwWkc12rzEoO/giphy.gif" /></p>
+</div>
 </div>
 </div>
 <div id="main-questions" class="section level2">
@@ -551,16 +554,16 @@ crash_dat %&gt;% select(date, crash_time, borough,number_of_persons_injured, con
 <li><p>What does the <em>trend</em> of incidents involving Bikes and Microvehicles look like?</p></li>
 <li><p>What are some <em>factors</em> that contribute to these incidents?</p></li>
 <li><p>In particular we also wanted to see how the these incidents may have changed in the context of COVID-19 and the shelter in place?</p></li>
-<li><p>Do we see any <em>statistically significant</em> differences in incident rates comparing pre-covid to post covid?</p></li>
-<li><p>Lastly, we wanted to see if we could build a predictive model using weather data, considering factors such as maximum/minimum temperature and daily precipitation?</p></li>
+<li><p>Do we see any <em>statistically significant</em> differences in incident rates comparing pre-COVID to COVID times?</p></li>
+<li><p>Lastly, we wanted to see if we could build a predictive model using weather data, considering factors such as maximum/minimum temperature and daily precipitation to try an predict the number of incidents involving these bikes and microvehicles?</p></li>
 </ul>
 </div>
 <div id="take-aways" class="section level2">
 <h2>Take aways</h2>
 <ul>
-<li>Bike and microvehicles incidents tend display seasonality, just like the weather.</li>
-<li>The Top contributing factor to these incidents is: Driver Inattention.</li>
-<li>The Possion regression analysis we computed showed that were no signifcant differences in the rate of incidents involving bikes or Microvehicles.</li>
+<li>Bike and microvehicles incidents tend to display seasonality, just like the weather.</li>
+<li>The top contributing factor to these incidents is: Driver Inattention.</li>
+<li>The Poisson regression analysis we carried out showed that were no significant differences in the rate of incidents involving bikes or microvehicles.</li>
 <li>Downtown Manhattan saw the most crashes within the last 2 years.</li>
 </ul>
 </div>

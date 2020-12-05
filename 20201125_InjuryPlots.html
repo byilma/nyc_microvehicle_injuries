@@ -11,7 +11,7 @@
 
 
 
-<title>Rates of Injury</title>
+<title>Poisson Analysis</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -347,33 +347,12 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">Rates of Injury</h1>
-<h4 class="date">12/4/2020</h4>
+<h1 class="title toc-ignore">Poisson Analysis</h1>
 
 </div>
 
 
 <pre class="r"><code>crash_dat_tidy = read_csv(&quot;./data/crash_dat.csv&quot;) </code></pre>
-<pre><code>## Parsed with column specification:
-## cols(
-##   .default = col_double(),
-##   date = col_date(format = &quot;&quot;),
-##   crash_time = col_time(format = &quot;&quot;),
-##   borough = col_character(),
-##   location = col_character(),
-##   on_street_name = col_character(),
-##   off_street_name = col_character(),
-##   cross_street_name = col_character(),
-##   contributing_factor_vehicle_1 = col_character(),
-##   contributing_factor_vehicle_2 = col_character(),
-##   contributing_factor_vehicle_3 = col_character(),
-##   contributing_factor_vehicle_4 = col_character(),
-##   contributing_factor_vehicle_5 = col_character(),
-##   dow = col_character(),
-##   vehicle_number = col_character(),
-##   vehicle_options = col_character()
-## )</code></pre>
-<pre><code>## See spec(...) for full column specifications.</code></pre>
 <div id="goal" class="section level2">
 <h2>Goal</h2>
 <p>My goal was to compare the rate of injuries in a crash in 2020 to the same month in 2019 (e.g., rate of injuries in January 2020 v. rate of injuries in January 2019). I examined January through October. I additionally stratified these rate ratio estimates by borough.</p>
@@ -426,20 +405,90 @@ $(document).ready(function () {
   filter(term != &quot;(Intercept)&quot; &amp; month != &quot;November&quot; &amp; month != &quot;December&quot;) %&gt;%
   select(month, everything()) 
 
-fit_injuries_micro_all</code></pre>
-<pre><code>## # A tibble: 10 x 5
-##    month     term         estimate std.error p.value
-##    &lt;ord&gt;     &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;
-##  1 January   2020 v. 2019  -0.288      0.401   0.473
-##  2 February  2020 v. 2019   0.744      0.717   0.300
-##  3 March     2020 v. 2019  -0.431      0.318   0.175
-##  4 April     2020 v. 2019   0.140      0.416   0.737
-##  5 May       2020 v. 2019  -0.225      0.264   0.394
-##  6 June      2020 v. 2019  -0.115      0.227   0.613
-##  7 July      2020 v. 2019   0.131      0.163   0.423
-##  8 August    2020 v. 2019   0.0720     0.110   0.513
-##  9 September 2020 v. 2019   0.0437     0.109   0.687
-## 10 October   2020 v. 2019  -0.0613     0.118   0.604</code></pre>
+fit_injuries_micro_all %&gt;% knitr::kable(digits = 2)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">month</th>
+<th align="left">term</th>
+<th align="right">estimate</th>
+<th align="right">std.error</th>
+<th align="right">p.value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">January</td>
+<td align="left">2020 v. 2019</td>
+<td align="right">-0.29</td>
+<td align="right">0.40</td>
+<td align="right">0.47</td>
+</tr>
+<tr class="even">
+<td align="left">February</td>
+<td align="left">2020 v. 2019</td>
+<td align="right">0.74</td>
+<td align="right">0.72</td>
+<td align="right">0.30</td>
+</tr>
+<tr class="odd">
+<td align="left">March</td>
+<td align="left">2020 v. 2019</td>
+<td align="right">-0.43</td>
+<td align="right">0.32</td>
+<td align="right">0.18</td>
+</tr>
+<tr class="even">
+<td align="left">April</td>
+<td align="left">2020 v. 2019</td>
+<td align="right">0.14</td>
+<td align="right">0.42</td>
+<td align="right">0.74</td>
+</tr>
+<tr class="odd">
+<td align="left">May</td>
+<td align="left">2020 v. 2019</td>
+<td align="right">-0.23</td>
+<td align="right">0.26</td>
+<td align="right">0.39</td>
+</tr>
+<tr class="even">
+<td align="left">June</td>
+<td align="left">2020 v. 2019</td>
+<td align="right">-0.12</td>
+<td align="right">0.23</td>
+<td align="right">0.61</td>
+</tr>
+<tr class="odd">
+<td align="left">July</td>
+<td align="left">2020 v. 2019</td>
+<td align="right">0.13</td>
+<td align="right">0.16</td>
+<td align="right">0.42</td>
+</tr>
+<tr class="even">
+<td align="left">August</td>
+<td align="left">2020 v. 2019</td>
+<td align="right">0.07</td>
+<td align="right">0.11</td>
+<td align="right">0.51</td>
+</tr>
+<tr class="odd">
+<td align="left">September</td>
+<td align="left">2020 v. 2019</td>
+<td align="right">0.04</td>
+<td align="right">0.11</td>
+<td align="right">0.69</td>
+</tr>
+<tr class="even">
+<td align="left">October</td>
+<td align="left">2020 v. 2019</td>
+<td align="right">-0.06</td>
+<td align="right">0.12</td>
+<td align="right">0.60</td>
+</tr>
+</tbody>
+</table>
 <p>Although there was no statistically significant evidence for a different rate of injury in 2020 v. 21 in any month, I proceeded to examine this stratified by borough.</p>
 <p>I also wanted to get descriptives for number of microvehicle crashes and injuries in each borough in each month.</p>
 <pre class="r"><code>micro_num = crash_dat_tidy %&gt;%
@@ -451,26 +500,67 @@ fit_injuries_micro_all</code></pre>
   drop_na(borough) %&gt;%
   left_join(month_df, by = &quot;month&quot;) %&gt;%
   as.tibble() %&gt;%
-  mutate(borough = str_to_title(borough))</code></pre>
-<pre><code>## `summarise()` regrouping output by &#39;year&#39;, &#39;month&#39; (override with `.groups` argument)</code></pre>
-<pre><code>## Warning: `as.tibble()` is deprecated as of tibble 2.0.0.
-## Please use `as_tibble()` instead.
-## The signature and semantics have changed, see `?as_tibble`.
-## This warning is displayed once every 8 hours.
-## Call `lifecycle::last_warnings()` to see where this warning was generated.</code></pre>
-<pre class="r"><code>micro_num %&gt;%
+  mutate(borough = str_to_title(borough))
+
+micro_num %&gt;%
   select(year, month_name, borough, number_of_crashes, 
          mean_number_of_injuries) %&gt;%
-  head()</code></pre>
-<pre><code>## # A tibble: 6 x 5
-##    year month_name borough   number_of_crashes mean_number_of_injuries
-##   &lt;dbl&gt; &lt;ord&gt;      &lt;chr&gt;                 &lt;int&gt;                   &lt;dbl&gt;
-## 1  2019 January    Brooklyn                  2                    1   
-## 2  2019 January    Manhattan                 1                    1   
-## 3  2019 January    Queens                    1                    1   
-## 4  2019 February   Bronx                     2                    0.5 
-## 5  2019 February   Brooklyn                  2                    0   
-## 6  2019 March      Bronx                     3                    1.33</code></pre>
+  head() %&gt;% knitr::kable(digits = 2)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="right">year</th>
+<th align="left">month_name</th>
+<th align="left">borough</th>
+<th align="right">number_of_crashes</th>
+<th align="right">mean_number_of_injuries</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">2019</td>
+<td align="left">January</td>
+<td align="left">Brooklyn</td>
+<td align="right">2</td>
+<td align="right">1.00</td>
+</tr>
+<tr class="even">
+<td align="right">2019</td>
+<td align="left">January</td>
+<td align="left">Manhattan</td>
+<td align="right">1</td>
+<td align="right">1.00</td>
+</tr>
+<tr class="odd">
+<td align="right">2019</td>
+<td align="left">January</td>
+<td align="left">Queens</td>
+<td align="right">1</td>
+<td align="right">1.00</td>
+</tr>
+<tr class="even">
+<td align="right">2019</td>
+<td align="left">February</td>
+<td align="left">Bronx</td>
+<td align="right">2</td>
+<td align="right">0.50</td>
+</tr>
+<tr class="odd">
+<td align="right">2019</td>
+<td align="left">February</td>
+<td align="left">Brooklyn</td>
+<td align="right">2</td>
+<td align="right">0.00</td>
+</tr>
+<tr class="even">
+<td align="right">2019</td>
+<td align="left">March</td>
+<td align="left">Bronx</td>
+<td align="right">3</td>
+<td align="right">1.33</td>
+</tr>
+</tbody>
+</table>
 <pre class="r"><code>micro_num %&gt;%
   mutate(date = as.yearmon(paste(year, month, sep = &quot;-&quot;))) %&gt;%
   ggplot(aes(x = date, y = mean_number_of_injuries, fill = borough)) +
@@ -482,9 +572,9 @@ fit_injuries_micro_all</code></pre>
   ) +
   theme(legend.position=&quot;right&quot;, legend.title = element_blank(),
         text = element_text(size = 10),
-        axis.text.x = element_text(angle = 90, hjust = 1, size = 8)) +
+        axis.text.x = element_text(angle = 60, hjust = 1, size = 8)) +
   facet_grid(. ~ borough)</code></pre>
-<p><img src="20201125_InjuryPlots_files/figure-html/graph%20for%20mean%20injuries%20in%20microvehicle%20crashes-1.png" width="672" /></p>
+<p><img src="20201125_InjuryPlots_files/figure-html/graph%20for%20mean%20injuries%20in%20microvehicle%20crashes-1.png" width="768" /></p>
 <pre class="r"><code>micro_num %&gt;%
   mutate(date = as.yearmon(paste(year, month, sep = &quot;-&quot;))) %&gt;%
   ggplot(aes(x = date, y = number_of_crashes, fill = borough)) +
@@ -496,7 +586,7 @@ fit_injuries_micro_all</code></pre>
   ) +
   theme(legend.position=&quot;right&quot;, legend.title = element_blank(),
         text = element_text(size = 10),
-        axis.text.x = element_text(angle = 90, hjust = 1, size = 8)) +
+        axis.text.x = element_text(angle = 60, hjust = 1, size = 8)) +
   facet_grid(. ~ borough)</code></pre>
 <p><img src="20201125_InjuryPlots_files/figure-html/graph%20for%20n%20microvehicle%20crashes-1.png" width="672" /></p>
 <p>It is apparent that there are very low numbers of microvehicle crashes when stratifying by both month and borough - sometimes as low as only 1 crash, or even 0 crashes (particularly in Staten Island).</p>
@@ -521,10 +611,21 @@ fit_injuries_micro_all</code></pre>
   select(month, everything())
 
 fit_injuries_micro %&gt;% 
-  filter(term != &quot;(Intercept)&quot; &amp; month != &quot;November&quot; &amp; month != &quot;December&quot; &amp; p.value &lt; .05)</code></pre>
-<pre><code>## # A tibble: 0 x 5
-## # … with 5 variables: month &lt;ord&gt;, term &lt;chr&gt;, estimate &lt;dbl&gt;, std.error &lt;dbl&gt;,
-## #   p.value &lt;dbl&gt;</code></pre>
+  filter(term != &quot;(Intercept)&quot; &amp; month != &quot;November&quot; &amp; month != &quot;December&quot; &amp; p.value &lt; .05) %&gt;% 
+  knitr::kable(digits = 2)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">month</th>
+<th align="left">term</th>
+<th align="right">estimate</th>
+<th align="right">std.error</th>
+<th align="right">p.value</th>
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
 <p>Here, I extract my coefficient of interest, which is the difference in injury rate in microvehicle crashes occurring in 2020 v. occurring in 2019. I plot estimates for each borough within each month, making sure to exponentiate these estimates. I include a horizontal line at Y = 1 to indicate the null value.</p>
 <pre class="r"><code>fit_injuries_micro %&gt;% 
   filter(term != &quot;(Intercept)&quot; &amp; month != &quot;November&quot; &amp; month != &quot;December&quot;) %&gt;%
@@ -543,9 +644,9 @@ fit_injuries_micro %&gt;%
   ylim(0, 5) +
   theme(legend.position=&quot;right&quot;, legend.title = element_blank(),
         text = element_text(size = 10),
-        axis.text.x = element_text(angle = 90, hjust = 1, size = 8)) + 
+        axis.text.x = element_text(angle = 60, hjust = 1, size = 8)) + 
   facet_grid(. ~ term)</code></pre>
-<p><img src="20201125_InjuryPlots_files/figure-html/plot%20microvehicle%20injuries%20by%20month-1.png" width="672" /></p>
+<p><img src="20201125_InjuryPlots_files/figure-html/plot%20microvehicle%20injuries%20by%20month-1.png" width="768" /></p>
 <p>There is no discernable pattern in the figure, suggesting that rates of injury per microvehicle crash did not differ between 2020 and 2019. In part, this could be due to very wide confidence intervals.</p>
 <p><br></br></p>
 </div>
@@ -571,20 +672,90 @@ fit_injuries_micro %&gt;%
   filter(term != &quot;(Intercept)&quot; &amp; month != &quot;November&quot; &amp; month != &quot;December&quot;) %&gt;%
   select(month, everything()) 
 
-fit_injuries_bike_all</code></pre>
-<pre><code>## # A tibble: 10 x 5
-##    month     term         estimate std.error p.value
-##    &lt;ord&gt;     &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;
-##  1 January   2020 v. 2019  0.0130     0.0940   0.890
-##  2 February  2020 v. 2019  0.0275     0.0967   0.776
-##  3 March     2020 v. 2019  0.131      0.0873   0.132
-##  4 April     2020 v. 2019  0.00546    0.102    0.957
-##  5 May       2020 v. 2019  0.00906    0.0702   0.897
-##  6 June      2020 v. 2019  0.0235     0.0588   0.690
-##  7 July      2020 v. 2019  0.0535     0.0576   0.352
-##  8 August    2020 v. 2019  0.0380     0.0581   0.513
-##  9 September 2020 v. 2019  0.0426     0.0594   0.473
-## 10 October   2020 v. 2019  0.0780     0.0671   0.245</code></pre>
+fit_injuries_bike_all %&gt;% knitr::kable(digits = 2)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">month</th>
+<th align="left">term</th>
+<th align="right">estimate</th>
+<th align="right">std.error</th>
+<th align="right">p.value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">January</td>
+<td align="left">2020 v. 2019</td>
+<td align="right">0.01</td>
+<td align="right">0.09</td>
+<td align="right">0.89</td>
+</tr>
+<tr class="even">
+<td align="left">February</td>
+<td align="left">2020 v. 2019</td>
+<td align="right">0.03</td>
+<td align="right">0.10</td>
+<td align="right">0.78</td>
+</tr>
+<tr class="odd">
+<td align="left">March</td>
+<td align="left">2020 v. 2019</td>
+<td align="right">0.13</td>
+<td align="right">0.09</td>
+<td align="right">0.13</td>
+</tr>
+<tr class="even">
+<td align="left">April</td>
+<td align="left">2020 v. 2019</td>
+<td align="right">0.01</td>
+<td align="right">0.10</td>
+<td align="right">0.96</td>
+</tr>
+<tr class="odd">
+<td align="left">May</td>
+<td align="left">2020 v. 2019</td>
+<td align="right">0.01</td>
+<td align="right">0.07</td>
+<td align="right">0.90</td>
+</tr>
+<tr class="even">
+<td align="left">June</td>
+<td align="left">2020 v. 2019</td>
+<td align="right">0.02</td>
+<td align="right">0.06</td>
+<td align="right">0.69</td>
+</tr>
+<tr class="odd">
+<td align="left">July</td>
+<td align="left">2020 v. 2019</td>
+<td align="right">0.05</td>
+<td align="right">0.06</td>
+<td align="right">0.35</td>
+</tr>
+<tr class="even">
+<td align="left">August</td>
+<td align="left">2020 v. 2019</td>
+<td align="right">0.04</td>
+<td align="right">0.06</td>
+<td align="right">0.51</td>
+</tr>
+<tr class="odd">
+<td align="left">September</td>
+<td align="left">2020 v. 2019</td>
+<td align="right">0.04</td>
+<td align="right">0.06</td>
+<td align="right">0.47</td>
+</tr>
+<tr class="even">
+<td align="left">October</td>
+<td align="left">2020 v. 2019</td>
+<td align="right">0.08</td>
+<td align="right">0.07</td>
+<td align="right">0.24</td>
+</tr>
+</tbody>
+</table>
 <p>Although there was no statistically significant evidence for a different rate of injury in 2020 v. 21 in any month, I proceeded to examine this stratified by borough.</p>
 <p>I also wanted to get descriptives for number of bike crashes and injuries in each borough in each month.</p>
 <pre class="r"><code>bike_num = crash_dat_tidy %&gt;%
@@ -596,21 +767,67 @@ fit_injuries_bike_all</code></pre>
   drop_na(borough) %&gt;%
   left_join(month_df, by = &quot;month&quot;) %&gt;%
   as.tibble() %&gt;%
-  mutate(borough = str_to_title(borough))</code></pre>
-<pre><code>## `summarise()` regrouping output by &#39;year&#39;, &#39;month&#39; (override with `.groups` argument)</code></pre>
-<pre class="r"><code>bike_num %&gt;%
+  mutate(borough = str_to_title(borough))
+
+bike_num %&gt;%
   select(year, month_name, borough, number_of_crashes, 
          mean_number_of_injuries) %&gt;%
-  head()</code></pre>
-<pre><code>## # A tibble: 6 x 5
-##    year month_name borough       number_of_crashes mean_number_of_injuries
-##   &lt;dbl&gt; &lt;ord&gt;      &lt;chr&gt;                     &lt;int&gt;                   &lt;dbl&gt;
-## 1  2019 January    Bronx                        17                   0.765
-## 2  2019 January    Brooklyn                     74                   0.851
-## 3  2019 January    Manhattan                    67                   0.761
-## 4  2019 January    Queens                       41                   0.878
-## 5  2019 January    Staten Island                 1                   0    
-## 6  2019 February   Bronx                        18                   0.833</code></pre>
+  head() %&gt;% knitr::kable(digits = 2)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="right">year</th>
+<th align="left">month_name</th>
+<th align="left">borough</th>
+<th align="right">number_of_crashes</th>
+<th align="right">mean_number_of_injuries</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">2019</td>
+<td align="left">January</td>
+<td align="left">Bronx</td>
+<td align="right">17</td>
+<td align="right">0.76</td>
+</tr>
+<tr class="even">
+<td align="right">2019</td>
+<td align="left">January</td>
+<td align="left">Brooklyn</td>
+<td align="right">74</td>
+<td align="right">0.85</td>
+</tr>
+<tr class="odd">
+<td align="right">2019</td>
+<td align="left">January</td>
+<td align="left">Manhattan</td>
+<td align="right">67</td>
+<td align="right">0.76</td>
+</tr>
+<tr class="even">
+<td align="right">2019</td>
+<td align="left">January</td>
+<td align="left">Queens</td>
+<td align="right">41</td>
+<td align="right">0.88</td>
+</tr>
+<tr class="odd">
+<td align="right">2019</td>
+<td align="left">January</td>
+<td align="left">Staten Island</td>
+<td align="right">1</td>
+<td align="right">0.00</td>
+</tr>
+<tr class="even">
+<td align="right">2019</td>
+<td align="left">February</td>
+<td align="left">Bronx</td>
+<td align="right">18</td>
+<td align="right">0.83</td>
+</tr>
+</tbody>
+</table>
 <pre class="r"><code>bike_num %&gt;%
   mutate(date = as.yearmon(paste(year, month, sep = &quot;-&quot;))) %&gt;%
   ggplot(aes(x = date, y = mean_number_of_injuries, fill = borough)) +
@@ -622,9 +839,9 @@ fit_injuries_bike_all</code></pre>
   ) +
   theme(legend.position=&quot;right&quot;, legend.title = element_blank(),
         text = element_text(size = 10),
-        axis.text.x = element_text(angle = 90, hjust = 1, size = 8)) +
+        axis.text.x = element_text(angle = 60, hjust = 1, size = 8)) +
   facet_grid(. ~ borough)</code></pre>
-<p><img src="20201125_InjuryPlots_files/figure-html/graph%20for%20mean%20injuries%20in%20bike%20crashes-1.png" width="672" /></p>
+<p><img src="20201125_InjuryPlots_files/figure-html/graph%20for%20mean%20injuries%20in%20bike%20crashes-1.png" width="768" /></p>
 <pre class="r"><code>bike_num %&gt;%
   mutate(date = as.yearmon(paste(year, month, sep = &quot;-&quot;))) %&gt;%
   ggplot(aes(x = date, y = number_of_crashes, fill = borough)) +
@@ -636,9 +853,9 @@ fit_injuries_bike_all</code></pre>
   ) +
   theme(legend.position=&quot;right&quot;, legend.title = element_blank(),
         text = element_text(size = 10),
-        axis.text.x = element_text(angle = 90, hjust = 1, size = 8)) +
+        axis.text.x = element_text(angle = 60, hjust = 1, size = 8)) +
   facet_grid(. ~ borough)</code></pre>
-<p><img src="20201125_InjuryPlots_files/figure-html/graph%20for%20for%20n%20bike%20crashes-1.png" width="672" /></p>
+<p><img src="20201125_InjuryPlots_files/figure-html/graph%20for%20for%20n%20bike%20crashes-1.png" width="768" /></p>
 <p>It is again apparent that there are very low numbers of crashes when stratifying by both month and borough.</p>
 <p>Below, I extract the rate ratio estimates for the bike data by borough (as in the microvehicle data).</p>
 <pre class="r"><code>fit_injuries_bike = crash_dat_tidy %&gt;%
@@ -661,11 +878,28 @@ fit_injuries_bike_all</code></pre>
   select(month, everything())
 
 fit_injuries_bike %&gt;% 
-  filter(term != &quot;(Intercept)&quot; &amp; month != &quot;November&quot; &amp; month != &quot;December&quot; &amp; p.value &lt; .05)</code></pre>
-<pre><code>## # A tibble: 1 x 5
-##   month term                            estimate std.error p.value
-##   &lt;ord&gt; &lt;chr&gt;                              &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;
-## 1 March 2020 v. 2019, Borough: Brooklyn    0.275     0.129  0.0330</code></pre>
+  filter(term != &quot;(Intercept)&quot; &amp; month != &quot;November&quot; &amp; month != &quot;December&quot; &amp; p.value &lt; .05) %&gt;% 
+  knitr::kable(digits = 2)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">month</th>
+<th align="left">term</th>
+<th align="right">estimate</th>
+<th align="right">std.error</th>
+<th align="right">p.value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">March</td>
+<td align="left">2020 v. 2019, Borough: Brooklyn</td>
+<td align="right">0.27</td>
+<td align="right">0.13</td>
+<td align="right">0.03</td>
+</tr>
+</tbody>
+</table>
 <p>Below, I plot the estimates for the bike data (as in the microvehicle data).</p>
 <pre class="r"><code>fit_injuries_bike %&gt;% 
   filter(term != &quot;(Intercept)&quot; &amp; month != &quot;November&quot; &amp; month != &quot;December&quot;) %&gt;%
@@ -684,10 +918,9 @@ fit_injuries_bike %&gt;%
   ylim(0, 5) +
   theme(legend.position=&quot;right&quot;, legend.title = element_blank(),
         text = element_text(size = 10),
-        axis.text.x = element_text(angle = 90, hjust = 1, size = 8)) + 
+        axis.text.x = element_text(angle = 60, hjust = 1, size = 8)) + 
   facet_grid(. ~ term)</code></pre>
-<pre><code>## Warning: Removed 2 rows containing missing values (geom_point).</code></pre>
-<p><img src="20201125_InjuryPlots_files/figure-html/plot%20bike%20injuries%20by%20month-1.png" width="672" /></p>
+<p><img src="20201125_InjuryPlots_files/figure-html/plot%20bike%20injuries%20by%20month-1.png" width="768" /></p>
 <p>There is no discernable pattern in the figure, suggesting that rates of injury per bike crash did not differ between 2020 and 2019.</p>
 </div>
 <div id="summary" class="section level2">
