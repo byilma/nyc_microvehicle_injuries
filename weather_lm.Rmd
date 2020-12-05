@@ -238,4 +238,4 @@ Some (but not all) of the reasons that our model is not the best possible predic
  - We use both daily maximum temperature and daily minimum temperatures, and we don't address the potential issues of collinearity.
 
 
-We would appreciate any feed back you may have on this and other sections. 
+We would appreciate any feedback you may have on this and other sections. 
