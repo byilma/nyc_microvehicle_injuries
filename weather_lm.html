@@ -308,10 +308,10 @@ $(document).ready(function () {
       <a href="plots_over_time.html">Trend of Incidents in NYC over time</a>
     </li>
     <li>
-      <a href="contributing_factors.html">What factors contribute to Incidents</a>
+      <a href="contributing_factors.html">Contributing Factors</a>
     </li>
     <li>
-      <a href="20201125_InjuryPlots.html">Regression Analysis</a>
+      <a href="20201125_InjuryPlots.html">Poisson Analysis</a>
     </li>
     <li>
       <a href="weather_lm.html">Predictive Model</a>
@@ -319,7 +319,7 @@ $(document).ready(function () {
   </ul>
 </li>
 <li>
-  <a href="mailto:&lt;you@youremail.com&gt;">
+  <a href="mailto:&lt;tmc2184@cumc.columbia.edu&gt;">
     <span class="fa fa-envelope fa-lg"></span>
      
   </a>
@@ -354,14 +354,14 @@ $(document).ready(function () {
 
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
-<div id="can-we-build-a-predictive-model-to-predict-number-of-incidents-involving-both-bikes-and-microvehicles" class="section level4">
-<h4>Can we build a predictive model to predict number of incidents involving both bikes and microvehicles?</h4>
+<div id="building-a-model-to-predict-the-number-of-incidents-involving-both-bikes-and-microvehicles-in-a-given-day-in-nyc" class="section level4">
+<h4>Building a model to predict the number of incidents involving both bikes and microvehicles in a given day in NYC?</h4>
 <p>From our exploratory analysis on bike and microvehicle incident trends over the last 3 years, we observed that these number of these incidents had an overall seasonal pattern … just like weather.</p>
-<p>So, naturally, we want to see if we could build a model to try and predict the number of bike and microvehicle incidents in NYC. To do this, on top of the data we obtained from the New York City Motor-Vehicle-Collisions-Crashes web page, we also incorporate weather data from NOAA.</p>
-<p>In specific, from the weather data we obtain three key variables - average daily maximum temperature, average daily minimum temperature, and average daily precipitation. The ‘average’ here refers to how we averaged these measurements from the 3 weather stations located in New York City: There’s one in Central Park, one by JFK Airport, and another one by La Guardia.</p>
+<p>So, naturally, we wanted to see if we could build a model to try and predict the number of bike and microvehicle incidents in NYC. To do this, on top of the data we obtained from the New York City Motor-Vehicle-Collisions-Crashes web page, we also incorporate weather data from NOAA.</p>
+<p>In specific, from the weather data we obtained three key variables - average daily maximum temperature, average daily minimum temperature, and average daily precipitation. The ‘average’ here refers to how we averaged these measurements from the 3 weather stations located in New York City: The one in Central Park, one by JFK Airport, and another one by La Guardia Airport.</p>
 <p>The main quest of this page is to see if we could:</p>
 <ul>
-<li>Use Cross Validation techniques to compare models</li>
+<li>Use Cross Validation techniques to compare different models</li>
 <li>Use the best model (based on Root Mean Square Errors) and predict number of incidents</li>
 <li>Use bootsrapping to get a more accurate value of our parameter estimates.</li>
 </ul>
@@ -433,7 +433,7 @@ $(document).ready(function () {
 </tr>
 </tbody>
 </table>
-<p>Create a cross validation dataset that splits the data 80% for training and 20% for testing</p>
+<p>Create a cross validation dataset that splits the data: 80% for training and 20% for testing</p>
 <pre class="r"><code>cv_df = 
   crossv_mc(df, 100)
 
@@ -471,8 +471,8 @@ cv_df = cv_df %&gt;%
 <p>Fitting a smooth model using daily average maximum temperature and average daily precipitation to predict number of incidents</p>
 <pre class="r"><code>smooth = gam(n_incidents ~ s(ny_tmax) + + s(ny_tmin) + s(ny_prcp), data = df) </code></pre>
 </div>
-<div id="making-a-prediction-plot-of-the-smooth-model-estimates-edf" class="section level4">
-<h4>Making a prediction plot of the smooth model estimates (edf)</h4>
+<div id="making-a-prediction-plot-using-the-smooth-model-outputs" class="section level4">
+<h4>Making a prediction plot using the smooth model outputs</h4>
 <pre class="r"><code>df %&gt;% 
   add_predictions(smooth) %&gt;% 
   ggplot(aes(x = date, y = n_incidents)) + 
@@ -484,14 +484,13 @@ cv_df = cv_df %&gt;%
     y = &quot;Number of Incidents&quot;
   )</code></pre>
 <p><img src="weather_lm_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
-<p>We see that the smooth line tracks really well the observed number of predictions. Note however, this is not the most perfect model for a couple of reasons discussed in the summary section of this page.</p>
-<p>Assessing the relationship between n_incidents and our predictos variables</p>
-<pre class="r"><code>#Fit a smooth model - n_incidents on ny_prcp + ny_tmin + ny_tmax
-#multiple regression under normal assumptions
-#gam(n_incidents ~ s(ny_tmax) + s(ny_tmin) + s(ny_prcp), data = df) %&gt;%
-#  broom::tidy() 
-
-p1 = df %&gt;% 
+<p>We see that the smooth line tracks really well the observed number of predictions. Note however, this is not the most thorough model for a couple of reasons discussed in the summary section of this page.</p>
+</div>
+</div>
+<div id="bootstrapping-to-obtain-non-parametric-estimates-of-out-model" class="section level2">
+<h2>Bootstrapping to obtain non-parametric estimates of out model</h2>
+<p>We first assessing the relationship between n_incidents and our predictor variables</p>
+<pre class="r"><code>p1 = df %&gt;% 
   ggplot(aes(x = ny_tmax, y = n_incidents)) + 
   geom_point() + 
   labs(
@@ -518,9 +517,8 @@ p3 = df %&gt;%
  
 p1 / p2 / p3</code></pre>
 <p><img src="weather_lm_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
-</div>
-<div id="in-the-next-section-we-use-bootsrapping-to-obtain-estimates-that-dont-any-parameteric-assumptions" class="section level4">
-<h4>In the next section, we use Bootsrapping to obtain estimates that don’t any parameteric assumptions</h4>
+<div id="in-the-next-section-we-apply-bootsrapping-to-obtain-estimates-without-making-parameteric-assumptions" class="section level4">
+<h4>In the next section, we apply Bootsrapping to obtain estimates without making parameteric assumptions</h4>
 <p>Bootstrapping using modelr</p>
 <pre class="r"><code>df_boot_results = df %&gt;% 
   bootstrap(1000, id = &quot;strap_number&quot;) %&gt;% 
@@ -531,7 +529,7 @@ p1 / p2 / p3</code></pre>
   ) %&gt;% 
   select(strap_number, results) %&gt;% 
   unnest(results) </code></pre>
-<p>Computing mean parameter estimates and cosntructing confidence intervals based on bootsrap confidence intervals</p>
+<p>Computing mean parameter estimates and constructing confidence intervals based on bootstrap confidence intervals</p>
 <pre class="r"><code>smooth_model = df_boot_results %&gt;% 
   group_by(term) %&gt;% 
   summarize(
@@ -555,29 +553,29 @@ smooth_model %&gt;% knitr::kable()</code></pre>
 <tbody>
 <tr class="odd">
 <td align="left">s(ny_prcp)</td>
-<td align="right">5.210920</td>
-<td align="right">1.639750</td>
-<td align="right">2.602801</td>
-<td align="right">8.445469</td>
+<td align="right">5.203173</td>
+<td align="right">1.627560</td>
+<td align="right">2.556665</td>
+<td align="right">8.335766</td>
 </tr>
 <tr class="even">
 <td align="left">s(ny_tmax)</td>
-<td align="right">4.978852</td>
-<td align="right">2.113996</td>
-<td align="right">1.000000</td>
-<td align="right">8.512640</td>
+<td align="right">4.924465</td>
+<td align="right">2.061843</td>
+<td align="right">1.131688</td>
+<td align="right">8.404471</td>
 </tr>
 <tr class="odd">
 <td align="left">s(ny_tmin)</td>
-<td align="right">4.918961</td>
-<td align="right">1.203836</td>
-<td align="right">2.742403</td>
-<td align="right">7.634963</td>
+<td align="right">4.952576</td>
+<td align="right">1.233664</td>
+<td align="right">2.513909</td>
+<td align="right">7.646637</td>
 </tr>
 </tbody>
 </table>
 <p>Model Equation:</p>
-<p><span class="math display">\[Y = 5.2X_1 + 5.0X_2 + 4.9X_3\]</span> <span class="math display">\[Where:\]</span> <span class="math display">\[X_1= average\:daily\:max\:temp\]</span> <span class="math display">\[X_2= average\:daily\:min\:temp\]</span> <span class="math display">\[X_3= average\:daily\:precipiation\]</span> Lastly, we show here that under repeated sampling, using <code>bootstrap</code>, we see that the distribution of our estimate is skewed</p>
+<p><span class="math display">\[Where:\]</span> <span class="math display">\[tmax= average\:daily\:max\:temp\:in\:NYC\]</span> <span class="math display">\[tmin= average\:daily\:min\:temp\:in\:NYC\]</span> <span class="math display">\[prcp= average\:daily\:precipiation\:in\:NYC\]</span> Lastly, we show here that under repeated sampling, using <code>bootstrap</code>, we see that the distribution of our estimate is skewed</p>
 <pre class="r"><code>df_boot_results %&gt;% 
   filter(term == &quot;s(ny_prcp)&quot;)  %&gt;% 
   ggplot(aes(x = edf)) + 
@@ -590,12 +588,11 @@ smooth_model %&gt;% knitr::kable()</code></pre>
 <p>In this section we follow up on one of our earlier observations on how incidents involving microvehicles and bikes (overall) displayed seasonality (like the weather.) We subsequently try to build a predictive model, using these (weather related) predictor: daily maximum temperature, daily minimum temperature, and precipitation.</p>
 <p>To that end, we first use cross validation to compare a linear model and a smooth model. Using RMSE as a discriminator, we decide to use the smooth model to build our predictive equation. Lastly, we use bootsrapping to obtain non-parametric estimates and confidence intervals of the final model equation.</p>
 <p>N.B:</p>
-<p>Some* reasons that our model is not the best possible predictive model:</p>
+<p>Some (but not all) of the reasons that our model is not the best possible predictive model:</p>
 <ul>
-<li><p>Our outcome variable, <code>number of incidents</code>, is a count variable that we’re treating as continuous.</p></li>
-<li><p>A smooth model tends to over fit the model</p></li>
-<li><p>We use both daily maximum temperature and daily minimum temperatures, and we don’t address the potential issues of confounding.</p></li>
-<li><p>there’s probably a lot more.</p></li>
+<li>Our outcome variable, <code>number of incidents</code>, is a count variable that we’re treating as continuous.</li>
+<li>A smooth model tends to over fit the model</li>
+<li>We use both daily maximum temperature and daily minimum temperatures, and we don’t address the potential issues of collinearity.</li>
 </ul>
 <p>We would appreciate any feed back you may have on this and other sections.</p>
 </div>

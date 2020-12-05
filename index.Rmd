@@ -15,12 +15,11 @@ library(tidyverse)
 
 <h6 style="text-align: left;" markdown="1">By: Emma Gorin |  Sarah Conderino |  Talea Cornelius |  Alexey Abramov |  Binyam Yilma </h6>
 
-
 <br></br>
 
-<center>
-<iframe width="840" height="472" src="https://www.youtube.com/embed/watch?v=13lw6hl3EJ4&feature=youtu.be" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-</center>
+<left>
+<iframe width="840" height="472" src="https://www.youtube.com/embed/13lw6hl3EJ4" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</left>
 
 
 ## Background
@@ -32,7 +31,7 @@ Bikes, mopeds. e-bikes. e-scooters are all fair game.
 
 This is great! But, with more bikes, scooters, mopeds and the like out in the streets, we wanted to know more about how, if at all, the number of incidents involving these alternative means commuting has changed. 
 
-We were also particularly interested to see how the shelter-in-place due to covid-19 impacted the rate of incidents. How do the number of incidents post-covide compare to pre-covid times? 
+We were also particularly interested to see how the shelter-in-place due to COVID-19 impacted the rate of incidents. How do the number of incidents post-COVID19 compare to 'COVID19' times? 
 
 
 
@@ -46,7 +45,7 @@ With this in mind, we took to the New York City Motor-Vehicle-Collisions-Crashes
 * [Crash Data Source](https://data.cityofnewyork.us/Public-Safety/Motor-Vehicle-Collisions-Crashes/h9gi-nx95)
 
 
-Here's a sneak peak of what our data looks like:
+Here's a sneak peak of what our main data looks like:
 
 ```{r}
 crash_dat = read.csv("./data/crash_dat.csv")
@@ -56,7 +55,7 @@ crash_dat %>% select(date, crash_time, borough,number_of_persons_injured, contri
 
 
 
-As well as data on `bike count` data, which gave us the daily total of bikes that were involved in crashes
+We also used data on `bike count`, which gave us the daily total of bikes that were involved in crashes. Source:
 
 
 * [Bike-count Data Source](https://data.cityofnewyork.us/Public-Safety/EMS-Incident-Dispatch-Data/76xm-jjuj)
@@ -74,7 +73,7 @@ We also incorporate weather data from NOAA
 
 ## Focus of our Project
 
-Our project focuses on the use of particular types of alternate means of transportations, namely: bicycles and microvehicles. 
+Our project focuses on the use of particular types of alternate means of transformations, namely: bicycles and microvehicles. 
 
 We all know what bikes are, but what exactly are `Microvehicles`: 
 
@@ -84,15 +83,15 @@ Here are some gifs (pronounced 'jif', of course) to show you what we mean:
 
 ### Microvehicles
 
-
+#### Microvehicles can be Mopeds or e-bikes
 ![](https://media.giphy.com/media/S0w2pBxWWJroc/giphy.gif)
 
-#### E-scooters (like "lime")
+#### Microvehicles can also be E-scooters
 
 ![](https://media.giphy.com/media/lnDq08VgGZPO0ZU8zw/giphy.gif)
 
 
-### Bike
+#### Not techinically considered a Miceovehicle, but as a reminder, here's a cool gif of a Bike (which we also look into)
 
 ![](https://media.giphy.com/media/dZLKaImwWkc12rzEoO/giphy.gif)
 
@@ -108,16 +107,16 @@ We wanted to ask some of the big questions on incidents involving Bikes and Micr
 
 - In particular we also wanted to see how the these incidents may have changed in the context of COVID-19 and the shelter in place?
 
-- Do we see any *statistically significant* differences in incident rates comparing pre-covid to post covid? 
+- Do we see any *statistically significant* differences in incident rates comparing pre-COVID to COVID times? 
 
-- Lastly, we wanted to see if we could build a predictive model using weather data, considering factors such as maximum/minimum temperature and daily precipitation? 
+- Lastly, we wanted to see if we could build a predictive model using weather data, considering factors such as maximum/minimum temperature and daily precipitation to try an predict the number of incidents involving these bikes and microvehicles? 
 
 
 ## Take aways
 
-- Bike and microvehicles incidents tend display seasonality, just like the weather. 
-- The Top contributing factor to these incidents is: Driver Inattention. 
-- The Possion regression analysis we computed showed that were no signifcant differences in the rate of incidents involving bikes or Microvehicles. 
+- Bike and microvehicles incidents tend to display seasonality, just like the weather. 
+- The top contributing factor to these incidents is: Driver Inattention. 
+- The Poisson regression analysis we carried out showed that were no significant differences in the rate of incidents involving bikes or microvehicles. 
 - Downtown Manhattan saw the most crashes within the last 2 years. 
 
 ## Fun facts

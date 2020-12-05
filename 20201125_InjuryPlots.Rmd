@@ -1,6 +1,5 @@
 ---
-title: "Rates of Injury"
-date: "12/4/2020"
+title: "Poisson Analysis"
 output: 
   html_document:
     code_folding: hide
@@ -27,7 +26,7 @@ scale_fill_discrete = scale_fill_viridis_d
 ```
 
 
-```{r, read data}
+```{r, read data, message=F, warning=F}
 crash_dat_tidy = read_csv("./data/crash_dat.csv") 
 ```
 
@@ -64,13 +63,11 @@ filter_for = function(dataset, type) {
 
 
 ```{r create month dataset for merging}
-
 month_df=
   tibble(
     month = 1:12,
     month_name = factor(month.name, ordered = TRUE, levels = month.name)
   )
-
 ```
 
 <br></br> 
@@ -79,7 +76,7 @@ month_df=
 
 First, I tested to see if there was an overall association of 2020 v. 2019 with number of injuries in microvehicle crashes.
 
-```{r lm for microvehicle injuries by month}
+```{r lm for microvehicle injuries by month, message=F, warning=F}
 
 fit_injuries_micro_all = crash_dat_tidy %>%
   filter_for("micro") %>% 
@@ -100,14 +97,14 @@ fit_injuries_micro_all = crash_dat_tidy %>%
   filter(term != "(Intercept)" & month != "November" & month != "December") %>%
   select(month, everything()) 
 
-fit_injuries_micro_all
+fit_injuries_micro_all %>% knitr::kable(digits = 2)
 ```
 
 Although there was no statistically significant evidence for a different rate of injury in 2020 v. 21 in any month, I proceeded to examine this stratified by borough.
 
 I also wanted to get descriptives for number of microvehicle crashes and injuries in each borough in each month.
 
-```{r get totals for microvehicles}
+```{r get totals for microvehicles, message=F, warning=F}
 micro_num = crash_dat_tidy %>%
   filter_for("micro") %>% 
   filter(year %in% c(2019, 2020)) %>%
@@ -122,10 +119,10 @@ micro_num = crash_dat_tidy %>%
 micro_num %>%
   select(year, month_name, borough, number_of_crashes, 
          mean_number_of_injuries) %>%
-  head()
+  head() %>% knitr::kable(digits = 2)
 ```
 
-```{r graph for mean injuries in microvehicle crashes}
+```{r graph for mean injuries in microvehicle crashes, fig.width=8}
 
 micro_num %>%
   mutate(date = as.yearmon(paste(year, month, sep = "-"))) %>%
@@ -138,7 +135,7 @@ micro_num %>%
   ) +
   theme(legend.position="right", legend.title = element_blank(),
         text = element_text(size = 10),
-        axis.text.x = element_text(angle = 90, hjust = 1, size = 8)) +
+        axis.text.x = element_text(angle = 60, hjust = 1, size = 8)) +
   facet_grid(. ~ borough)
 
 ```
@@ -156,7 +153,7 @@ micro_num %>%
   ) +
   theme(legend.position="right", legend.title = element_blank(),
         text = element_text(size = 10),
-        axis.text.x = element_text(angle = 90, hjust = 1, size = 8)) +
+        axis.text.x = element_text(angle = 60, hjust = 1, size = 8)) +
   facet_grid(. ~ borough)
 
 ```
@@ -166,7 +163,7 @@ It is apparent that there are very low numbers of microvehicle crashes when stra
 
 Below, I extract the rate ratio estimates for the microvehicle data by borough.
 
-```{r lm for microvehicle injuries by month and borough}
+```{r lm for microvehicle injuries by month and borough, message=F, warning=F}
 
 fit_injuries_micro = crash_dat_tidy %>%
   filter_for("micro") %>% 
@@ -188,13 +185,14 @@ fit_injuries_micro = crash_dat_tidy %>%
   select(month, everything())
 
 fit_injuries_micro %>% 
-  filter(term != "(Intercept)" & month != "November" & month != "December" & p.value < .05)
+  filter(term != "(Intercept)" & month != "November" & month != "December" & p.value < .05) %>% 
+  knitr::kable(digits = 2)
 
 ```
 
 Here, I extract my coefficient of interest, which is the difference in injury rate in microvehicle crashes occurring in 2020 v. occurring in 2019. I plot estimates for each borough within each month, making sure to exponentiate these estimates. I include a horizontal line at Y = 1 to indicate the null value.
 
-```{r plot microvehicle injuries by month}
+```{r plot microvehicle injuries by month, message=F, warning=F, fig.width=8}
 
 fit_injuries_micro %>% 
   filter(term != "(Intercept)" & month != "November" & month != "December") %>%
@@ -213,7 +211,7 @@ fit_injuries_micro %>%
   ylim(0, 5) +
   theme(legend.position="right", legend.title = element_blank(),
         text = element_text(size = 10),
-        axis.text.x = element_text(angle = 90, hjust = 1, size = 8)) + 
+        axis.text.x = element_text(angle = 60, hjust = 1, size = 8)) + 
   facet_grid(. ~ term)
 
 ```
@@ -227,7 +225,7 @@ There is no discernable pattern in the figure, suggesting that rates of injury p
 Again, I first tested to see if there was an overall association of 2020 v. 2019 with number of injuries in bike crashes (as in the microvehicle data).
 
 
-```{r lm for bike injuries by month}
+```{r lm for bike injuries by month, message=F, warning=F}
 
 fit_injuries_bike_all = crash_dat_tidy %>%
   filter_for("bike") %>% 
@@ -248,7 +246,7 @@ fit_injuries_bike_all = crash_dat_tidy %>%
   filter(term != "(Intercept)" & month != "November" & month != "December") %>%
   select(month, everything()) 
 
-fit_injuries_bike_all
+fit_injuries_bike_all %>% knitr::kable(digits = 2)
 
 ```
 
@@ -257,7 +255,7 @@ Although there was no statistically significant evidence for a different rate of
 
 I also wanted to get descriptives for number of bike crashes and injuries in each borough in each month.
 
-```{r get totals for bikes}
+```{r get totals for bikes, message=F, warning=F}
 bike_num = crash_dat_tidy %>%
   filter_for("bike") %>% 
   filter(year %in% c(2019, 2020)) %>%
@@ -272,11 +270,11 @@ bike_num = crash_dat_tidy %>%
 bike_num %>%
   select(year, month_name, borough, number_of_crashes, 
          mean_number_of_injuries) %>%
-  head()
+  head() %>% knitr::kable(digits = 2)
 ```
 
 
-```{r graph for mean injuries in bike crashes}
+```{r graph for mean injuries in bike crashes, fig.width=8}
 
 bike_num %>%
   mutate(date = as.yearmon(paste(year, month, sep = "-"))) %>%
@@ -289,12 +287,12 @@ bike_num %>%
   ) +
   theme(legend.position="right", legend.title = element_blank(),
         text = element_text(size = 10),
-        axis.text.x = element_text(angle = 90, hjust = 1, size = 8)) +
+        axis.text.x = element_text(angle = 60, hjust = 1, size = 8)) +
   facet_grid(. ~ borough)
 
 ```
 
-```{r graph for for n bike crashes}
+```{r graph for for n bike crashes, fig.width=8}
 
 bike_num %>%
   mutate(date = as.yearmon(paste(year, month, sep = "-"))) %>%
@@ -307,7 +305,7 @@ bike_num %>%
   ) +
   theme(legend.position="right", legend.title = element_blank(),
         text = element_text(size = 10),
-        axis.text.x = element_text(angle = 90, hjust = 1, size = 8)) +
+        axis.text.x = element_text(angle = 60, hjust = 1, size = 8)) +
   facet_grid(. ~ borough)
 
 ``` 
@@ -316,7 +314,7 @@ It is again apparent that there are very low numbers of crashes when stratifying
 
 Below, I extract the rate ratio estimates for the bike data by borough (as in the microvehicle data).
 
-```{r lm for bike injuries by month and borough}
+```{r lm for bike injuries by month and borough, warning=F, message=F}
 
 fit_injuries_bike = crash_dat_tidy %>%
   filter_for("bike") %>% 
@@ -338,13 +336,14 @@ fit_injuries_bike = crash_dat_tidy %>%
   select(month, everything())
 
 fit_injuries_bike %>% 
-  filter(term != "(Intercept)" & month != "November" & month != "December" & p.value < .05)
+  filter(term != "(Intercept)" & month != "November" & month != "December" & p.value < .05) %>% 
+  knitr::kable(digits = 2)
 
 ```
 
 Below, I plot the estimates for the bike data (as in the microvehicle data).
 
-```{r plot bike injuries by month}
+```{r plot bike injuries by month, fig.width=8, warning=F, message=F}
 
 fit_injuries_bike %>% 
   filter(term != "(Intercept)" & month != "November" & month != "December") %>%
@@ -363,7 +362,7 @@ fit_injuries_bike %>%
   ylim(0, 5) +
   theme(legend.position="right", legend.title = element_blank(),
         text = element_text(size = 10),
-        axis.text.x = element_text(angle = 90, hjust = 1, size = 8)) + 
+        axis.text.x = element_text(angle = 60, hjust = 1, size = 8)) + 
   facet_grid(. ~ term)
 
 ```
