@@ -1,9 +1,6 @@
 ---
 title: "Bikes & Microvehicles in New York City"
 subtitle: "Exploring incidents involving Bicycles and Microvehicles in New York City from 2017 to 2020"
-image: 
-  feature: scooters_nyc.jpg
-  credit: 'The Verge'
 output: 
   html_document:
     code_folding: hide
@@ -18,12 +15,11 @@ library(tidyverse)
 
 <h6 style="text-align: left;" markdown="1">By: Emma Gorin |  Sarah Conderino |  Talea Cornelius |  Alexey Abramov |  Binyam Yilma </h6>
 
-
 <br></br>
 
-<center>
+<left>
 <iframe width="840" height="472" src="https://www.youtube.com/embed/13lw6hl3EJ4" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-</center>
+</left>
 
 
 ## Background
