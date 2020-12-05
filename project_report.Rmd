@@ -35,7 +35,7 @@ Over the last few years, the New York City Department of Transportation partnere
 
 Along similar lines, [Revel](“https://gorevel.com/new-york/”) recently arrived in New York offering an app-based electric moped sharing program.  These electric mopeds require a driver’s license and travel up to 25mph, but are only permitted in certain zones.  
 
-![Go Revel](https://gorevel.com/wp-content/uploads/2019/05/stacked-image-pricing2.jpg)
+![Go Revel](https://gorevel.com/wp-content/uploads/2019/05/stacked-image-pricing2.jpg){width = 50%}
 
 ## Covid-19
 
