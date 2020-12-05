@@ -25,7 +25,7 @@ One solution, for some, seems to be riding a bike.  Or maybe something with a li
 
 ## Bicycles
 
-[CitiBike](https://www.citibikenyc.com/), a well known bike rental program with bike stations around the city offer a convenient solution for getting around without having to own (or deal with parking) a bike.  The service also offers e-bikes and has been [growing](“https://www.citibikenyc.com/blog/major-citi-bike-expansion-map-revealed”).  
+[CitiBike](https://www.citibikenyc.com/), a well known bike rental program with bike stations around the city offer a convenient solution for getting around without having to own (or deal with parking) a bike.  The service also offers e-bikes and has been [growing](https://www.citibikenyc.com/blog/major-citi-bike-expansion-map-revealed).  
 
 ```{r, echo=FALSE, out.width="50%", fig.cap="Citi e-Bike", fig.align = 'center'}
 knitr::include_graphics("./data/ebike.jpg")
