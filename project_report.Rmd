@@ -45,8 +45,6 @@ Along similar lines, [Revel](https://gorevel.com/new-york/) recently arrived in 
 knitr::include_graphics("./data/go_revel.jpg")
 ```
 
-[Go Revel](https://gorevel.com/wp-content/uploads/2019/05/stacked-image-pricing2.jpg)
-
 ## Covid-19
 
 The impact of the Covid-19 surge on New York City was felt in every neighborhood and was shared by all. Essential workers continued coming to work, but many feared they might contract the still largely unknown virus on public transport.  Today, MTA ridership remains at [all-time lows](
