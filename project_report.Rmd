@@ -12,9 +12,13 @@ output:
 New York City has and maybe always will be a challenging place to live for many -- and traveling around the Big Apple is no exception. 
 
 
-Commuting in rush hour traffic on New York’s bridges, tunnels and busy streets can be an exhausting experience.  Seen for the first time, the [subway map](“https://new.mta.info/map/7551”) can appear daunting. 
+Commuting in rush hour traffic on New York’s bridges, tunnels and busy streets can be an exhausting experience.  
 
-![NYC Subway Map](https://cdn.theatlantic.com/assets/media/img/posts/2016/02/nyc_subwaymap/982c7a44c.jpg){width = 50%}
+Seen for the first time, the [subway map](“https://new.mta.info/map/7551”) can appear daunting. 
+
+```{r, echo=FALSE, out.width="50%", fig.cap="NYC Subway Map", fig.align = 'center'}
+knitr::include_graphics("./data/subway_map.jpg")
+```
 
 
 One solution, for some, seems to be riding a bike.  Or maybe something with a little boost, like an e-bike, or a moped.  
@@ -31,16 +35,27 @@ knitr::include_graphics("./data/ebike.jpg")
 
 Over the last few years, the New York City Department of Transportation partnered with the Regional Planning Association and the Bikeway Advisory Committee to construct more bike lanes to promote cyclist safety. The [Vision Zero](“https://www1.nyc.gov/content/visionzero/pages/”) Task Force aims to reduce traffic-related fatalities and deaths and has been a driving force for street redesign initiatives that have improved safety and have promoted alternative forms of transportation.  
 
+
+
 ## Mopeds
 
 Along similar lines, [Revel](“https://gorevel.com/new-york/”) recently arrived in New York offering an app-based electric moped sharing program.  These electric mopeds require a driver’s license and travel up to 25mph, but are only permitted in certain zones.  
 
-![Go Revel](https://gorevel.com/wp-content/uploads/2019/05/stacked-image-pricing2.jpg){width = 50%}
+```{r, echo=FALSE, out.width="50%", fig.cap="Go Revel", fig.align = 'center'}
+knitr::include_graphics("./data/go_revel.jpg")
+```
+
+[Go Revel](https://gorevel.com/wp-content/uploads/2019/05/stacked-image-pricing2.jpg)
 
 ## Covid-19
 
 The impact of the Covid-19 surge on New York City was felt in every neighborhood and was shared by all. Essential workers continued coming to work, but many feared they might contract the still largely unknown virus on public transport.  Today, MTA ridership remains at [all-time lows](“
 https://new.mta.info/coronavirus/ridership“). Some workers turned to bicycles, e-bikes, e-scooters and electric mopeds as an alternative, but safety remained a concern.  
+
+```{r, echo=FALSE, out.width="75%", fig.cap="NYC Subway", fig.align = 'center'}
+knitr::include_graphics("./data/subway_car.jpg")
+```
+
 
 # Initial Questions
 
