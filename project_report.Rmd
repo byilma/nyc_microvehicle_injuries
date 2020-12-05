@@ -14,7 +14,7 @@ New York City has and maybe always will be a challenging place to live for many 
 
 Commuting in rush hour traffic on New York’s bridges, tunnels and busy streets can be an exhausting experience.  
 
-Seen for the first time, the [subway map](“https://new.mta.info/map/7551”) can appear daunting. 
+Seen for the first time, the [subway map](https://new.mta.info/map/7551) can appear daunting. 
 
 ```{r, echo=FALSE, out.width="50%", fig.cap="NYC Subway Map", fig.align = 'center'}
 knitr::include_graphics("./data/subway_map.jpg")
@@ -25,21 +25,21 @@ One solution, for some, seems to be riding a bike.  Or maybe something with a li
 
 ## Bicycles
 
-[CitiBike](“https://www.citibikenyc.com/”), a well known bike rental program with bike stations around the city offer a convenient solution for getting around without having to own (or deal with parking) a bike.  The service also offers e-bikes and has been [growing](“https://www.citibikenyc.com/blog/major-citi-bike-expansion-map-revealed”).  
+[CitiBike](https://www.citibikenyc.com/), a well known bike rental program with bike stations around the city offer a convenient solution for getting around without having to own (or deal with parking) a bike.  The service also offers e-bikes and has been [growing](“https://www.citibikenyc.com/blog/major-citi-bike-expansion-map-revealed”).  
 
 ```{r, echo=FALSE, out.width="50%", fig.cap="Citi e-Bike", fig.align = 'center'}
 knitr::include_graphics("./data/ebike.jpg")
 ```
 
-[Source:  Citi e-Bike]("https://www.citibikenyc.com/how-it-works/electric")
+[Source:  Citi e-Bike](https://www.citibikenyc.com/how-it-works/electric)
 
-Over the last few years, the New York City Department of Transportation partnered with the Regional Planning Association and the Bikeway Advisory Committee to construct more bike lanes to promote cyclist safety. The [Vision Zero](“https://www1.nyc.gov/content/visionzero/pages/”) Task Force aims to reduce traffic-related fatalities and deaths and has been a driving force for street redesign initiatives that have improved safety and have promoted alternative forms of transportation.  
+Over the last few years, the New York City Department of Transportation partnered with the Regional Planning Association and the Bikeway Advisory Committee to construct more bike lanes to promote cyclist safety. The [Vision Zero](https://www1.nyc.gov/content/visionzero/pages/) Task Force aims to reduce traffic-related fatalities and deaths and has been a driving force for street redesign initiatives that have improved safety and have promoted alternative forms of transportation.  
 
 
 
 ## Mopeds
 
-Along similar lines, [Revel](“https://gorevel.com/new-york/”) recently arrived in New York offering an app-based electric moped sharing program.  These electric mopeds require a driver’s license and travel up to 25mph, but are only permitted in certain zones.  
+Along similar lines, [Revel](https://gorevel.com/new-york/) recently arrived in New York offering an app-based electric moped sharing program.  These electric mopeds require a driver’s license and travel up to 25mph, but are only permitted in certain zones.  
 
 ```{r, echo=FALSE, out.width="50%", fig.cap="Go Revel", fig.align = 'center'}
 knitr::include_graphics("./data/go_revel.jpg")
@@ -49,8 +49,8 @@ knitr::include_graphics("./data/go_revel.jpg")
 
 ## Covid-19
 
-The impact of the Covid-19 surge on New York City was felt in every neighborhood and was shared by all. Essential workers continued coming to work, but many feared they might contract the still largely unknown virus on public transport.  Today, MTA ridership remains at [all-time lows](“
-https://new.mta.info/coronavirus/ridership“). Some workers turned to bicycles, e-bikes, e-scooters and electric mopeds as an alternative, but safety remained a concern.  
+The impact of the Covid-19 surge on New York City was felt in every neighborhood and was shared by all. Essential workers continued coming to work, but many feared they might contract the still largely unknown virus on public transport.  Today, MTA ridership remains at [all-time lows](
+https://new.mta.info/coronavirus/ridership). Some workers turned to bicycles, e-bikes, e-scooters and electric mopeds as an alternative, but safety remained a concern.  
 
 ```{r, echo=FALSE, out.width="75%", fig.cap="NYC Subway", fig.align = 'center'}
 knitr::include_graphics("./data/subway_car.jpg")
@@ -59,7 +59,7 @@ knitr::include_graphics("./data/subway_car.jpg")
 
 # Initial Questions
 
-In this data science project, completed by graduate students in the Columbia University Mailman School of Public Health, we analyzed the [New York City OpenData crash database](“https://data.cityofnewyork.us/Public-Safety/Motor-Vehicle-Collisions-Crashes/h9gi-nx95”)  to better understand trends in motor vehicle collisions and related injuries and deaths.  
+In this data science project, completed by graduate students in the Columbia University Mailman School of Public Health, we analyzed the [New York City OpenData crash database](https://data.cityofnewyork.us/Public-Safety/Motor-Vehicle-Collisions-Crashes/h9gi-nx95)  to better understand trends in motor vehicle collisions and related injuries and deaths.  
 
 Here we intend to provide an in-depth look at New York City’s crash database with an exploratory data analysis, in addition to visualizations (plots, heatmaps, geolocation mapping) and statistical analysis.
 At first, we wondered if the incidence of electric moped crashes with injuries increased in 2020, compared to 2019.  
@@ -74,11 +74,11 @@ To address these varied questions, we each took on a different component of the 
 
 We initially came up with this idea after people around New York City were commenting on how many motorists were seen riding on the electric mopeds unsafely without helmets. 
 
-Revel [expanded](“https://nyc.streetsblog.org/2020/03/26/revel-scooters-quietly-creates-new-manhattan-service-area/”) rather quickly into new neighborhoods during the Covid-19 surge. Over time, more anecdotal stories emerged about electric mopeds driving on sidewalks and running red lights.  Soon thereafter, the New York Times published this  [article](“https://www.nytimes.com/2020/07/28/nyregion/revel-scooters-death-nyc.html”)  that reported on deaths related to motorists riding on Revel’s electric scooters and the service was shut down citing safety concerns. 
+Revel [expanded](https://nyc.streetsblog.org/2020/03/26/revel-scooters-quietly-creates-new-manhattan-service-area/) rather quickly into new neighborhoods during the Covid-19 surge. Over time, more anecdotal stories emerged about electric mopeds driving on sidewalks and running red lights.  Soon thereafter, the New York Times published this  [article](https://www.nytimes.com/2020/07/28/nyregion/revel-scooters-death-nyc.html)  that reported on deaths related to motorists riding on Revel’s electric scooters and the service was shut down citing safety concerns. 
 
 # Data
 
-The two primary data sources for this project were the New York City (NYC) Department of Transportation (DOT) Motor Vehicle Collisions - Crashes data and the NYC DOT Bicycle Counts data. These data were obtained from the NYC Open Data  [portal](“https://data.cityofnewyork.us/Public-Safety/Motor-Vehicle-Collisions-Crashes/h9gi-nx95”)   through the Socrata Open Data API (SODA). Since both data sources exceed the row limit of the API, we created functions that made requests to the API, querying for our dates of interest (2017 - October 2020) and using the limit and offset parameters. We then iteratively (using `map()`) called these functions to pull and stack all necessary data.
+The two primary data sources for this project were the New York City (NYC) Department of Transportation (DOT) Motor Vehicle Collisions - Crashes data and the NYC DOT Bicycle Counts data. These data were obtained from the NYC Open Data  [portal](https://data.cityofnewyork.us/Public-Safety/Motor-Vehicle-Collisions-Crashes/h9gi-nx95)   through the Socrata Open Data API (SODA). Since both data sources exceed the row limit of the API, we created functions that made requests to the API, querying for our dates of interest (2017 - October 2020) and using the limit and offset parameters. We then iteratively (using `map()`) called these functions to pull and stack all necessary data.
 
 The Motor Vehicle Collisions - Crashes data contain information on all police-reported crashes that occur within NYC. Police-reported crashes include collisions that result in an injury, death, or at least $1,000 of property damage. Each row in the dataset represents a unique crash, which is identified by the collision ID. Key variables from this dataset that were used in our analyses include:
 
