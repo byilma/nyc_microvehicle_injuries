@@ -75,6 +75,24 @@ df %>% head(5) %>% knitr::kable()
 ```
 
 
+Here's a graph  showing how the number of incidents tracks remarkably well with NYC's daily minimum and daily maximum temperature.
+
+```{r, message=F, warning=F}
+
+df %>% 
+  ggplot(aes(x = date, y = n_incidents, color = "Number of Incidents")) + 
+  geom_point(alpha = .5) + 
+  geom_point(aes(x = date, y = ny_tmin, color = "Minimum Temp"), alpha = .5) +
+geom_point(aes(x = date, y = ny_tmax, color = "Maximum Temp"), alpha = .5) + 
+    labs(
+    title = "New York's weather pattern and Number of Incidents", 
+    y = "Number of Incidents",
+    x = "Time"
+  )
+ 
+```
+
+
 Create a cross validation dataset that splits the data: 80% for training and 20% for testing
 ```{r, warning=F, message=F}
 cv_df = 
@@ -132,11 +150,11 @@ smooth = gam(n_incidents ~ s(ny_tmax) + + s(ny_tmin) + s(ny_prcp), data = df)
 ```{r, warning=F, message=F}
 df %>% 
   add_predictions(smooth) %>% 
-  ggplot(aes(x = date, y = n_incidents)) + 
-  geom_point() + 
-  geom_smooth(aes(y = pred)) + 
+  ggplot(aes(x = date, y = n_incidents, color = "Number of Incidents")) + 
+  geom_point(alpha = .5) + 
+  geom_smooth(aes(y = pred, color = "Predicted Number of Incidents")) + 
   labs(
-    title = "Actual Number of Incidents + Predicted Number of Incidents",
+    title = "Predicted Vs. Actual Number of Incidents",
     x = "Date",
     y = "Number of Incidents"
   )
@@ -147,14 +165,14 @@ Note however, this is not the most thorough model for a couple of reasons discus
  
 ## Bootstrapping to obtain non-parametric estimates of out model
 
-We first assessing the relationship between n_incidents and our predictor variables
+We first assessing the relationship between Number of Incidents and our predictor variables
 ```{r, warning=F, message=F}
 p1 = df %>% 
   ggplot(aes(x = ny_tmax, y = n_incidents)) + 
   geom_point() + 
   labs(
     y = "Number of Incidents",
-    x = "Daily Macimum Temperature"
+    x = "Daily Maximum Temperature"
   )
 
 p2 = df %>% 
@@ -173,11 +191,10 @@ p3 = df %>%
     x = "Daily Precipitation"
   )
 
- 
 p1 / p2 / p3
 ```
 
-#### In the next section, we apply Bootsrapping to obtain estimates without making parameteric assumptions
+#### In the next section, we apply Bootsrapping (1000 resamples) to obtain estimates without making parameteric assumptions
 
 Bootstrapping using modelr
 ```{r, warning=F, message=F}
@@ -233,7 +250,7 @@ N.B:
 
 Some (but not all) of the reasons that our model is not the best possible predictive model: 
 
- - Our outcome variable, `number of incidents`, is a count variable that we're treating as continuous. 
+ - Our outcome variable, `number_of_incidents`, is a count variable that we're treating as continuous. 
  - A smooth model tends to over fit the model
  - We use both daily maximum temperature and daily minimum temperatures, and we don't address the potential issues of collinearity.
 

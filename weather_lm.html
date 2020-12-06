@@ -433,6 +433,18 @@ $(document).ready(function () {
 </tr>
 </tbody>
 </table>
+<p>Here’s a graph showing how the number of incidents tracks remarkably well with NYC’s daily minimum and daily maximum temperature.</p>
+<pre class="r"><code>df %&gt;% 
+  ggplot(aes(x = date, y = n_incidents, color = &quot;Number of Incidents&quot;)) + 
+  geom_point(alpha = .5) + 
+  geom_point(aes(x = date, y = ny_tmin, color = &quot;Minimum Temp&quot;), alpha = .5) +
+geom_point(aes(x = date, y = ny_tmax, color = &quot;Maximum Temp&quot;), alpha = .5) + 
+    labs(
+    title = &quot;New York&#39;s weather pattern and Number of Incidents&quot;, 
+    y = &quot;Number of Incidents&quot;,
+    x = &quot;Time&quot;
+  )</code></pre>
+<p><img src="weather_lm_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
 <p>Create a cross validation dataset that splits the data: 80% for training and 20% for testing</p>
 <pre class="r"><code>cv_df = 
   crossv_mc(df, 100)
@@ -466,7 +478,7 @@ cv_df = cv_df %&gt;%
   labs(
     title = &quot;Comparing RMSEs of the linear model to the smooth model&quot;
   )</code></pre>
-<p><img src="weather_lm_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p><img src="weather_lm_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
 <p>We note that the Smooth model has a lower RMSE, so we will build a model based off that.</p>
 <p>Fitting a smooth model using daily average maximum temperature and average daily precipitation to predict number of incidents</p>
 <pre class="r"><code>smooth = gam(n_incidents ~ s(ny_tmax) + + s(ny_tmin) + s(ny_prcp), data = df) </code></pre>
@@ -475,27 +487,27 @@ cv_df = cv_df %&gt;%
 <h4>Making a prediction plot using the smooth model outputs</h4>
 <pre class="r"><code>df %&gt;% 
   add_predictions(smooth) %&gt;% 
-  ggplot(aes(x = date, y = n_incidents)) + 
-  geom_point() + 
-  geom_smooth(aes(y = pred)) + 
+  ggplot(aes(x = date, y = n_incidents, color = &quot;Number of Incidents&quot;)) + 
+  geom_point(alpha = .5) + 
+  geom_smooth(aes(y = pred, color = &quot;Predicted Number of Incidents&quot;)) + 
   labs(
-    title = &quot;Actual Number of Incidents + Predicted Number of Incidents&quot;,
+    title = &quot;Predicted Vs. Actual Number of Incidents&quot;,
     x = &quot;Date&quot;,
     y = &quot;Number of Incidents&quot;
   )</code></pre>
-<p><img src="weather_lm_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<p><img src="weather_lm_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
 <p>We see that the smooth line tracks really well the observed number of predictions. Note however, this is not the most thorough model for a couple of reasons discussed in the summary section of this page.</p>
 </div>
 </div>
 <div id="bootstrapping-to-obtain-non-parametric-estimates-of-out-model" class="section level2">
 <h2>Bootstrapping to obtain non-parametric estimates of out model</h2>
-<p>We first assessing the relationship between n_incidents and our predictor variables</p>
+<p>We first assessing the relationship between Number of Incidents and our predictor variables</p>
 <pre class="r"><code>p1 = df %&gt;% 
   ggplot(aes(x = ny_tmax, y = n_incidents)) + 
   geom_point() + 
   labs(
     y = &quot;Number of Incidents&quot;,
-    x = &quot;Daily Macimum Temperature&quot;
+    x = &quot;Daily Maximum Temperature&quot;
   )
 
 p2 = df %&gt;% 
@@ -514,11 +526,10 @@ p3 = df %&gt;%
     x = &quot;Daily Precipitation&quot;
   )
 
- 
 p1 / p2 / p3</code></pre>
-<p><img src="weather_lm_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
-<div id="in-the-next-section-we-apply-bootsrapping-to-obtain-estimates-without-making-parameteric-assumptions" class="section level4">
-<h4>In the next section, we apply Bootsrapping to obtain estimates without making parameteric assumptions</h4>
+<p><img src="weather_lm_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<div id="in-the-next-section-we-apply-bootsrapping-1000-resamples-to-obtain-estimates-without-making-parameteric-assumptions" class="section level4">
+<h4>In the next section, we apply Bootsrapping (1000 resamples) to obtain estimates without making parameteric assumptions</h4>
 <p>Bootstrapping using modelr</p>
 <pre class="r"><code>df_boot_results = df %&gt;% 
   bootstrap(1000, id = &quot;strap_number&quot;) %&gt;% 
@@ -553,24 +564,24 @@ smooth_model %&gt;% knitr::kable()</code></pre>
 <tbody>
 <tr class="odd">
 <td align="left">s(ny_prcp)</td>
-<td align="right">5.176980</td>
-<td align="right">1.666413</td>
-<td align="right">2.575098</td>
-<td align="right">8.373070</td>
+<td align="right">5.161344</td>
+<td align="right">1.591514</td>
+<td align="right">2.773001</td>
+<td align="right">8.314164</td>
 </tr>
 <tr class="even">
 <td align="left">s(ny_tmax)</td>
-<td align="right">4.900826</td>
-<td align="right">2.073512</td>
+<td align="right">5.068845</td>
+<td align="right">2.113530</td>
 <td align="right">1.000000</td>
-<td align="right">8.407766</td>
+<td align="right">8.473610</td>
 </tr>
 <tr class="odd">
 <td align="left">s(ny_tmin)</td>
-<td align="right">4.876712</td>
-<td align="right">1.200346</td>
-<td align="right">2.447235</td>
-<td align="right">7.530444</td>
+<td align="right">4.949790</td>
+<td align="right">1.147207</td>
+<td align="right">2.972163</td>
+<td align="right">7.571552</td>
 </tr>
 </tbody>
 </table>
@@ -580,7 +591,7 @@ smooth_model %&gt;% knitr::kable()</code></pre>
   filter(term == &quot;s(ny_prcp)&quot;)  %&gt;% 
   ggplot(aes(x = edf)) + 
   geom_density()</code></pre>
-<p><img src="weather_lm_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<p><img src="weather_lm_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
 </div>
 </div>
 <div id="summary" class="section level2">
@@ -590,11 +601,11 @@ smooth_model %&gt;% knitr::kable()</code></pre>
 <p>N.B:</p>
 <p>Some (but not all) of the reasons that our model is not the best possible predictive model:</p>
 <ul>
-<li>Our outcome variable, <code>number of incidents</code>, is a count variable that we’re treating as continuous.</li>
+<li>Our outcome variable, <code>number_of_incidents</code>, is a count variable that we’re treating as continuous.</li>
 <li>A smooth model tends to over fit the model</li>
 <li>We use both daily maximum temperature and daily minimum temperatures, and we don’t address the potential issues of collinearity.</li>
 </ul>
-<p>We would appreciate any feed back you may have on this and other sections.</p>
+<p>We would appreciate any feedback you may have on this and other sections.</p>
 </div>
 
 
