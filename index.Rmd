@@ -58,7 +58,7 @@ crash_dat %>% select(date, crash_time, borough,number_of_persons_injured, contri
 We also used data on `bike count`, which gave us the daily total of bikes that were involved in crashes. Source:
 
 
-* [Bike-count Data Source](https://data.cityofnewyork.us/Public-Safety/EMS-Incident-Dispatch-Data/76xm-jjuj)
+* [Bike-count Data Source](https://data.cityofnewyork.us/Transportation/Bicycle-Counts/uczf-rk3c)
 
 
 
